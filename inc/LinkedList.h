@@ -140,6 +140,22 @@ public:
 		}
 	}
 
+		/*	
+	* LinkedList::return_front()
+	* Returns and removes the first element in the list.
+	*/ 
+	T return_front() {
+		if (head == NULL)
+			return;
+
+		T dat = head->get_data();
+		Node<T>* tmp = new Node<T>();
+		head = head->get_next();
+
+		delete tmp;
+		return dat;
+	}
+
 	/*
 	* LinkedList::exists(T)
 	* Returns true if the template data exists within the list.
