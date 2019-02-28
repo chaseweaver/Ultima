@@ -1,0 +1,5 @@
+*.o
+.DS_STORE
+.vscode
+PHASE1_ULTIMA
+*.out
