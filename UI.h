@@ -31,8 +31,8 @@ private:
 	bool enabled = false;
 	pthread_t ui_thread;
 
-	LinkedList<WINDOW_DATA*> window_data;
-	LinkedList<WINDOW_OBJECT*> window_object;
+	LinkedList<WINDOW_DATA*>* window_data;
+	LinkedList<WINDOW_OBJECT*>* window_object;// = new LinkedList<WINDOW_OBJECT*>;
 
 	/*
 	 * UI::refresh()
@@ -42,22 +42,25 @@ private:
 		do {
 
 			// While at least one window exists and one event exists
-			if (!window_data.is_empty() && !window_object.is_circular()) {
-				WINDOW_DATA* win_dat = window_data.return_front();
+			if (!window_data->is_empty() && !window_object->is_empty()) {
+				WINDOW_DATA* win_dat = window_data->return_front();
 
 				// Match the correct window and messsage ID
 				// If match found, write to window given message and opt. (X, Y)
-				int tmp_size = window_object.size();
+				int size = window_object->size();
 				do {
-					WINDOW_OBJECT* win_obj = window_object.return_front();
-					if (win_obj->window_id != win_dat->window_id)
-						window_object.add(win_obj);
-					else
+					WINDOW_OBJECT* win_obj = window_object->return_front();
+
+					if (win_obj->window_id != win_dat->window_id) {
+						window_object->add(win_obj);
+					} else {
 						win_dat->x && win_dat->y ? write_window(win_obj->window, win_dat->x, win_dat->y, win_dat->msg)
 							: write_window(win_obj->window, win_dat->msg);
+						wrefresh(win_obj->window);
+					}
 
-					--tmp_size;
-				} while (tmp_size != 0);
+					--size;
+				} while (size != 0);
 			}
 
 			// Check this
@@ -108,24 +111,36 @@ public:
 	* Default constructor. 
 	*/ 
 	UI() {
-		window_object.make_circular();
+		window_data = new LinkedList<WINDOW_DATA*>;
+		window_object = new LinkedList<WINDOW_OBJECT*>;
+		initscr();
+		refresh();
 	}
 
 	/*
 	* UI::~UI()
 	* Default deconstructor. 
 	*/ 
-	~UI();
+	~UI() {
+		endwin();
+	}
 
 	/*
 	* UI::start()
 	* Starts the UI refresher in a new thread;
 	*/ 
 	void start() {
+
+		//std::cout << window_data->size();
+		//std::cout << window_object->size();
+
+		refresh();
+		/*
 		if (!enabled) {
 			enabled = true;
 			assert(!pthread_create(&ui_thread, NULL, start_refresher, NULL));
 		}
+		*/
 	}
 
 	/*
@@ -173,8 +188,48 @@ public:
 
 		win_obj->window_id = window_id;
 		win_obj->window = win;
-		window_object.add(win_obj);
-	};
+		window_object->add(win_obj);
+	}
+	
+	/*
+	* UI::write(int, int, int, std::string)
+	* Writes a message to a window given ID and (X, Y).
+	*/ 
+	void write(int window_id, int x, int y, std::string msg) {
+		WINDOW_DATA* win_dat = new WINDOW_DATA;
+		win_dat->window_id = window_id;
+		win_dat->x = x;
+		win_dat->y = y;
+		win_dat->msg = msg;
+		window_data->add(win_dat);
+	}
+
+	/*
+	* UI::write(int, std::string)
+	* Writes a message to a window given ID.
+	*/ 
+	void write(int window_id, std::string msg) {
+		WINDOW_DATA* win_dat = new WINDOW_DATA;
+		win_dat->window_id = window_id;
+		win_dat->msg = msg;
+		window_data->add(win_dat);
+	}
+
+	/*
+	* UI::get_message_queue_size()
+	* Returns the amount of messages in the list.
+	*/ 
+	int get_message_list_size() {
+		return window_data->size();
+	}
+
+	/*
+	* UI::get_window_amount()
+	* Returns amount of created windows.
+	*/ 
+	int get_window_amount() {
+		return window_object->size();
+	}
 };
 
 #endif

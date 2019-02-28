@@ -24,6 +24,7 @@ class LinkedList {
 private:
 	Node<T>* head;
 	Node<T>* tail;
+	int count;
 
 public:
 
@@ -33,6 +34,7 @@ public:
 	*/ 
 	LinkedList() {
 		head = NULL;
+		count = 0;
 	}
 
 	/*
@@ -58,23 +60,17 @@ public:
 	*/ 
 	void add(T dat) {	
 		Node<T>* tmp = new Node<T>();
-		Node<T>* ret = new Node<T>();
+		tmp->set_data(dat);
+		tmp->set_next(NULL);
 
-		if (head == NULL) {
-			head = new Node<T>();
-			head->set_data(dat);
-			head->set_next(NULL);
-			return;
-		} 
+		if (count == 0) {
+			head = tail = tmp;
+		} else {
+			tail->set_next(tmp);
+			tail = tmp;
+		}
 
-		tmp = head;
-		while (tmp->get_next() != NULL) 
-			tmp = tmp->get_next();
-
-		ret = new Node<T>();
-		ret->set_data(dat);
-		ret->set_next(NULL);
-		tmp->set_next(ret);
+		++count;
 	}
 
 	/*
@@ -93,6 +89,7 @@ public:
 			if (tmp->get_data() == dat) {
 				ret->set_next(tmp->get_next());
 				delete tmp;
+				--count;
 				return;
 			}
 
@@ -136,22 +133,24 @@ public:
 		tmp = head;
 		if (tmp) {
 			head = tmp->get_next();
+			--count;
 			delete tmp;
 		}
 	}
 
-		/*	
+	/*	
 	* LinkedList::return_front()
 	* Returns and removes the first element in the list.
 	*/ 
 	T return_front() {
 		if (head == NULL)
-			return;
+			return NULL;
 
 		T dat = head->get_data();
 		Node<T>* tmp = new Node<T>();
 		head = head->get_next();
 
+		--count;
 		delete tmp;
 		return dat;
 	}
@@ -221,6 +220,7 @@ public:
 
 			if (ret != head) {
 				head = NULL;
+				count = 0;
 				return;
 			}
 
@@ -295,27 +295,14 @@ public:
 	* Returns size of the list.
 	*/ 
 	int size() { 
-		Node<T>* tmp = new Node<T>();
-		if (head == NULL)
-			return 0;
-
-		tmp = head;
-		int size = 0;
-		while (tmp) {
-			size++;
-			if(tmp->get_next() == 0) {
-				return size; 
-			}
-			tmp = tmp->get_next();	
-		}
-		return size;
+		return count;
 	}
 
 	/*
 	* LinkedList::is_empty()
 	* Returns true if list is empty, false otherwise.
 	*/ 
-	bool is_empty() { return head == NULL; }
+	bool is_empty() { return count == 0; }
 };
 
 #endif
