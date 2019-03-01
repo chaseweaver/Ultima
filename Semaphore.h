@@ -29,6 +29,13 @@ class Semaphore {
 			resource_name(name), sema_value(max_threads), scheduler(s) {}
 
 		/*
+	   * Semaphore::Semaphore(std::string, int)
+	   * Default constructor.
+	   */
+		Semaphore(std::string name, int max_threads) :
+			resource_name(name), sema_value(max_threads) {}
+
+		/*
 	   * Semaphore::~Semaphore()
 	   * Default deconstructor.
 	   */

@@ -4,13 +4,19 @@
 #include <iostream>
 
 UI ui;
-Worker worker = Worker(&ui);
+Worker worker;//Worker worker = Worker(&ui);
 Scheduler scheduler = Scheduler(&worker);
+
+struct data {
+	int num;
+};
 
 void heading_window();
 void log_window();
 void console_window();
 void output_window();
+
+void* work_func(void*);
 
 int main() {
 
@@ -25,12 +31,16 @@ int main() {
 	for (int i = 1; i <= 8; i++) {
 		i <= 4 
 			? ui.create_window_spawn(" Worker #" + std::to_string(i)
-				+ ' ', 2, 0, 1, 19, 10, 3 + ((i - 1) * 20), 14)
+				+ ' ', 2, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
 			: ui.create_window_spawn(" Worker #" + std::to_string(i)
-				+ ' ', 2, 0, 1, 19, 10, 3 + ((i - 5) * 20), 24);
+				+ ' ', 2, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
+			
+			data* n = new data;
+			n->num = i;
 
-			scheduler.create_new_task("Worker #" + std::to_string(i),
-				worker.start, worker.create_arguments(i, 0));
+			pthread_create(new pthread_t, NULL, work_func, n);
+			//scheduler.create_new_task("Worker #" + std::to_string(i),
+				//worker.start, worker.create_arguments(i, 0));
 	}
 
 	// Wait for UI thread to finish
@@ -76,4 +86,9 @@ void console_window() {
  */ 
 void output_window() {
 	ui.create_window_spawn(" $ Output ", 2, 0, -4, 50, 32, 83, 2);
+}
+
+void* work_func(void* n) {
+	data* no = (data *) n;
+	sleep(1 * no->num);
 }

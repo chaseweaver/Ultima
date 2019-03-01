@@ -11,7 +11,7 @@
 
 class Worker {
 private:
-	UI* ui;
+	//UI* ui;
 	
 public:
 	struct ARGUMENTS {
@@ -23,8 +23,8 @@ public:
 	 * Worker::Worker(UI*)
 	 * Default constructor. 
 	 */ 
-	Worker(UI* u) : ui(u) {}
-
+	//Worker(UI* u) : ui(u) {}
+	Worker(){}
 	/*
 	 * Worker::~Worker()
 	 * Default deconstructor. 
@@ -47,11 +47,11 @@ public:
 		return args;
 	}
 
-	void work(void* a) {
+	static void work(void* a) {
 		ARGUMENTS* args = (ARGUMENTS *) a;
 
 		// sema.down();
-		ui->write(4, 2, 2, "PENIS");
+		// ui->write(4, 2, 2, "PENIS");
 		// sema.up();
 	}
 };

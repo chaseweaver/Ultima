@@ -40,7 +40,7 @@ private:
 
 	LinkedList<WINDOW_DATA*>* window_data;
 	LinkedList<WINDOW_OBJECT*>* window_object;
-	Semaphore sema;
+	Semaphore* sema = new Semaphore("UI Handler", 1);
 
 	/*
 	 * UI::refresher()
@@ -232,9 +232,9 @@ public:
 		win_obj->window_y = y;
 		win_obj->window = win;
 		
-		sema.down();
+		sema->down();
 		window_object->add(win_obj);
-		sema.up();
+		sema->up();
 
 		write_window(win, title_x, title_y, title);
 		wrefresh(win);
@@ -258,9 +258,9 @@ public:
 		win_obj->window_y = y;
 		win_obj->window = win;
 
-		sema.down();
+		sema->down();
 		window_object->add(win_obj);
-		sema.up();
+		sema->up();
 
 		write_window(win, title_x, title_y, title);
 	}
@@ -286,9 +286,9 @@ public:
 		win_obj->window_y = y;
 		win_obj->window = no_show_win;
 
-		sema.down();
+		sema->down();
 		window_object->add(win_obj);
-		sema.up();
+		sema->up();
 
 		int offset_x = (width / 2) - (title.length() / 2);
 		write_window(win, offset_x, 1, title);
@@ -318,9 +318,9 @@ public:
 		win_obj->window_y = y;
 		win_obj->window = no_show_win;
 
-		sema.down();
+		sema->down();
 		window_object->add(win_obj);
-		sema.up();
+		sema->up();
 
 		int offset_x = (width / 2) - (title.length() / 2);
 		write_window(win, offset_x, 1, title);
@@ -344,9 +344,9 @@ public:
 		win_obj->window_y = y;
 		win_obj->window = win;
 
-		sema.down();
+		sema->down();
 		window_object->add(win_obj);
-		sema.up();
+		sema->up();
 
 		wrefresh(win);
 	}
@@ -369,9 +369,9 @@ public:
 		win_obj->window_y = y;
 		win_obj->window = win;
 
-		sema.down();
+		sema->down();
 		window_object->add(win_obj);
-		sema.up();
+		sema->up();
 	}
 	
 	/*
@@ -385,9 +385,9 @@ public:
 		win_dat->y = y;
 		win_dat->msg = msg;
 
-		sema.down();
+		sema->down();
 		window_data->add(win_dat);
-		sema.up();
+		sema->up();
 	}
 
 	/*
@@ -399,9 +399,9 @@ public:
 		win_dat->window_id = window_id;
 		win_dat->msg = msg;
 		
-		sema.down();
+		sema->down();
 		window_data->add(win_dat);
-		sema.up();
+		sema->up();
 	}
 
 	/*
