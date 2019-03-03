@@ -5,7 +5,7 @@
 #pragma once
 #endif 
 
-#include "LinkedList.h"
+#include "Queue.h"
 #include "Scheduler.h"
 #include <pthread.h>
 #include <iostream>
@@ -16,7 +16,7 @@ class Semaphore {
 		pthread_cond_t cond;
 		std::string resource_name;
 		int sema_value;
-		LinkedList<int> semaphore_list;
+		Queue<int> semaphore_list;
 		Scheduler* scheduler;
 
 	public:
@@ -50,7 +50,7 @@ class Semaphore {
 				--sema_value;
 			} else {
 				scheduler->set_state(tcb, BLOCKED);
-				semaphore_list.add(tcb->task_id);
+				semaphore_list.enqueue(tcb->task_id);
 				
 				pthread_mutex_lock(&mutex);
 				pthread_cond_wait(&cond, &mutex);
@@ -76,7 +76,7 @@ class Semaphore {
 	   */
 	 	void up() {
 			if (semaphore_list.size() > 0) {
-				semaphore_list.remove_front();
+				semaphore_list.dequeue();
 				pthread_mutex_unlock(&mutex);
 				pthread_cond_signal(&cond);
 			} else {

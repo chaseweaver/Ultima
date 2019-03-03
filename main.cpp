@@ -1,22 +1,18 @@
 #include "UI.h"
-#include "Worker.h"
+#include "Semaphore.h"
 #include "Scheduler.h"
 #include <iostream>
 
 UI ui;
-Worker worker;//Worker worker = Worker(&ui);
-Scheduler scheduler = Scheduler(&worker);
-
-struct data {
-	int num;
-};
+Scheduler scheduler = Scheduler();
+Semaphore sema = Semaphore("Main", 8);
 
 void heading_window();
 void log_window();
 void console_window();
 void output_window();
 
-void* work_func(void*);
+void* worker(void*);
 
 int main() {
 
@@ -28,19 +24,15 @@ int main() {
 	output_window();
 
 	// Spawn child workers
-	for (int i = 1; i <= 8; i++) {
+	for (int i = 1; i <= 2; i++) {
 		i <= 4 
-			? ui.create_window_spawn(" Worker #" + std::to_string(i)
-				+ ' ', 2, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
-			: ui.create_window_spawn(" Worker #" + std::to_string(i)
-				+ ' ', 2, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
-			
-			data* n = new data;
-			n->num = i;
+			? ui.create_window_lock_spawn(" Worker #" + std::to_string(i)
+				+ ' ', 4, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
+			: ui.create_window_lock_spawn(" Worker #" + std::to_string(i)
+				+ ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
 
-			pthread_create(new pthread_t, NULL, work_func, n);
-			//scheduler.create_new_task("Worker #" + std::to_string(i),
-				//worker.start, worker.create_arguments(i, 0));
+			ARGUMENTS args = scheduler.create_arguments(i, 0);
+			scheduler.create_new_task("Worker #" + std::to_string(i), worker, &args);
 	}
 
 	// Wait for UI thread to finish
@@ -65,7 +57,7 @@ void heading_window() {
  * Creates the initial log window.
  */ 
 void log_window() {
-	ui.create_window_spawn(" $ Log ", 2, 0, -2, 79, 12, 3, 34);
+	ui.create_window_lock_spawn(" $ Log ", 2, 0, -2, 79, 12, 3, 34);
 }
 
 /*
@@ -73,7 +65,7 @@ void log_window() {
  * Creates the initial console window.
  */ 
 void console_window() {
-	ui.create_window_spawn(" $ Console ", 2, 0, -3, 50, 12, 83, 34);
+	ui.create_window_lock_spawn(" $ Console ", 2, 0, -3, 50, 12, 83, 34);
 	ui.write(-3, 5, 2, "Choose an option");
 	ui.write(-3, 2, 4, "1: Log Threads");
 	ui.write(-3, 2, 5, "2: Log Semaphore");
@@ -85,10 +77,24 @@ void console_window() {
  * Creates the initial output window.
  */ 
 void output_window() {
-	ui.create_window_spawn(" $ Output ", 2, 0, -4, 50, 32, 83, 2);
+	ui.create_window_lock_spawn(" $ Output ", 2, 0, -4, 50, 32, 83, 2);
 }
 
-void* work_func(void* n) {
-	data* no = (data *) n;
-	sleep(1 * no->num);
+void* worker(void* arguments) {
+	ARGUMENTS* args = (ARGUMENTS*) arguments;
+	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
+	// int& counter = args->thread_results;
+	int counter = 0;
+
+	sema.down(tcb);
+	ui.write(-4, std::to_string(ui.get_message_list_size()) + "\n");
+	ui.write(2, "");
+	//ui.write(1, " Running #" + std::to_string(++counter) + "\n"); 
+	sema.up();
+
+	sleep(1);
+	worker(args);
+
+	//scheduler.set_state(tcb, DEAD);
+	return NULL;
 }

@@ -1,3 +1,10 @@
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#ifdef _MSC_VER
+#pragma once
+#endif 
+
 #include <iostream>
 
 template <class T>
@@ -117,3 +124,5 @@ public:
 		return count == 0 ? true : false;
 	}
 };
+
+#endif
