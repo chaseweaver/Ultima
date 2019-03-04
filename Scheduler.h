@@ -44,16 +44,21 @@ private:
 		sleep(min + rand() % max);
 	}
 
+	/*
+	 * Scheduler::scheduler()
+	 * Function to handle state switching.
+	 */
 	void scheduler() {
 		srand(time(NULL));
 		do {
 			if (!task_list.empty()) {
-				TASK_CONTROL_BLOCK* tcb = task_list.dequeue();
-				task_list.enqueue(tcb);
-				yield(1, 2);
+				TASK_CONTROL_BLOCK* tcb;
+				task_list.wait_and_pop(tcb);
+				task_list.push(tcb);
 
 				switch(tcb->task_state) {
 					case DEAD:
+						break;
 
 					case BLOCKED:
 						set_state(tcb, READY);
@@ -61,10 +66,10 @@ private:
 
 					case READY:
 						set_state(tcb, RUNNING);
+						yield(2, 10);
 						break;
 
 					case RUNNING:
-						set_state(tcb, READY);
 						break;
 				}
 			}
@@ -73,8 +78,7 @@ private:
 
 public:
 	Scheduler() {
-		// Spawns scheduler loop in a new thread
-		// assert(!pthread_create(new pthread_t, NULL, start_scheduler, this));
+		assert(!pthread_create(new pthread_t, NULL, start_scheduler, this));
 	}
 
 	~Scheduler() {}
@@ -92,8 +96,8 @@ public:
 		tcb->task_thread = *(new pthread_t);
 		tcb->task_arguments = task_arguments;
 
-		task_list.enqueue(tcb);
-		assert(!pthread_create(&tcb->task_thread, NULL, worker_function, &tcb->task_arguments));
+		task_list.push(tcb);
+		assert(!pthread_create(&tcb->task_thread, NULL, worker_function, tcb->task_arguments));
 	}
 
 	/*
@@ -117,10 +121,10 @@ public:
 	 * Scheduler::create_arguments(int, int)
 	 * Creates a new ARGUMENTS struct.
 	 */
-	ARGUMENTS create_arguments(int id, int thread_results) {
-		ARGUMENTS args;
-		args.id = id;
-		args.thread_results = thread_results;
+	ARGUMENTS* create_arguments(int id, int thread_results) {
+		ARGUMENTS* args = new ARGUMENTS;
+		args->id = id;
+		args->thread_results = thread_results;
 		return args;
 	}
 };
