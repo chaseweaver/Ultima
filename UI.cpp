@@ -19,9 +19,8 @@ void UI::refresh() {
 
 				if (win_obj->window_id == win_dat->window_id) {
 					win_dat->x && win_dat->y
-						? write_window_refresh(win_obj->window, win_dat->x, win_dat->y, win_dat->msg)
-						: write_window_refresh(win_obj->window, win_dat->msg);
-					success = true;
+						? success = write_window_refresh(win_obj->window, win_dat->x, win_dat->y, win_dat->msg)
+						: success = write_window_refresh(win_obj->window, win_dat->msg);
 				}
 
 				window_object->push(win_obj);
@@ -105,6 +104,8 @@ UI::UI() {
 	window_object = new Queue<WINDOW_OBJECT*>;
 	initscr();
 	refresh();
+
+	start();
 }
 
 /*

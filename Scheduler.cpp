@@ -58,7 +58,7 @@ Scheduler::~Scheduler() {}
  * Scheduler::create_new_task(std::string, void* (void*), ARGUMENTS*)
  * Creates a new TASK_CONTROL_BLOCK and spawns a new child function in a new thread.
  */
-void Scheduler::create_new_task(std::string task_name, void* worker_function(void* arguments), ARGUMENTS* task_arguments) {
+void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGUMENTS* task_arguments) {
 
 	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
 	tcb->task_id = ++number_of_workers;
@@ -68,7 +68,7 @@ void Scheduler::create_new_task(std::string task_name, void* worker_function(voi
 	tcb->task_arguments = task_arguments;
 
 	task_list.push(tcb);
-	assert(!pthread_create(&tcb->task_thread, NULL, worker_function, tcb->task_arguments));
+	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
 }
 
 /*
@@ -126,10 +126,6 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
  * Scheduler::create_arguments(int, int, TASK_CONTROL_BLOCK*)
  * Creates a new ARGUMENTS struct.
  */
-
-// Doesn't compile properly
-
-/*
 ARGUMENTS* Scheduler::create_arguments(int id, int thread_results, TASK_CONTROL_BLOCK* task_control_block) {
 	ARGUMENTS* args = new ARGUMENTS;
 	args->id = id;
@@ -137,4 +133,3 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results, TASK_CONTROL_
 	args->task_control_block = task_control_block;
 	return args;
 }
-*/

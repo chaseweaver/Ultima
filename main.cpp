@@ -19,9 +19,6 @@ void* secret_function(void*);
 
 int main() {
 
-	// Start UI Handler
-	master_control_block->ui->start();
-
 	// Create UI windows
 	heading_window();
 	log_window();
@@ -36,12 +33,10 @@ int main() {
 			? master_control_block->ui->create_window_lock_spawn(" Worker #" + std::to_string(i)
 				+ ' ', 4, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
 			: master_control_block->ui->create_window_lock_spawn(" Worker #" + std::to_string(i)
-				+ ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
+		 		+ ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
 
-		ARGUMENTS* args = new ARGUMENTS; //master_control_block->scheduler->create_arguments(i, 0);
-		args->id = i;
-		args->thread_results = 0;
-		master_control_block->scheduler->create_new_task("Worker #" + std::to_string(i), worker, args);
+		master_control_block->scheduler->create_new_task("Worker #"
+			+ std::to_string(i), worker, master_control_block->scheduler->create_arguments(i, 0));
 	}
 
 	// Run secret function
@@ -67,7 +62,7 @@ void heading_window() {
 /*
  * Ultima::log_window()
  * Creates the initial log window.
- */ 
+ */
 void log_window() {
 	master_control_block->ui->create_window_lock_spawn(" Log ", 2, 0, LOG_WINDOW, 39, 12, 3, 34);
 }
@@ -121,8 +116,9 @@ void* worker(void* arguments) {
 	sleep(1);
 	do {
 		master_control_block->ui->write(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
-		master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id) + " is running #" + std::to_string(counter) + "\n");
-		sleep(1);
+		master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id)
+			+ " is running #" + std::to_string(counter) + "\n");
+		usleep(1000000);
 	} while (counter != r);
 
 	worker(args);
@@ -136,5 +132,5 @@ void* worker(void* arguments) {
  * [CLASSIFIED]
  */ 
 void* secret_function(void* arguments) {
-	while (true) { master_control_block->ui->write(SECRET_WINDOW, "  8====D\n"); sleep(1); }
+	while (true) { master_control_block->ui->write(SECRET_WINDOW, "  8====D\n"); usleep(1000000); }
 }

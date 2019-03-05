@@ -1,26 +1,6 @@
 #include "inc/Semaphore.h"
 
 /*
- * Semaphore::Semaphore(std::string, int, Scheduler*)
- * Default constructor.
- */
-Semaphore::Semaphore(std::string name, int max_threads, Scheduler* s)
-	: resource_name(name), sema_value(max_threads), scheduler(s) {}
-
-/*
- * Semaphore::Semaphore(std::string, int)
- * Default constructor.
- */
-Semaphore::Semaphore(std::string name, int max_threads)
-	: resource_name(name), sema_value(max_threads) {}
-
-/*
- * Semaphore::~Semaphore()
- * Default deconstructor.
- */
-Semaphore::~Semaphore() {}
-
-/*
  * Semaphore::down(TASK_CONTROL_BLOCK*)
  * Locks multi-thread access to resources.
  */

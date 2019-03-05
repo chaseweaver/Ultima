@@ -14,9 +14,7 @@ struct MASTER_CONTROL_BLOCK {
 	UI* ui = new UI();
 	Semaphore* scheduler_semaphore = new Semaphore("UI Handler", 1);
 	Semaphore* icp_semaphore = new Semaphore("ICP Handler", 1);
-	
-	MASTER_CONTROL_BLOCK(Scheduler* scheduler_, UI* ui_, Semaphore* scheduler_semaphore_, Semaphore* icp_semaphore_)
-		: scheduler(scheduler_), ui(ui_), scheduler_semaphore(scheduler_semaphore_), icp_semaphore(icp_semaphore_) {}
-}* master_control_block;
+	MASTER_CONTROL_BLOCK() {}
+}* master_control_block = new MASTER_CONTROL_BLOCK();
 
 #endif
