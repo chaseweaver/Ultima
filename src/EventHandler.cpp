@@ -23,7 +23,7 @@ void EventHandler::add_event(std::string log) {
 	e.event_id = ++id;
 	e.timestamp = std::time(0);
 	e.log = log;
-	l.add(e);
+	l.push(e);
 }
 
 /*
@@ -36,7 +36,7 @@ void EventHandler::add_event(int event_id, std::string log) {
 	e.event_id = event_id;
 	e.timestamp = std::time(0);
 	e.log = log;
-	l.add(e);
+	l.push(e);
 }
 
 /*
@@ -49,7 +49,7 @@ void EventHandler::add_event(int event_id, time_t timestamp, std::string log) {
 	e.event_id = event_id;
 	e.timestamp = timestamp;
 	e.log = log;
-	l.add(e);
+	l.push(e);
 }
 
 /*

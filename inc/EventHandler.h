@@ -5,7 +5,7 @@
 #pragma once
 #endif 
 
-#include "LinkedList.h"
+#include "Queue.h"
 #include <iostream>
 #include <chrono>
 
@@ -17,7 +17,7 @@ private:
 		std::string log;
 	};
 
-	LinkedList<EVENT> l;
+	Queue<EVENT> l;
 	int id = 0;
 
 public:

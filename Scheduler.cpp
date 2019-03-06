@@ -59,7 +59,6 @@ Scheduler::~Scheduler() {}
  * Creates a new TASK_CONTROL_BLOCK and spawns a new child function in a new thread.
  */
 void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGUMENTS* task_arguments) {
-
 	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
 	tcb->task_id = ++number_of_workers;
 	tcb->task_state = READY;
@@ -77,29 +76,6 @@ void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGU
  */
 void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 	tcb->task_state = state;
-
-	/*
-	std::string task_state;
-	switch(tcb->task_state) {
-		case 0:
-			task_state = "DEAD";
-			break;
-		case 1:
-			task_state = "BLOCKED";
-			break;
-		case 2:
-			task_state = "IDLE";
-			break;
-		case 3:
-			task_state = "READY";
-			break;
-		case 4:
-			task_state = "RUNNING";
-			break;
-	}
-	
-	mcb.ui->write(STATE_WINDOW, " Thread #" + std::to_string(tcb->task_id) + " is " + task_state + "\n");
-	*/
 }
 
 /*

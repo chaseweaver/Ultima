@@ -152,7 +152,6 @@ bool UI::is_running() {
 	return enabled;
 }
 
-
 /*
  * UI::set_refresh_rate(int)
  * Sets the refresh rate of the windows. 
@@ -172,8 +171,11 @@ int UI::get_refresh_rate() {
 /*
  * UI::create_window_spawn(std::string, int, int, int, int, int, int, int)
  * Adds a Curses window with a title (X, Y) to the UI window object list.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window_spawn(std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_spawn(std::string title, int title_x, int title_y,
+	int window_id, int width, int height, int x, int y) {
+
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, true);
@@ -190,13 +192,17 @@ void UI::create_window_spawn(std::string title, int title_x, int title_y, int wi
 	window_object->push(win_obj);
 	write_window(win, title_x, title_y, title);
 	wrefresh(win);
+	return win;
 }
 
 /*
  * UI::create_window(std::string, int, int, int, int, int, int, int)
  * Adds a Curses window with a title (X, Y) to the UI window object list.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window(std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window(std::string title, int title_x, int title_y,
+	int window_id, int width, int height, int x, int y) {
+
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, true);
@@ -212,20 +218,22 @@ void UI::create_window(std::string title, int title_x, int title_y, int window_i
 
 	window_object->push(win_obj);
 	write_window(win, title_x, title_y, title);
+	return win;
 }
 
 /*
  * UI::create_window_spawn(std::string, int, int, int, int, int)
  * Adds a Curses window with a title to the UI window object list and SPAWNS it.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window_spawn(std::string title, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_spawn(std::string title, int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
-	WINDOW* no_show_win = newwin(height - 4, width - 3, y + 3, x + 2);
+	WINDOW* write_win = newwin(height - 4, width - 3, y + 3, x + 2);
 	scrollok(win, true);
 	scroll(win);
-	scrollok(no_show_win, true);
-	scroll(no_show_win);
+	scrollok(write_win, true);
+	scroll(write_win);
 	box(win, 0, 0);
 
 	win_obj->window_id = window_id;
@@ -233,47 +241,51 @@ void UI::create_window_spawn(std::string title, int window_id, int width, int he
 	win_obj->window_height = height;
 	win_obj->window_x = x;
 	win_obj->window_y = y;
-	win_obj->window = no_show_win;
+	win_obj->window = write_win;
 
 	window_object->push(win_obj);
 	int offset_x = (width / 2) - (title.length() / 2);
 	write_window(win, offset_x, 1, title);
 	wrefresh(win);
-	wrefresh(no_show_win);
+	wrefresh(write_win);
+	return write_win;
 }
 
 /*
  * UI::create_window(std::string, int, int, int, int, int)
  * Adds a Curses window with a title to the UI window object list.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window(std::string title, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window(std::string title, int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
-	WINDOW* no_show_win = newwin(height - 4, width - 3, y + 3, x + 2);
+	WINDOW* write_win = newwin(height - 4, width - 3, y + 3, x + 2);
 	scrollok(win, true);
 	scroll(win);
-	scrollok(no_show_win, true);
-	scroll(no_show_win);
+	scrollok(write_win, true);
+	scroll(write_win);
 	box(win, 0, 0);
-	box(no_show_win, 0, 0);
+	box(write_win, 0, 0);
 
 	win_obj->window_id = window_id;
 	win_obj->window_width = width;
 	win_obj->window_height = height;
 	win_obj->window_x = x;
 	win_obj->window_y = y;
-	win_obj->window = no_show_win;
+	win_obj->window = write_win;
 
 	window_object->push(win_obj);
 	int offset_x = (width / 2) - (title.length() / 2);
 	write_window(win, offset_x, 1, title);
+	return write_win;
 }
 
 /*
  * UI::create_window_spawn(int, int, int, int, int)
  * Adds a Curses window to the UI window object list and SPAWNS it.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window_spawn(int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_spawn(int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, TRUE);
@@ -289,13 +301,15 @@ void UI::create_window_spawn(int window_id, int width, int height, int x, int y)
 
 	window_object->push(win_obj);
 	wrefresh(win);	
+	return win;
 }
 
 /*
  * UI::create_window(int, int, int, int, int)
  * Adds a Curses window to the UI window object list.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window(int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window(int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, TRUE);
@@ -310,14 +324,18 @@ void UI::create_window(int window_id, int width, int height, int x, int y) {
 	win_obj->window = win;
 
 	window_object->push(win_obj);
+	return win;
 }
 
 /*
  * UI::create_window(std::string, int, int, int, int, int, int, int)
  * Adds a Curses window with a title (X, Y) to the UI window object list and SPAWNS it.
  * Locks window within another.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window_lock_spawn(std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_lock_spawn(std::string title, int title_x, int title_y,
+	int window_id, int width, int height, int x, int y) {
+
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	WINDOW* write_win = newwin(height - 2, width - 2, y + 1, x + 1);
@@ -338,14 +356,18 @@ void UI::create_window_lock_spawn(std::string title, int title_x, int title_y, i
 	write_window(win, title_x, title_y, title);
 	wrefresh(win);
 	wrefresh(write_win);
+	return write_win;
 }
 
 /*
  * UI::create_window(std::string, int, int, int, int, int, int, int)
  * Adds a Curses window with a title (X, Y) to the UI window object list.
  * Locks window within another.
+ * Returns a pointer to the WINDOW object.
  */ 
-void UI::create_window_lock(std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_lock(std::string title, int title_x, 
+	int title_y, int window_id, int width, int height, int x, int y) {
+
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	WINDOW* write_win = newwin(height - 2, width - 2, y + 1, x + 1);
@@ -364,6 +386,7 @@ void UI::create_window_lock(std::string title, int title_x, int title_y, int win
 
 	window_object->push(win_obj);
 	write_window(win, title_x, title_y, title);	
+	return write_win;
 }
 
 /*

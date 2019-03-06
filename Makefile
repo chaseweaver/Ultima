@@ -2,18 +2,15 @@ COMPILER := g++
 CFLAGS := -Wall -Wextra -Wpedantic
 LDFLAGS :=
 
-SOURCES := $(wildcard src/*.cpp)
-OBJECTS := $(patsubst src%,obj%, $(patsubst %.cpp,%.o,$(SOURCES)))
+SOURCES := src/Ultima.cpp src/UI.cpp src/Semaphore.cpp src/Scheduler.cpp
+#$(wildcard src/*.cpp)
 EXEC := exec
 
 all: $(EXEC)
 	./$(EXEC)
 
-$(OBJECTS): $(SOURCES)
-	$(COMPILER) $(CFLAGS) -c $< -o $@
-
-$(EXEC): $(OBJECTS)
-	$(COMPILER) $(CFLAGS) $(OBJECTS) -o $(EXEC)
+$(EXEC): #$(SOURCES)
+	$(COMPILER) $(CFLAGS) $(SOURCES) -o $(EXEC)
 
 clean:
-	rm $(EXEC) $(OBJECTS)
+	rm $(EXEC)
