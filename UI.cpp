@@ -109,8 +109,8 @@ bool UI::write_window_refresh(WINDOW* win, int x, int y, std::string msg) {
  * Default constructor. 
  */ 
 UI::UI() {
-	window_data = new Queue<WINDOW_DATA*>;
-	window_object = new Queue<WINDOW_OBJECT*>;
+	window_data = new ThreadSafeQueue<WINDOW_DATA*>;
+	window_object = new ThreadSafeQueue<WINDOW_OBJECT*>;
 	initscr();
 	refresh();
 

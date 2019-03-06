@@ -3,9 +3,13 @@
 
 #ifdef _MSC_VER
 #pragma once
-#endif 
+#endif
 
-#include "Queue.h"
+struct MASTER_CONTROL_BLOCK;
+#include "MasterControlBlock.h"
+
+#include "ThreadSafeQueue.h"
+#include "Struct.h"
 #include <pthread.h>
 #include <iostream>
 #include <assert.h>
@@ -19,31 +23,18 @@
 #define READY 3
 #define RUNNING 4
 
-struct ARGUMENTS {
-	int id;
-	int thread_results;
-	struct TASK_CONTROL_BLOCK* task_control_block;
-};
-
-struct TASK_CONTROL_BLOCK {
-	int task_id;
-	int task_state;
-	std::string task_name;
-	pthread_t task_thread;
-	ARGUMENTS* task_arguments;
-};
-
 class Scheduler {
 private:
 
-	Queue<TASK_CONTROL_BLOCK*> task_list;
+	MASTER_CONTROL_BLOCK* master_control_block;
+	ThreadSafeQueue<TASK_CONTROL_BLOCK*> task_list;
 	int number_of_workers = 0;
 
 	void yield(int, int);
 	void scheduler();
 
 public:
-	Scheduler();
+	Scheduler(MASTER_CONTROL_BLOCK* mcb);
 	~Scheduler();
 	void create_new_task(std::string, void*(void*), ARGUMENTS*);
 	void set_state(TASK_CONTROL_BLOCK*, int);

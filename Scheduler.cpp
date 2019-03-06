@@ -15,29 +15,34 @@ void Scheduler::yield(int min, int max) {
 void Scheduler::scheduler() {
 	srand(time(NULL));
 	do {
-
-
 		if (!task_list.empty()) {
 			TASK_CONTROL_BLOCK* tcb;
 			task_list.wait_and_pop(tcb);
-			task_list.push(tcb);
 
 			switch(tcb->task_state) {
 				case DEAD:
 					break;
 
+				case IDLE:
+					break;
+
 				case BLOCKED:
+					yield(2, 7);
 					set_state(tcb, READY);
 					break;
 
 				case READY:
+					yield(2, 7);
 					set_state(tcb, RUNNING);
-					yield(2, 10);
 					break;
 
 				case RUNNING:
+					yield(2, 7);
+					set_state(tcb, READY);
 					break;
 			}
+
+			task_list.push(tcb);
 		}
 	} while (true);
 }
@@ -46,7 +51,7 @@ void Scheduler::scheduler() {
  * Scheduler::Scheduler()
  * Default constructor. 
  */ 
-Scheduler::Scheduler() {
+Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
 	assert(!pthread_create(new pthread_t, NULL, start_scheduler, this));
 }
 
@@ -63,7 +68,7 @@ Scheduler::~Scheduler() {}
 void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGUMENTS* task_arguments) {
 	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
 	tcb->task_id = ++number_of_workers;
-	tcb->task_state = READY;
+	task_list.empty() ? tcb->task_state = RUNNING : tcb->task_state = READY;
 	tcb->task_name = task_name;
 	tcb->task_thread = *(new pthread_t);
 	task_arguments->task_control_block = tcb;
@@ -86,7 +91,52 @@ int Scheduler::task_list_size() {
  * Changes task state in the list.
  */
 void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
+	if (tcb->task_state == state)
+		return;
+
+	std::string str_old;
+	switch (tcb->task_state) {
+		case DEAD:
+			str_old = "DEAD";
+			break;
+		case IDLE:
+			str_old = "IDLE";
+			break;
+		case BLOCKED:
+			str_old = "BLOCKED";
+			break;
+		case READY:
+			str_old = "READY";
+			break;
+		case RUNNING:
+			str_old = "RUNNING";
+			break;
+	}
+
 	tcb->task_state = state;
+
+	std::string str_new;
+	switch (state) {
+		case DEAD:
+			str_new = "DEAD";
+			break;
+		case IDLE:
+			str_new = "IDLE";
+			break;
+		case BLOCKED:
+			str_new = "BLOCKED";
+			break;
+		case READY:
+			str_new = "READY";
+			break;
+		case RUNNING:
+			str_new = "RUNNING";
+			break;
+	}
+
+	master_control_block->ui->write(STATE_WINDOW, " Thread #"
+		+ std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
+	master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }
 
 /*

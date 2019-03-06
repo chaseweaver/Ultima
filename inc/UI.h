@@ -3,10 +3,14 @@
 
 #ifdef _MSC_VER
 #pragma once
-#endif 
+#endif
 
-#include "Queue.h"
+struct MASTER_CONTROL_BLOCK;
+#include "MasterControlBlock.h"
+
+#include "ThreadSafeQueue.h"
 #include "Scheduler.h"
+#include "Struct.h"
 #include <ncurses.h>
 #include <unistd.h>
 #include <iostream>
@@ -39,8 +43,8 @@ private:
 	bool enabled = false;
 	pthread_t ui_thread;
 
-	Queue<WINDOW_DATA*>* window_data;
-	Queue<WINDOW_OBJECT*>* window_object;
+	ThreadSafeQueue<WINDOW_DATA*>* window_data;
+	ThreadSafeQueue<WINDOW_OBJECT*>* window_object;
 
 	void refresh();
 	static void* start_refresh(void* p);

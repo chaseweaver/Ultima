@@ -12,22 +12,22 @@
 #define OUTPUT_WINDOW -5
 #define MAILBOX_WINDOW -6
 
-// Forward decleration
 class Menu;
 class Scheduler;
+class UI;
 
 #include "Scheduler.h"
 #include "UI.h"
 #include "Menu.h"
-#include "Semaphore.h"
+// #include "Semaphore.h"
 #include "Logger.h"
 
 struct MASTER_CONTROL_BLOCK {
-	Scheduler* scheduler = new Scheduler();
-	UI* ui = new UI();
+	Scheduler* scheduler;
+	UI* ui;
 	Menu* menu;
-	Semaphore* scheduler_semaphore = new Semaphore("UI Handler", 1);
-	Semaphore* icp_semaphore = new Semaphore("ICP Handler", 1);
+	// Semaphore* scheduler_semaphore = new Semaphore("UI Handler", 1);
+	// Semaphore* icp_semaphore = new Semaphore("ICP Handler", 1);
 	Logger* logger = new Logger(12);
 };
 

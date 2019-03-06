@@ -5,10 +5,10 @@
 #pragma once
 #endif
 
-// Forward decleration
 struct MASTER_CONTROL_BLOCK;
-
 #include "MasterControlBlock.h"
+#include "Struct.h"
+#include <ncurses.h>
 
 class Menu {
 private:

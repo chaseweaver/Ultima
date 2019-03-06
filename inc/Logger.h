@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include "Queue.h"
+#include "ThreadSafeQueue.h"
 #include "Pad.h"
 #include <iostream>
 #include <chrono>
@@ -23,7 +23,7 @@ private:
 		);
 	};
 
-	Queue<LOG_DATA*>* log_data;
+	ThreadSafeQueue<LOG_DATA*> log_data;
 	int MAX_NUMBER_OF_LOGS_KEPT;
 
 public:

@@ -5,7 +5,7 @@
 #pragma once
 #endif 
 
-#include "Queue.h"
+#include "ThreadSafeQueue.h"
 #include "Scheduler.h"
 #include <pthread.h>
 #include <iostream>
@@ -16,7 +16,7 @@ private:
 	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 	std::string resource_name;
 	int sema_value;
-	Queue<int> semaphore_list;
+	ThreadSafeQueue<int> semaphore_list;
 	Scheduler* scheduler;
 
 public:
