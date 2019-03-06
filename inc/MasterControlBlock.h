@@ -5,6 +5,17 @@
 #pragma once
 #endif
 
+#define HEADING_WINDOW -1
+#define LOG_WINDOW -2
+#define STATE_WINDOW -3
+#define CONSOLE_WINDOW -4
+#define OUTPUT_WINDOW -5
+#define MAILBOX_WINDOW -6
+
+// Forward decleration
+class Menu;
+class Scheduler;
+
 #include "Scheduler.h"
 #include "UI.h"
 #include "Menu.h"
@@ -18,6 +29,6 @@ struct MASTER_CONTROL_BLOCK {
 	Semaphore* scheduler_semaphore = new Semaphore("UI Handler", 1);
 	Semaphore* icp_semaphore = new Semaphore("ICP Handler", 1);
 	Logger* logger = new Logger(12);
-}* master_control_block;
+};
 
 #endif

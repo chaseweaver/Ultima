@@ -15,7 +15,16 @@ void UI::refresh() {
 			bool success = false;
 
 			while (!success && !window_object->empty()) {
-				window_object->wait_and_pop(win_obj);
+
+				// FIX THIS BELOW. DOESN'T PRINT. MAYBE ADD LAST STATE TO ARGUMENTS?
+
+				if (window_object->try_and_pop(win_obj)) {
+					write(STATE_WINDOW, " \nThread #" + std::to_string(win_obj->window_id) + " state RUNNING");
+				} else {
+					WINDOW_OBJECT* tmp = window_object->front();
+					write(STATE_WINDOW, " \nThread #" + std::to_string(tmp->window_id) + " state BLOCKED");
+					window_object->wait_and_pop(win_obj);
+				}
 
 				if (win_obj->window_id == win_dat->window_id) {
 					win_dat->x && win_dat->y

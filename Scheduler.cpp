@@ -15,6 +15,8 @@ void Scheduler::yield(int min, int max) {
 void Scheduler::scheduler() {
 	srand(time(NULL));
 	do {
+
+
 		if (!task_list.empty()) {
 			TASK_CONTROL_BLOCK* tcb;
 			task_list.wait_and_pop(tcb);
@@ -64,10 +66,19 @@ void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGU
 	tcb->task_state = READY;
 	tcb->task_name = task_name;
 	tcb->task_thread = *(new pthread_t);
+	task_arguments->task_control_block = tcb;
 	tcb->task_arguments = task_arguments;
 
 	task_list.push(tcb);
 	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
+}
+
+/*
+ * Scheduler::task_list_size()
+ * Returns the task_list size.
+ */
+int Scheduler::task_list_size() {
+	return task_list.size();
 }
 
 /*

@@ -1,12 +1,5 @@
 #include "inc/MasterControlBlock.h"
 
-#define HEADING_WINDOW -1
-#define LOG_WINDOW -2
-#define STATE_WINDOW -3
-#define CONSOLE_WINDOW -4
-#define OUTPUT_WINDOW -5
-#define MAILBOX_WINDOW -6
-
 void heading_window(int);
 void log_window(int);
 void state_window(int);
@@ -15,6 +8,8 @@ void output_window(int);
 void mailbox_window(int);
 void secret_window(int);
 void* worker(void*);
+
+MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
 
 int main() {
 
@@ -33,7 +28,6 @@ int main() {
 				+ ' ', 4, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
 			: master_control_block->ui->create_window_lock_spawn(" Worker #" + std::to_string(i)
 		 		+ ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
-
 		master_control_block->scheduler->create_new_task("Worker #"
 			+ std::to_string(i), worker, master_control_block->scheduler->create_arguments(i, 0));
 	}
@@ -76,9 +70,10 @@ void state_window(int win) {
  * Creates the initial console window.
  */ 
 void console_window(int win) {
-	master_control_block->menu->set_menu_window(master_control_block->ui->create_window_lock_spawn
+	master_control_block->menu = new Menu(master_control_block, master_control_block->ui->create_window_lock_spawn
 		(" Console ", 2, 0, win, 60, 12, 83, 34), win);
-	master_control_block->menu->start();
+	master_control_block->menu->print_menu(win);
+	//master_control_block->menu->start();
 }
 
 /*
@@ -100,14 +95,13 @@ void mailbox_window(int win) {
 /*
  * Ultima::worker(void*)
  * Worker function to run in seperate threads.
- */ 
+ */
 void* worker(void* arguments) {
 	ARGUMENTS* args = (ARGUMENTS*) arguments;
 	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
 	int& counter = args->thread_results;
 
 	int r = 1 + rand() % 100;
-	sleep(1);
 	do {
 		master_control_block->ui->write(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
 		master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id)
@@ -118,6 +112,6 @@ void* worker(void* arguments) {
 	master_control_block->ui->write(args->id, "\n Thread #" + std::to_string(args->id) + "\n has ended.\n");
 	master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
 
-	//scheduler.set_state(tcb, DEAD);
+	master_control_block->scheduler->set_state(tcb, DEAD);
 	return NULL;
 }

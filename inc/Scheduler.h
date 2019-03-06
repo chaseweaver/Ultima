@@ -47,6 +47,7 @@ public:
 	~Scheduler();
 	void create_new_task(std::string, void*(void*), ARGUMENTS*);
 	void set_state(TASK_CONTROL_BLOCK*, int);
+	int task_list_size();
 	static void* start_scheduler(void*);
 	ARGUMENTS* create_arguments(int, int);
 	ARGUMENTS* create_arguments(int, int, TASK_CONTROL_BLOCK*);
