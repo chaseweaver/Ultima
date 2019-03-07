@@ -16,12 +16,9 @@ void UI::refresh() {
 
 			while (!success && !window_object->empty()) {
 
-				// FIX THIS BELOW. DOESN'T PRINT. MAYBE ADD LAST STATE TO ARGUMENTS?
-
-				if (window_object->try_and_pop(win_obj)) {
-					write(STATE_WINDOW, " \nThread #" + std::to_string(win_obj->window_id) + " state RUNNING");
-				} else {
+				if (!window_object->try_and_pop(win_obj)) {
 					WINDOW_OBJECT* tmp = window_object->front();
+					// master_control_block->scheduler->set_state() FETCH TASK_CONTROL_BLOCK HERE SOMEWHERE
 					write(STATE_WINDOW, " \nThread #" + std::to_string(tmp->window_id) + " state BLOCKED");
 					window_object->wait_and_pop(win_obj);
 				}
@@ -108,7 +105,7 @@ bool UI::write_window_refresh(WINDOW* win, int x, int y, std::string msg) {
  * UI::UI()
  * Default constructor. 
  */ 
-UI::UI() {
+UI::UI(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
 	window_data = new ThreadSafeQueue<WINDOW_DATA*>;
 	window_object = new ThreadSafeQueue<WINDOW_OBJECT*>;
 	initscr();

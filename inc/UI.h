@@ -43,6 +43,7 @@ private:
 	bool enabled = false;
 	pthread_t ui_thread;
 
+	MASTER_CONTROL_BLOCK* master_control_block;
 	ThreadSafeQueue<WINDOW_DATA*>* window_data;
 	ThreadSafeQueue<WINDOW_OBJECT*>* window_object;
 
@@ -54,7 +55,7 @@ private:
 	bool write_window_refresh(WINDOW* win, int x, int y, std::string msg);
 
 public:
-	UI();
+	UI(MASTER_CONTROL_BLOCK* mcb);
 	~UI();
 	void start();
 	void stop();

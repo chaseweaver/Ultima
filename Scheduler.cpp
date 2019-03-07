@@ -17,28 +17,36 @@ void Scheduler::scheduler() {
 	do {
 		if (!task_list.empty()) {
 			TASK_CONTROL_BLOCK* tcb;
-			task_list.wait_and_pop(tcb);
-
+			//task_list.front(tcb);
+			
+			if (!task_list.try_and_pop(tcb))
+				break;
+			
 			switch(tcb->task_state) {
-				case DEAD:
+				case DEAD:					
+					yield(2, 7);
 					break;
 
 				case IDLE:
+					yield(2, 7);
 					break;
 
 				case BLOCKED:
-					yield(2, 7);
 					set_state(tcb, READY);
+					task_list.push(tcb);
+					yield(2, 7);
 					break;
 
 				case READY:
-					yield(2, 7);
 					set_state(tcb, RUNNING);
+					task_list.push(tcb);
+					yield(2, 7);
 					break;
 
 				case RUNNING:
-					yield(2, 7);
 					set_state(tcb, READY);
+					task_list.push(tcb);
+					yield(2, 7);
 					break;
 			}
 
@@ -48,7 +56,7 @@ void Scheduler::scheduler() {
 }
 
 /*
- * Scheduler::Scheduler()
+ * Scheduler::Scheduler(MASTER_CONTROL_BLOCK*)
  * Default constructor. 
  */ 
 Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
@@ -68,13 +76,18 @@ Scheduler::~Scheduler() {}
 void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGUMENTS* task_arguments) {
 	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
 	tcb->task_id = ++number_of_workers;
-	task_list.empty() ? tcb->task_state = RUNNING : tcb->task_state = READY;
+	tcb->task_state = READY;
+	//task_list.empty() ? tcb->task_state = RUNNING : tcb->task_state = READY;
 	tcb->task_name = task_name;
 	tcb->task_thread = *(new pthread_t);
 	task_arguments->task_control_block = tcb;
 	tcb->task_arguments = task_arguments;
 
 	task_list.push(tcb);
+	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
+}
+
+void Scheduler::respawn(TASK_CONTROL_BLOCK* tcb, void* worker(void*), ARGUMENTS* task_arguments) {
 	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
 }
 
@@ -88,7 +101,7 @@ int Scheduler::task_list_size() {
 
 /*
  * Scheduler::set_state(TASK_CONTROL_BLOCK*, int)
- * Changes task state in the list.
+ * Changes task state in the list and logs to STATE WINDOW.
  */
 void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 	if (tcb->task_state == state)

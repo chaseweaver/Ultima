@@ -37,6 +37,7 @@ public:
 	Scheduler(MASTER_CONTROL_BLOCK* mcb);
 	~Scheduler();
 	void create_new_task(std::string, void*(void*), ARGUMENTS*);
+	void respawn(TASK_CONTROL_BLOCK*, void*(void*), ARGUMENTS*);
 	void set_state(TASK_CONTROL_BLOCK*, int);
 	int task_list_size();
 	static void* start_scheduler(void*);

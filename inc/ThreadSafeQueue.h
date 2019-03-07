@@ -89,6 +89,18 @@ public:
 	}
 
 	/*
+	 * ThreadSafeQueue::front(T&)
+	 * Returns the front of the queue.
+	 * Stores items address in the Template object.
+	 */
+	void front(T& item) {
+		std::unique_lock<std::mutex> lock(m);
+		while (q.empty())
+			cond.wait(lock);
+		item = q.front();
+	}
+
+	/*
 	 * ThreadSafeQueue::front()
 	 * Returns the front of the queue.
 	 */
@@ -97,6 +109,18 @@ public:
 		while (q.empty())
 			cond.wait(lock);
 		return q.front();
+	}
+
+	/*
+	 * ThreadSafeQueue::back(T&)
+	 * Returns the back of the queue.
+	 * Stores items address in the Template object.
+	 */
+	void back(T& item) {
+		std::unique_lock<std::mutex> lock(m);
+		while (q.empty())
+			cond.wait(lock);
+		item = q.back();
 	}
 
 	/*

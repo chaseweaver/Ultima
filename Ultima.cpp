@@ -13,7 +13,7 @@ MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
 
 int main() {
 	master_control_block->scheduler = new Scheduler(master_control_block);
-	master_control_block->ui = new UI();
+	master_control_block->ui = new UI(master_control_block);
 
 	// Create UI windows
 	heading_window(HEADING_WINDOW);
@@ -105,14 +105,17 @@ void* worker(void* arguments) {
 
 	int r = 1 + rand() % 100;
 	do {
-		while (tcb->task_state == RUNNING && counter != r) {
+		while (tcb->task_state == RUNNING) {
+			if (counter == r)
+				break;
+
 			master_control_block->ui->write(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
 			master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id)
 				+ " is running #" + std::to_string(counter) + "\n");
-			usleep(1000);
+			usleep(10000);
 		}
 
-		usleep(1000);
+		usleep(10000);
 	} while (counter != r);
 
 	master_control_block->ui->write(args->id, "\n Thread #" + std::to_string(args->id) + "\n has ended.\n");
