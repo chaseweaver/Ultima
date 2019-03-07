@@ -5,23 +5,26 @@
 #pragma once
 #endif 
 
-#include "ThreadSafeQueue.h"
+struct MASTER_CONTROL_BLOCK;
+#include "MasterControlBlock.h"
+
+#include "Queue.h"
 #include "Scheduler.h"
 #include <pthread.h>
 #include <iostream>
+#include <mutex>
 
 class Semaphore {
 private:
-	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+	Queue<int>* semaphore_list;
 	std::string resource_name;
 	int sema_value;
-	ThreadSafeQueue<int> semaphore_list;
-	Scheduler* scheduler;
+
+  mutable std::mutex m;
+  std::condition_variable cond;
+	MASTER_CONTROL_BLOCK* master_control_block;
 
 public:
-	Semaphore(std::string name, int max_threads, Scheduler* s)
-		: resource_name(name), sema_value(max_threads), scheduler(s) {}
 	Semaphore(std::string name, int max_threads)
 		: resource_name(name), sema_value(max_threads) {}
 	~Semaphore() {}

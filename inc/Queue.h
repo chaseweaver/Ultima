@@ -1,9 +1,17 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#ifdef _MSC_VER
+#pragma once
+#endif 
+
 #include <cstddef>
 #include <cstdio>
 #include <iostream>
+
+#include <queue>
+#include <mutex>
+#include <condition_variable>
 
 template <class T>
 class Node {
@@ -72,37 +80,50 @@ public:
 		tmp -> set_next(NULL);
 
 		if (count == 0)
-		head = tail = tmp;
+			head = tail = tmp;
 		else {
 			tail -> set_next(tmp);
 			tail = tmp;
 		}
-
 		count++;
 	}
 
 	// Dequeue the first element in the queue off
 	T dequeue(void) {
 		if (empty())
-			std::cout << stderr << std::endl;
+			return 0;
 
 		T val = head -> get_value();
 		Node<T>* tmp = head;
 		head = head -> get_next();
 		count--;
+		
 		delete tmp;
 		return val;
 	}
 
+	// Dequeue the first element in the queue off
+	void dequeue(T& item) {
+		if (empty())
+			return;
+
+		item = head -> get_value();
+		Node<T>* tmp = head;
+		head = head -> get_next();
+		count--;
+		
+		delete tmp;
+	}
+
 	// Returns the size of the queue
-	int size(void) {
+	unsigned size(void) {
 		return count;
 	}
 
 	// Returns front of queue
 	T front(void) {
 		if (empty())
-			std::cout << stderr << std::endl;
+			return;
 
 		T ret = head -> get_value();
 		return ret;
@@ -111,7 +132,7 @@ public:
 	// Returns back of queue
 	T back(void) {
 		if (empty())
-			std::cout << stderr << std::endl;
+			return;
 
 		T ret = tail -> get_value();
 		return ret;

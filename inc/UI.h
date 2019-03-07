@@ -8,7 +8,7 @@
 struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
-#include "ThreadSafeQueue.h"
+#include "Queue.h"
 #include "Scheduler.h"
 #include "Struct.h"
 #include <ncurses.h>
@@ -44,11 +44,12 @@ private:
 	pthread_t ui_thread;
 
 	MASTER_CONTROL_BLOCK* master_control_block;
-	ThreadSafeQueue<WINDOW_DATA*>* window_data;
-	ThreadSafeQueue<WINDOW_OBJECT*>* window_object;
+	Queue<WINDOW_DATA*>* window_data;
+	Queue<WINDOW_OBJECT*>* window_object;
 
 	void refresh();
 	static void* start_refresh(void* p);
+	WINDOW* fetch_window(int);
 	bool write_window(WINDOW* win, std::string msg);
 	bool write_window(WINDOW* win, int x, int y, std::string msg);
 	bool write_window_refresh(WINDOW* win, std::string msg);
@@ -75,6 +76,10 @@ public:
 	void write(int, int, int, std::string);
 	void write(int, std::string, TASK_CONTROL_BLOCK*);
 	void write(int, std::string);
+	void write_refresh(int, int, int, std::string, TASK_CONTROL_BLOCK*);
+	void write_refresh(int, int, int, std::string);
+	void write_refresh(int, std::string, TASK_CONTROL_BLOCK*);
+	void write_refresh(int, std::string);
 	void clear_window(WINDOW*);
 	void clear_window(int);
 	int get_message_list_size();

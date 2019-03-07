@@ -13,10 +13,14 @@ MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
 
 int main() {
 	master_control_block->scheduler = new Scheduler(master_control_block);
+	master_control_block->ui_semaphore  = new Semaphore("UI Handler", 1);
 	master_control_block->ui = new UI(master_control_block);
 
 	// Create UI windows
 	heading_window(HEADING_WINDOW);
+
+	sleep(10);
+
 	log_window(LOG_WINDOW);
 	state_window(STATE_WINDOW);
 	console_window(CONSOLE_WINDOW);
@@ -46,9 +50,10 @@ int main() {
 void heading_window(int win) {
 	master_control_block->ui->create_window_spawn(win, 79, 12, 3, 2);
 	master_control_block->ui->write(win, 26, 2, "ULTIMA 2.0 (Spring 2019)");
+	sleep(10);
 	master_control_block->ui->write(win, 18, 3, "The Washington Redskins (Matt + Chase)");
 	master_control_block->ui->write(win, 2, 6, "$ Starting UI handler...");
-	master_control_block->ui->write(win, 2, 7, "$ Spawning child threads...");
+	master_control_block->ui->write_refresh(win, 2, 7, "$ Spawning child threads...");
 }
 
 /*
@@ -109,7 +114,7 @@ void* worker(void* arguments) {
 				break;
 
 			master_control_block->ui->write(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
-			master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id)
+			master_control_block->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id)
 				+ " is running #" + std::to_string(counter) + "\n");
 			sleep(1);
 		}
@@ -118,7 +123,7 @@ void* worker(void* arguments) {
 	} while (counter != r);
 
 	master_control_block->ui->write(args->id, "\n Thread #" + std::to_string(args->id) + "\n has ended.\n");
-	master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
+	master_control_block->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
 
 	master_control_block->scheduler->set_state(tcb, DEAD);
 	return NULL;

@@ -16,14 +16,9 @@ class ThreadSafeQueue {
   std::condition_variable cond;
 
   ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
-  //ThreadSafeQueue(const ThreadSafeQueue& other) = delete;
+  ThreadSafeQueue(const ThreadSafeQueue& other) = delete;
 
 public:
-
-	ThreadSafeQueue(const ThreadSafeQueue& other) {
-		other = std::queue<T>(q);
-	}
-
 	/*
 	 * ThreadSafeQueue::ThreadSafeQueue()
 	 * Default construtor.

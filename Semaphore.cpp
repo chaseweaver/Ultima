@@ -8,12 +8,13 @@ void Semaphore::down(TASK_CONTROL_BLOCK* tcb) {
 	if (sema_value > 0) {
 		--sema_value;
 	} else {
-		scheduler->set_state(tcb, BLOCKED);
-		semaphore_list.push(tcb->task_id);
-		
-		pthread_mutex_lock(&mutex);
-		pthread_cond_wait(&cond, &mutex);
+		std::unique_lock<std::mutex> lock(m);
+
+		master_control_block->scheduler->set_state(tcb, BLOCKED);
+		semaphore_list->enqueue(tcb->task_id);
 	}
+	
+	cond.notify_one();
 }
 
 /*
@@ -24,10 +25,11 @@ void Semaphore::down(int tid) {
 	if (sema_value > 0) {
 		--sema_value;
 	} else {				
-		semaphore_list.push(tid);
-		pthread_mutex_lock(&mutex);
-		pthread_cond_wait(&cond, &mutex);
+		std::lock_guard<std::mutex> lock(m);
+		semaphore_list->enqueue(tid);
 	}
+
+	cond.notify_one();
 }
 
 /*
@@ -35,10 +37,14 @@ void Semaphore::down(int tid) {
  * Releases lock to resources.
  */
 void Semaphore::up() {
-	if (semaphore_list.size() > 0) {
-		semaphore_list.wait_and_pop();
-		pthread_mutex_unlock(&mutex);
-		pthread_cond_signal(&cond);
+	// std::unique_lock<std::mutex> lock(m);
+	// while (semaphore_list->empty())
+		// cond.wait(lock);
+
+	if (semaphore_list->size() > 0) {
+
+		semaphore_list->dequeue();
+
 	} else {
 		++sema_value;
 	}
