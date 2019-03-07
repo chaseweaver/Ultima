@@ -7,7 +7,6 @@
 
 #include <queue>
 #include <mutex>
-#include <exception>
 #include <condition_variable>
 
 template<typename T>
@@ -17,14 +16,18 @@ class ThreadSafeQueue {
   std::condition_variable cond;
 
   ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
-  ThreadSafeQueue(const ThreadSafeQueue& other) = delete;
+  //ThreadSafeQueue(const ThreadSafeQueue& other) = delete;
 
 public:
+
+	ThreadSafeQueue(const ThreadSafeQueue& other) {
+		other = std::queue<T>(q);
+	}
 
 	/*
 	 * ThreadSafeQueue::ThreadSafeQueue()
 	 * Default construtor.
-	 */ 
+	 */
 	ThreadSafeQueue() {}
 
 	/*
@@ -59,6 +62,19 @@ public:
 		if (q.empty())
 			return false;
 		item = std::move(q.front());
+		q.pop();
+		return true;
+	}
+
+	/*
+	 * ThreadSafeQueue::try_and_pop()
+	 * Trys to pop an item from the queue.
+	 */
+	bool try_and_pop() {
+		std::lock_guard<std::mutex> lock(m);
+		if (q.empty())
+			return false;
+		std::move(q.front());
 		q.pop();
 		return true;
 	}
@@ -132,6 +148,18 @@ public:
 		while (q.empty())
 			cond.wait(lock);
 		return q.back();
+	}
+
+	/*
+	 * ThreadSafeQueue::emplace(T&)
+	 * Pushes an item to the back of the queue.
+	 */
+	void emplace(T& item) {
+		{
+			std::lock_guard<std::mutex> lock(m);
+			q.emplace(item);
+		}
+		cond.notify_one();
 	}
 
 	/*

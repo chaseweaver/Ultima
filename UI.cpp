@@ -445,7 +445,7 @@ void UI::write(int window_id, std::string msg) {
  */ 
 void UI::clear_window(WINDOW* win) {
 	wclear(win);
-	wrefresh(win); // Maybe not needed?
+	wrefresh(win);
 }
 
 /*
@@ -453,14 +453,22 @@ void UI::clear_window(WINDOW* win) {
  * Clears the window.
  */ 
 void UI::clear_window(int window_id) {
-	ThreadSafeQueue<WINDOW_OBJECT*>* win_obj_ = window_object;
-	while (!win_obj_->empty()) {
-		if (win_obj_->front()->window_id == window_id) {
-			wclear(win_obj_->front()->window);
-			wrefresh(win_obj_->front()->window);
+	ThreadSafeQueue<WINDOW_DATA*>* win_obj_ = window_data;
+	win_obj_->push(window_data->front());
+	win_obj_->push(window_data->front());
+	/*
+	while (!win_obj_->empty()) { 
+		WINDOW_OBJECT* tmp; 
+		win_obj_->try_and_pop(tmp);
+
+		if (tmp->window_id == window_id) {
+			wclear(tmp->window);
+			wrefresh(tmp->window);
 		}
-		win_obj_->wait_and_pop();
+
+		win_obj_->try_and_pop();
 	}
+	*/
 }
 
 /*
