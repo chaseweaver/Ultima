@@ -23,12 +23,12 @@ void Menu::menu() {
 
 		int input = wgetch(menu_window);
 		switch (input) {
-			case '0':
+		case '0':
 			exit(0);
 			break;
 		case '1':
-			master_control_block->ui->clear_window(OUTPUT_WINDOW);
-			master_control_block->ui->write(OUTPUT_WINDOW, master_control_block->logger->fetch_log());
+			// master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			print_log(OUTPUT_WINDOW);
 			break;
 		}
 

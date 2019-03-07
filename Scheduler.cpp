@@ -77,7 +77,6 @@ void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGU
 	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
 	tcb->task_id = ++number_of_workers;
 	tcb->task_state = READY;
-	//task_list.empty() ? tcb->task_state = RUNNING : tcb->task_state = READY;
 	tcb->task_name = task_name;
 	tcb->task_thread = *(new pthread_t);
 	task_arguments->task_control_block = tcb;

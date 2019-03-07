@@ -453,23 +453,10 @@ void UI::clear_window(WINDOW* win) {
  * Clears the window.
  */ 
 void UI::clear_window(int window_id) {
-	ThreadSafeQueue<WINDOW_DATA*>* win_obj_ = window_data;
-	win_obj_->push(window_data->front());
-	win_obj_->push(window_data->front());
 	/*
-	while (!win_obj_->empty()) { 
-		WINDOW_OBJECT* tmp; 
-		win_obj_->try_and_pop(tmp);
-
-		if (tmp->window_id == window_id) {
-			wclear(tmp->window);
-			wrefresh(tmp->window);
-		}
-
-		win_obj_->try_and_pop();
-	}
-	*/
-}
+	 * THIS SHOULD BE REPLACED WITH A COPY OF A QUEUE 
+	 */
+}	
 
 /*
  * UI::get_message_list_size()

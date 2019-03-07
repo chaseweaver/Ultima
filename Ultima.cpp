@@ -111,10 +111,10 @@ void* worker(void* arguments) {
 			master_control_block->ui->write(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
 			master_control_block->ui->write(LOG_WINDOW, " Thread #" + std::to_string(args->id)
 				+ " is running #" + std::to_string(counter) + "\n");
-			usleep(10000);
+			sleep(1);
 		}
 
-		usleep(10000);
+		sleep(1);
 	} while (counter != r);
 
 	master_control_block->ui->write(args->id, "\n Thread #" + std::to_string(args->id) + "\n has ended.\n");
