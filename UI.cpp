@@ -15,13 +15,7 @@ void UI::refresh() {
 			bool success = false;
 
 			while (!success && !window_object->empty()) {
-
-				if (!window_object->try_and_pop(win_obj)) {
-					WINDOW_OBJECT* tmp = window_object->front();
-					// master_control_block->scheduler->set_state() FETCH TASK_CONTROL_BLOCK HERE SOMEWHERE
-					write(STATE_WINDOW, " \nThread #" + std::to_string(tmp->window_id) + " state BLOCKED");
-					window_object->wait_and_pop(win_obj);
-				}
+				window_object->wait_and_pop(win_obj);
 
 				if (win_obj->window_id == win_dat->window_id) {
 					win_dat->x && win_dat->y
@@ -443,6 +437,30 @@ void UI::write(int window_id, std::string msg) {
 	win_dat->window_id = window_id;
 	win_dat->msg = msg;
 	window_data->push(win_dat);
+}
+
+/*
+ * UI::clear_window(WINDOW*)
+ * Clears the window.
+ */ 
+void UI::clear_window(WINDOW* win) {
+	wclear(win);
+	wrefresh(win); // Maybe not needed?
+}
+
+/*
+ * UI::clear_window(int)
+ * Clears the window.
+ */ 
+void UI::clear_window(int window_id) {
+	ThreadSafeQueue<WINDOW_OBJECT*>* win_obj_ = window_object;
+	while (!win_obj_->empty()) {
+		if (win_obj_->front()->window_id == window_id) {
+			wclear(win_obj_->front()->window);
+			wrefresh(win_obj_->front()->window);
+		}
+		win_obj_->wait_and_pop();
+	}
 }
 
 /*

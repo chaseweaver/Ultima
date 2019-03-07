@@ -75,6 +75,8 @@ public:
 	void write(int, int, int, std::string);
 	void write(int, std::string, TASK_CONTROL_BLOCK*);
 	void write(int, std::string);
+	void clear_window(WINDOW*);
+	void clear_window(int);
 	int get_message_list_size();
 	int get_window_amount();
 };

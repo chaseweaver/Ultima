@@ -75,7 +75,6 @@ void console_window(int win) {
 	master_control_block->menu = new Menu(master_control_block, master_control_block->ui->create_window_lock_spawn
 		(" Console ", 2, 0, win, 60, 12, 83, 34), win);
 	master_control_block->menu->print_menu(win);
-	//master_control_block->menu->start();
 }
 
 /*

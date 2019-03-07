@@ -1,7 +1,40 @@
 #include "inc/Menu.h"
 
+/*
+ * Menu::Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int)
+ * Default constructor.
+ */
+Menu::Menu(MASTER_CONTROL_BLOCK* mcb, WINDOW* win, int window_id)
+	: master_control_block(mcb), menu_window(win), menu_window_id(window_id) {
+	start();
+}
+
+/*
+ * Menu::~Menu()
+ * Default deconstructor.
+ */
+Menu::~Menu() {}
+
 void Menu::menu() {
 	do {
+
+		nodelay(menu_window, true);
+		noecho();
+
+		while (true) {
+			int input = wgetch(menu_window);
+			switch (input) {
+				case '0':
+				exit(0);
+				break;
+			case '1':
+				master_control_block->ui->clear_window(OUTPUT_WINDOW);
+				master_control_block->ui->write(OUTPUT_WINDOW, master_control_block->logger->fetch_log());
+				break;
+			}
+
+			usleep(100000);
+		}
 
 		usleep(100000);
 	} while (enabled);

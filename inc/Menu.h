@@ -23,9 +23,8 @@ private:
 	static void* start_menu(void*);
 
 public:
-	Menu(MASTER_CONTROL_BLOCK* mcb, WINDOW* win, int window_id)
-		: master_control_block(mcb), menu_window(win), menu_window_id(window_id) {}
-	~Menu() {}
+	Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int);
+	~Menu();
 	void print_menu(int);
 	void set_menu_window(WINDOW*, int);
 	void start();
