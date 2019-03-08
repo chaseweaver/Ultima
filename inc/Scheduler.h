@@ -28,19 +28,26 @@ private:
 
 	MASTER_CONTROL_BLOCK* master_control_block;
 	Queue<TASK_CONTROL_BLOCK*> task_list;
+
 	int number_of_workers = 0;
+	int garbage_collector_timeout;
+	
+	pthread_t scheduler_thread;
+	pthread_t garbage_collector_thread;
 
 	void yield(int, int);
 	void scheduler();
+	void garbage_collector();
 
 public:
-	Scheduler(MASTER_CONTROL_BLOCK* mcb);
+	Scheduler(MASTER_CONTROL_BLOCK*, int);
 	~Scheduler();
 	void create_new_task(std::string, void*(void*), ARGUMENTS*);
 	void respawn(TASK_CONTROL_BLOCK*, void*(void*), ARGUMENTS*);
 	void set_state(TASK_CONTROL_BLOCK*, int);
 	int task_list_size();
 	static void* start_scheduler(void*);
+	static void* start_garbage_collector(void*);
 	ARGUMENTS* create_arguments(int, int);
 	ARGUMENTS* create_arguments(int, int, TASK_CONTROL_BLOCK*);
 };

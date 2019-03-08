@@ -1,18 +1,31 @@
 #include "inc/Logger.h"
 
 /*
+ * Logger::Logger(int)
+ * Default constructor.
+ */
+Logger::Logger(int max_number_of_logs_kept)
+	: MAX_NUMBER_OF_LOGS_KEPT(max_number_of_logs_kept) {}
+
+/*
+ * Logger::~Logger()
+ * Default deconstructor.
+ */
+Logger::~Logger() {}
+
+/*
  * Logger::add_log(int, std::string, int)
  * Adds a log to the queue.
  */
 void Logger::add_log(int task_id, std::string task_name, int task_state) {
 	if (log_data.size() >= MAX_NUMBER_OF_LOGS_KEPT)
-		log_data.wait_and_pop();
+		log_data.dequeue();
 
 	LOG_DATA* log = new LOG_DATA;
 	log->task_id = task_id;
 	log->task_name = task_name;
 	log->task_state = task_state;
-	log_data.push(log);
+	log_data.enqueue(log);
 }
 
 /*
@@ -36,7 +49,10 @@ void Logger::set_max_number_of_logs_kept(int max_number_of_logs_kepts) {
  * Fetches contents of logs based on MAX_NUMBER_OF_LOGS_KEPT.
  */
 std::string Logger::fetch_log() {
-	//ThreadSafeQueue<LOG_DATA*>* log_data_ = &log_data;
+	if (log_data.empty())
+		return "There are no logs available.";
+
+	Queue<LOG_DATA*>* log_data_ = new Queue<LOG_DATA*>(log_data);
 
 	std::string task_id = "Task ID";
 	std::string task_name = "Task Name";
@@ -54,8 +70,7 @@ std::string Logger::fetch_log() {
 	do {
 
 		LOG_DATA* tmp;
-		log_data.wait_and_pop(tmp);
-
+		log_data_->dequeue(tmp);
 		std::string task_id_ = std::to_string(tmp->task_id);
 		std::string task_name_ = tmp->task_name;
 		std::string task_timestamp_ = std::to_string(tmp->ms.count());
@@ -84,7 +99,7 @@ std::string Logger::fetch_log() {
 		pad(task_state_, 12, ' ');
 
 		content += " " + task_id_ + "| " + task_name_ + "| " + task_state_ + "| " + task_timestamp_ + "\n";
-	} while (!log_data.empty());
+	} while (!log_data_->empty());
 
 	return header + content;
 }

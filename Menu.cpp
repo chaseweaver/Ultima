@@ -21,13 +21,13 @@ void Menu::menu() {
 		nodelay(menu_window, true);
 		noecho();
 
-		int input = wgetch(menu_window);
-		switch (input) {
+		switch (wgetch(menu_window)) {
 		case '0':
-			exit(0);
+			endwin();
+			exit(EXIT_SUCCESS);
 			break;
 		case '1':
-			// master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			master_control_block->ui->clear_window(OUTPUT_WINDOW);
 			print_log(OUTPUT_WINDOW);
 			break;
 		}
@@ -52,9 +52,10 @@ void* Menu::start_menu(void* p) {
 void Menu::print_menu(int win) {
 	master_control_block->ui->create_window_lock_spawn(" Console ", 2, 0, win, 60, 12, 83, 34);
 	master_control_block->ui->write(win, 21, 1, "Choose an option");
-	master_control_block->ui->write(win, 2, 3, "1: Log Threads");
-	master_control_block->ui->write(win, 2, 4, "2: Log Semaphore");
-	master_control_block->ui->write_refresh(win, 2, 5, "0: Exit Program");
+	master_control_block->ui->write(win, 2, 3, "1: System Logs");
+	master_control_block->ui->write(win, 2, 4, "2: Scheduler Log");
+	master_control_block->ui->write(win, 2, 5, "3: Semaphore Log");
+	master_control_block->ui->write_refresh(win, 2, 6, "0: Exit Program");
 }
 
 /*
@@ -99,5 +100,5 @@ void Menu::wait() {
  * Prints the log to a specific window given ID. 
  */
 void Menu::print_log(int window_id) {
-	master_control_block->ui->write(window_id, master_control_block->logger->fetch_log());
+	master_control_block->ui->write_refresh(window_id, master_control_block->logger->fetch_log());
 }

@@ -450,7 +450,10 @@ void UI::write(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK*
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait();
+	if (!master_control_block->ui_semaphore->try_wait()) {
+		master_control_block->scheduler->set_state(tcb, BLOCKED);
+		master_control_block->ui_semaphore->wait();
+	}
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
@@ -489,7 +492,10 @@ void UI::write(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait();
+	if (!master_control_block->ui_semaphore->try_wait()) {
+		master_control_block->scheduler->set_state(tcb, BLOCKED);
+		master_control_block->ui_semaphore->wait();
+	}
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
@@ -528,7 +534,10 @@ void UI::write_refresh(int window_id, int x, int y, std::string msg, TASK_CONTRO
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait();
+	if (!master_control_block->ui_semaphore->try_wait()) {
+		master_control_block->scheduler->set_state(tcb, BLOCKED);
+		master_control_block->ui_semaphore->wait();
+	}
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
@@ -567,7 +576,10 @@ void UI::write_refresh(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) 
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait();
+	if (!master_control_block->ui_semaphore->try_wait()) {
+		master_control_block->scheduler->set_state(tcb, BLOCKED);
+		master_control_block->ui_semaphore->wait();
+	}
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
@@ -608,9 +620,25 @@ void UI::clear_window(WINDOW* win) {
  * Clears the window.
  */ 
 void UI::clear_window(int window_id) {
-	/*
-	 * THIS SHOULD BE REPLACED WITH A COPY OF A QUEUE 
-	 */
+	master_control_block->ui_semaphore->wait();
+	Queue<WINDOW_OBJECT*>* win_obj = new Queue<WINDOW_OBJECT*>(*window_object);
+	master_control_block->ui_semaphore->signal();
+
+	bool success = false;
+	do {
+		WINDOW_OBJECT* tmp;
+
+		master_control_block->ui_semaphore->wait();
+
+		win_obj->dequeue(tmp);
+		if (tmp->window_id == window_id) {
+			wclear(tmp->window);
+			wrefresh(tmp->window);
+			success = true;
+		}
+
+		master_control_block->ui_semaphore->signal();
+	} while (!win_obj->empty() || !success);
 }	
 
 /*

@@ -1,5 +1,6 @@
 #include "inc/MasterControlBlock.h"
 
+void master_control_block_init();
 void heading_window(int);
 void log_window(int);
 void state_window(int);
@@ -12,12 +13,8 @@ void* worker(void*);
 MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
 
 int main() {
-	master_control_block->scheduler = new Scheduler(master_control_block);
-	master_control_block->ui_semaphore = new Semaphore(1);
-	master_control_block->scheduler_semaphore = new Semaphore(1);
-	master_control_block->ui = new UI(master_control_block);
-
-	// Create UI windows
+	
+	master_control_block_init();
 	heading_window(HEADING_WINDOW);
 	log_window(LOG_WINDOW);
 	state_window(STATE_WINDOW);
@@ -36,11 +33,23 @@ int main() {
 			+ std::to_string(i), worker, master_control_block->scheduler->create_arguments(i, 0));
 	}
 
-	sleep(100);
-
 	// Wait for UI thread to finish
 	// master_control_block->ui->wait();
+	master_control_block->menu->wait();
 	return 0;
+}
+
+/*
+ * Ultima::master_control_block_init()
+ * Initializes the MASTER_CONTROL_BLOCK objects.
+ */ 
+void master_control_block_init() {
+	master_control_block->scheduler = new Scheduler(master_control_block, 5);
+	master_control_block->ui_semaphore = new Semaphore("UI Handler", 1);
+	master_control_block->scheduler_semaphore = new Semaphore("Scheduler Handler", 1);
+	master_control_block->logger_semaphore = new Semaphore("Logger Handler", 1);
+	master_control_block->ui = new UI(master_control_block);
+	master_control_block->logger = new Logger(32);
 }
 
 /*
@@ -49,9 +58,9 @@ int main() {
  */ 
 void heading_window(int win) {
 	master_control_block->ui->create_window_spawn(win, 79, 12, 3, 2);
-	master_control_block->ui->write_refresh(win, 26, 2, "ULTIMA 2.0 (Spring 2019)");
-	master_control_block->ui->write_refresh(win, 18, 3, "The Washington Redskins (Matt + Chase)");
-	master_control_block->ui->write_refresh(win, 2, 6, "$ Starting UI handler...");
+	master_control_block->ui->write(win, 26, 2, "ULTIMA 2.0 (Spring 2019)");
+	master_control_block->ui->write(win, 18, 3, "The Washington Redskins (Matt + Chase)");
+	master_control_block->ui->write(win, 2, 6, "$ Starting UI handler...");
 	master_control_block->ui->write_refresh(win, 2, 7, "$ Spawning child threads...");
 }
 

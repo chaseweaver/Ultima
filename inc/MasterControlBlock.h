@@ -15,6 +15,7 @@
 class Menu;
 class Scheduler;
 class Semaphore;
+class Logger;
 class UI;
 
 #include "Scheduler.h"
@@ -30,6 +31,7 @@ struct MASTER_CONTROL_BLOCK {
 	Menu* menu;
 	Semaphore* ui_semaphore;
 	Semaphore* scheduler_semaphore;
+	Semaphore* logger_semaphore;
 	Logger* logger;
 };
 

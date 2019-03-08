@@ -5,7 +5,10 @@
 #pragma once
 #endif
 
-#include "ThreadSafeQueue.h"
+struct MASTER_CONTROL_BLOCK;
+#include "MasterControlBlock.h"
+
+#include "Queue.h"
 #include "Pad.h"
 #include <iostream>
 #include <chrono>
@@ -23,12 +26,13 @@ private:
 		);
 	};
 
-	ThreadSafeQueue<LOG_DATA*> log_data;
+	MASTER_CONTROL_BLOCK* master_control_block;
+	Queue<LOG_DATA*> log_data;
 	int MAX_NUMBER_OF_LOGS_KEPT;
 
 public:
-	Logger(int max_number_of_logs_kept) : MAX_NUMBER_OF_LOGS_KEPT(max_number_of_logs_kept) {}
-	~Logger() {}
+	Logger(int max_number_of_logs_kept);
+	~Logger();
 	void add_log(int, std::string, int);
 	int get_max_number_of_logs_kept();
 	void set_max_number_of_logs_kept(int);

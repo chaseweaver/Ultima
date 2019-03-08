@@ -19,12 +19,11 @@ void Scheduler::scheduler() {
 			TASK_CONTROL_BLOCK* tcb = task_list.dequeue();
 			
 			switch(tcb->task_state) {
-				case DEAD:					
-					yield(2, 7);
+				case DEAD:
 					break;
 
+				// Unused state, potentially for the future.
 				case IDLE:
-					yield(2, 7);
 					break;
 
 				case BLOCKED:
@@ -52,11 +51,21 @@ void Scheduler::scheduler() {
 }
 
 /*
+ * Scheduler::garbage_collector()
+ * Function to handle automatic garbage collecting switching.
+ */
+void Scheduler::garbage_collector() {
+	return;
+}
+
+/*
  * Scheduler::Scheduler(MASTER_CONTROL_BLOCK*)
  * Default constructor. 
  */ 
-Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
-	assert(!pthread_create(new pthread_t, NULL, start_scheduler, this));
+Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb, int collector_timeout)
+	: master_control_block(mcb), garbage_collector_timeout(collector_timeout) {
+	assert(!pthread_create(&scheduler_thread, NULL, start_scheduler, this));
+	assert(!pthread_create(&garbage_collector_thread, NULL, start_garbage_collector, this));
 }
 
 /*
@@ -145,9 +154,9 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 			break;
 	}
 
-	master_control_block->ui->write(STATE_WINDOW, " Thread #"
+	master_control_block->ui->write_refresh(STATE_WINDOW, " Thread #"
 		+ std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
-	// master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
+	master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }
 
 /*
@@ -156,6 +165,15 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
  */
 void* Scheduler::start_scheduler(void* p) {
 	static_cast<Scheduler*>(p)->scheduler();
+	return NULL;
+}
+
+/*
+ * Scheduler::start_garbage_collector(void*)
+ * Starts the garbage collector loop in a new thread.
+ */
+void* Scheduler::start_garbage_collector(void* p) {
+	static_cast<Scheduler*>(p)->garbage_collector();
 	return NULL;
 }
 
