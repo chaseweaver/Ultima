@@ -54,7 +54,7 @@ void Menu::print_menu(int win) {
 	master_control_block->ui->write(win, 21, 1, "Choose an option");
 	master_control_block->ui->write(win, 2, 3, "1: Log Threads");
 	master_control_block->ui->write(win, 2, 4, "2: Log Semaphore");
-	master_control_block->ui->write(win, 2, 5, "0: Exit Program");
+	master_control_block->ui->write_refresh(win, 2, 5, "0: Exit Program");
 }
 
 /*

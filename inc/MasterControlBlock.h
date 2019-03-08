@@ -22,15 +22,15 @@ class UI;
 #include "Menu.h"
 #include "Semaphore.h"
 #include "Logger.h"
+#include "Queue.h"
 
 struct MASTER_CONTROL_BLOCK {
 	Scheduler* scheduler;
 	UI* ui;
 	Menu* menu;
 	Semaphore* ui_semaphore;
-	// Semaphore* scheduler_semaphore = new Semaphore("Scheduler Handler", 1);
-	// Semaphore* icp_semaphore = new Semaphore("ICP Handler", 1);
-	Logger* logger = new Logger(12);
+	Semaphore* scheduler_semaphore;
+	Logger* logger;
 };
 
 #endif

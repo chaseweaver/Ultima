@@ -16,11 +16,7 @@ void Scheduler::scheduler() {
 	srand(time(NULL));
 	do {
 		if (!task_list.empty()) {
-			TASK_CONTROL_BLOCK* tcb;
-			//task_list.front(tcb);
-			
-			if (!task_list.try_and_pop(tcb))
-				break;
+			TASK_CONTROL_BLOCK* tcb = task_list.dequeue();
 			
 			switch(tcb->task_state) {
 				case DEAD:					
@@ -33,24 +29,24 @@ void Scheduler::scheduler() {
 
 				case BLOCKED:
 					set_state(tcb, READY);
-					task_list.push(tcb);
+					task_list.enqueue(tcb);
 					yield(2, 7);
 					break;
 
 				case READY:
 					set_state(tcb, RUNNING);
-					task_list.push(tcb);
+					task_list.enqueue(tcb);
 					yield(2, 7);
 					break;
 
 				case RUNNING:
 					set_state(tcb, READY);
-					task_list.push(tcb);
+					task_list.enqueue(tcb);
 					yield(2, 7);
 					break;
 			}
 
-			task_list.push(tcb);
+			task_list.enqueue(tcb);
 		}
 	} while (true);
 }
@@ -82,7 +78,10 @@ void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGU
 	task_arguments->task_control_block = tcb;
 	tcb->task_arguments = task_arguments;
 
-	task_list.push(tcb);
+	master_control_block->scheduler_semaphore->wait();
+	task_list.enqueue(tcb);
+	master_control_block->scheduler_semaphore->signal();
+
 	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
 }
 
@@ -148,7 +147,7 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 
 	master_control_block->ui->write(STATE_WINDOW, " Thread #"
 		+ std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
-	master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
+	// master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }
 
 /*

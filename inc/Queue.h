@@ -70,7 +70,7 @@ public:
 	// Deconstructor
 	~Queue(void) {
 		while (count != 0)
-		dequeue();
+			dequeue();
 	}
 
 	// Enqueue generic datum into queue and increment the size
@@ -116,7 +116,7 @@ public:
 	}
 
 	// Returns the size of the queue
-	unsigned size(void) {
+	unsigned size(void) const {
 		return count;
 	}
 
@@ -139,7 +139,7 @@ public:
 	}
 
 	// Checks if queue is empty
-	bool empty(void) {
+	bool empty(void) const {
 		return count == 0 ? true : false;
 	}
 };

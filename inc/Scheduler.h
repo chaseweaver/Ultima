@@ -8,7 +8,7 @@
 struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
-#include "ThreadSafeQueue.h"
+#include "Queue.h"
 #include "Struct.h"
 #include <pthread.h>
 #include <iostream>
@@ -27,7 +27,7 @@ class Scheduler {
 private:
 
 	MASTER_CONTROL_BLOCK* master_control_block;
-	ThreadSafeQueue<TASK_CONTROL_BLOCK*> task_list;
+	Queue<TASK_CONTROL_BLOCK*> task_list;
 	int number_of_workers = 0;
 
 	void yield(int, int);
