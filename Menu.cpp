@@ -51,10 +51,10 @@ void* Menu::start_menu(void* p) {
  */
 void Menu::print_menu(int win) {
 	master_control_block->ui->create_window_lock_spawn(" Console ", 2, 0, win, 60, 12, 83, 34);
-	master_control_block->ui->write(win, 21, 1, "Choose an option");
-	master_control_block->ui->write(win, 2, 3, "1: System Logs");
-	master_control_block->ui->write(win, 2, 4, "2: Scheduler Log");
-	master_control_block->ui->write(win, 2, 5, "3: Semaphore Log");
+	master_control_block->ui->write_refresh(win, 21, 1, "Choose an option");
+	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs");
+	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Log");
+	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Log");
 	master_control_block->ui->write_refresh(win, 2, 6, "0: Exit Program");
 }
 

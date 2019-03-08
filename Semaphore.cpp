@@ -30,6 +30,25 @@ void Semaphore::wait() {
 }
 
 /*
+ * Semaphore::wait(TASK_CONTROL_BLOCK*)
+ * Locks threads depending on state.
+ */
+void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
+	std::unique_lock<std::mutex> lock(mutex);
+
+	if (--value < 0) {
+		do {
+			cond.wait(lock);
+		} while (wakeups < 1);
+
+		sema_queue.enqueue(tcb);
+		master_control_block->scheduler->set_state(tcb, BLOCKED);
+
+		--wakeups;
+	}
+}
+
+/*
  * Semaphore::try_wait()
  * Returns whether or not an unlock can happen.
  */
@@ -54,5 +73,7 @@ void Semaphore::signal() {
 	if (++value <= 0) {
 		++wakeups;
 		cond.notify_one();
+		if (!sema_queue.empty())
+			master_control_block->scheduler->set_state(sema_queue.dequeue(), RUNNING);
 	}
 }

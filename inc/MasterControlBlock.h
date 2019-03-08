@@ -32,6 +32,7 @@ struct MASTER_CONTROL_BLOCK {
 	Semaphore* ui_semaphore;
 	Semaphore* scheduler_semaphore;
 	Semaphore* logger_semaphore;
+	Semaphore* semaphore_lock;
 	Logger* logger;
 };
 

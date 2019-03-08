@@ -16,7 +16,11 @@ void Scheduler::scheduler() {
 	srand(time(NULL));
 	do {
 		if (!task_list.empty()) {
-			TASK_CONTROL_BLOCK* tcb = task_list.dequeue();
+
+			master_control_block->scheduler_semaphore->wait();
+			TASK_CONTROL_BLOCK* tcb;
+			task_list.dequeue(tcb);
+			master_control_block->scheduler_semaphore->signal();
 			
 			switch(tcb->task_state) {
 				case DEAD:
@@ -27,25 +31,26 @@ void Scheduler::scheduler() {
 					break;
 
 				case BLOCKED:
+					//yield(2, 7);
+					pthread_yield();
 					set_state(tcb, READY);
-					task_list.enqueue(tcb);
-					yield(2, 7);
 					break;
 
 				case READY:
+					//yield(2, 7);
+					pthread_yield();
 					set_state(tcb, RUNNING);
-					task_list.enqueue(tcb);
-					yield(2, 7);
 					break;
 
 				case RUNNING:
-					set_state(tcb, READY);
-					task_list.enqueue(tcb);
 					yield(2, 7);
+					set_state(tcb, READY);
 					break;
 			}
 
+			master_control_block->scheduler_semaphore->wait();
 			task_list.enqueue(tcb);
+			master_control_block->scheduler_semaphore->signal();
 		}
 	} while (true);
 }
@@ -103,14 +108,16 @@ void Scheduler::respawn(TASK_CONTROL_BLOCK* tcb, void* worker(void*), ARGUMENTS*
  * Returns the task_list size.
  */
 int Scheduler::task_list_size() {
+	master_control_block->scheduler_semaphore->wait();
 	return task_list.size();
+	master_control_block->scheduler_semaphore->signal();
 }
 
 /*
  * Scheduler::set_state(TASK_CONTROL_BLOCK*, int)
  * Changes task state in the list and logs to STATE WINDOW.
  */
-void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
+void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {	
 	if (tcb->task_state == state)
 		return;
 
@@ -133,6 +140,7 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 			break;
 	}
 
+	// THIS CRASHES RIGHT HERE FROM THE UI::WRITE FUNCTION
 	tcb->task_state = state;
 
 	std::string str_new;

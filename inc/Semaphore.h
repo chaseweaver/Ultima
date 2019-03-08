@@ -17,14 +17,18 @@ private:
 	std::mutex mutex;
 	std::condition_variable cond;
 	std::string resource_name;
-	Queue<int> sema_queue;
+	Queue<TASK_CONTROL_BLOCK*> sema_queue;
+
 	int value;
 	int wakeups = 0;
+
+	MASTER_CONTROL_BLOCK* master_control_block;
 
 public:
 	Semaphore(std::string, int);
 	~Semaphore();
 	void wait();
+	void wait(TASK_CONTROL_BLOCK*);
 	bool try_wait();
 	void signal();
 };
