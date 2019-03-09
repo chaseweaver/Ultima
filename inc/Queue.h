@@ -138,6 +138,22 @@ public:
 		return ret;
 	}
 
+	// Returns front of queue
+	void front(T& item) {
+		if (empty())
+			return;
+
+		item = head -> get_value();
+	}
+
+	// Returns back of queue
+	void back(T& item) {
+		if (empty())
+			return;
+
+		item = tail -> get_value();
+	}
+
 	// Checks if queue is empty
 	bool empty(void) const {
 		return count == 0 ? true : false;

@@ -30,6 +30,22 @@ void Menu::menu() {
 			master_control_block->ui->clear_window(OUTPUT_WINDOW);
 			print_log(OUTPUT_WINDOW);
 			break;
+		case '3':
+			master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			print_ui_semaphore(OUTPUT_WINDOW);
+			break;
+		case '4':
+			master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			print_scheduler_semaphore(OUTPUT_WINDOW);
+			break;
+		case '5':
+			master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			print_logger_semaphore(OUTPUT_WINDOW);
+			break;
+		case '6':
+			master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			print_tcb_semaphore(OUTPUT_WINDOW);
+			break;
 		}
 
 		usleep(10000);
@@ -54,8 +70,11 @@ void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 21, 1, "Choose an option");
 	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs");
 	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Log");
-	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Log");
-	master_control_block->ui->write_refresh(win, 2, 6, "0: Exit Program");
+	master_control_block->ui->write_refresh(win, 2, 5, "3: UI Semaphore Log");
+	master_control_block->ui->write_refresh(win, 2, 6, "4: Scheduler Semaphore Log");
+	master_control_block->ui->write_refresh(win, 2, 7, "5: Logger Semaphore Log");
+	master_control_block->ui->write_refresh(win, 2, 8, "6: TCB Semaphore Log");
+	master_control_block->ui->write_refresh(win, 2, 9, "0: Exit Program");
 }
 
 /*
@@ -101,4 +120,36 @@ void Menu::wait() {
  */
 void Menu::print_log(int window_id) {
 	master_control_block->ui->write_refresh(window_id, master_control_block->logger->fetch_log());
+}
+
+/*
+ * Menu::print_logger_semaphore(int)
+ * Prints the Logger log to a specific window given ID. 
+ */
+void Menu::print_logger_semaphore(int window_id) {
+	master_control_block->ui->write_refresh(window_id, master_control_block->logger_semaphore->fetch_log());
+}
+
+/*
+ * Menu::print_tcb_semaphore(int)
+ * Prints the TCB log to a specific window given ID. 
+ */
+void Menu::print_tcb_semaphore(int window_id) {
+	master_control_block->ui->write_refresh(window_id, master_control_block->tcb_semaphore ->fetch_log());
+}
+
+/*
+ * Menu::print_ui_semaphore(int)
+ * Prints the UI log to a specific window given ID. 
+ */
+void Menu::print_ui_semaphore(int window_id) {
+	master_control_block->ui->write_refresh(window_id, master_control_block->ui_semaphore ->fetch_log());
+}
+
+/*
+ * Menu::print_scheduler_semaphore(int)
+ * Prints the Scheduler log to a specific window given ID. 
+ */
+void Menu::print_scheduler_semaphore(int window_id) {
+	master_control_block->ui->write_refresh(window_id, master_control_block->scheduler_semaphore ->fetch_log());
 }

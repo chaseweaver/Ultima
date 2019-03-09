@@ -450,13 +450,13 @@ void UI::write(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK*
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait(tcb);
+	master_control_block->tcb_semaphore->wait(tcb);
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, x, y, msg);
 
-	master_control_block->ui_semaphore->signal();
+	master_control_block->tcb_semaphore->signal();
 }
 
 /*
@@ -489,13 +489,13 @@ void UI::write(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait(tcb);
+	master_control_block->tcb_semaphore->wait(tcb);
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, msg);
 
-	master_control_block->ui_semaphore->signal();
+	master_control_block->tcb_semaphore->signal();
 }
 
 /*
@@ -528,13 +528,13 @@ void UI::write_refresh(int window_id, int x, int y, std::string msg, TASK_CONTRO
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait(tcb);
+	master_control_block->tcb_semaphore->wait(tcb);
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, x, y, msg);
 
-	master_control_block->ui_semaphore->signal();
+	master_control_block->tcb_semaphore->signal();
 }
 
 /*
@@ -567,13 +567,13 @@ void UI::write_refresh(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) 
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->ui_semaphore->wait(tcb);
-
+	master_control_block->tcb_semaphore->wait(tcb);
+	
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, msg);
 
-	master_control_block->ui_semaphore->signal();
+	master_control_block->tcb_semaphore->signal();
 }
 
 /*

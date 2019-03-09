@@ -48,7 +48,7 @@ void master_control_block_init() {
 	master_control_block->ui_semaphore = new Semaphore("UI Handler", 1);
 	master_control_block->scheduler_semaphore = new Semaphore("Scheduler Handler", 1);
 	master_control_block->logger_semaphore = new Semaphore("Logger Handler", 1);
-	master_control_block->semaphore_lock = new Semaphore("Semaphore Locker", 1);
+	master_control_block->tcb_semaphore = new Semaphore("TCB Locker", 1);
 	master_control_block->ui = new UI(master_control_block);
 	master_control_block->logger = new Logger(32);
 }
@@ -121,14 +121,17 @@ void* worker(void* arguments) {
 	do {
 
 		while (tcb->task_state == RUNNING) {
+			if (counter == r)
+				break;
+
 			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
 			master_control_block->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id)
 				+ " is running #" + std::to_string(counter) + "\n");
-			usleep(100000);
+			usleep(1000000);
 		}
 
 		sleep(1);
-	} while (counter <= r);
+	} while (counter != r);
 
 	master_control_block->ui->write_refresh(args->id, "\n Thread #"
 		+ std::to_string(args->id) + "\n has ended.\n");

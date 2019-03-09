@@ -31,6 +31,10 @@ public:
 	void stop();
 	void wait();
 	void print_log(int);
+	void print_ui_semaphore(int);
+	void print_tcb_semaphore(int);
+	void print_logger_semaphore(int);
+	void print_scheduler_semaphore(int);
 };
 
 #endif

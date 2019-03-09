@@ -77,3 +77,39 @@ void Semaphore::signal() {
 			master_control_block->scheduler->set_state(sema_queue.dequeue(), RUNNING);
 	}
 }
+
+
+/*
+ * Logger::fetch_log()
+ * Fetches contents of semaphore logs.
+ */
+std::string Semaphore::fetch_log() {
+	wait();
+	
+	std::string header = " Semaphore Log\n";
+	std::string sema_title = " Title:";
+	std::string sema_value_title = " Value:";
+	std::string sema_wakeups_title = " Wakeups:";
+	std::string sema_list_title = " Queue:";
+
+	pad(sema_title, 11, ' ');
+	pad(sema_value_title, 11, ' ');
+	pad(sema_wakeups_title, 11, ' ');
+	pad(sema_list_title, 11, ' ');
+
+	sema_title += resource_name;
+	sema_value_title += std::to_string(value);
+	sema_wakeups_title += std::to_string(wakeups);
+
+	if (!sema_queue.empty()) {
+		Queue<TASK_CONTROL_BLOCK*>* tcb = new Queue<TASK_CONTROL_BLOCK*>(sema_queue);
+		do {
+			TASK_CONTROL_BLOCK* tmp;
+			tcb->dequeue(tmp);
+			sema_value_title += tcb->size() > 1 ? std::to_string(tmp->task_id) + " -> " : std::to_string(tmp->task_id);
+		} while (!tcb->empty());
+	}
+
+	signal();
+	return header + "\n" + sema_title + "\n" + sema_value_title + "\n" + sema_wakeups_title + "\n" + sema_list_title;
+}

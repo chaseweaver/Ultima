@@ -1,6 +1,22 @@
 #include "inc/Scheduler.h"
 
 /*
+ * Scheduler::Scheduler(MASTER_CONTROL_BLOCK*)
+ * Default constructor. 
+ */ 
+Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb, int collector_timeout)
+	: master_control_block(mcb), garbage_collector_timeout(collector_timeout) {
+	assert(!pthread_create(&scheduler_thread, NULL, start_scheduler, this));
+	assert(!pthread_create(&garbage_collector_thread, NULL, start_garbage_collector, this));
+}
+
+/*
+ * Scheduler::~Scheduler()
+ * Default deconstructor. 
+ */ 
+Scheduler::~Scheduler() {}
+
+/*
  * Scheduler::yield(int, int)
  * Alternative to pthread_yield() since that is not cross-platform.
  */
@@ -28,17 +44,17 @@ void Scheduler::scheduler() {
 
 				// Unused state, potentially for the future.
 				case IDLE:
+					yield(2, 7);
+					set_state(tcb, READY);
 					break;
 
 				case BLOCKED:
-					//yield(2, 7);
-					pthread_yield();
+					yield(2, 7);
 					set_state(tcb, READY);
 					break;
 
 				case READY:
-					//yield(2, 7);
-					pthread_yield();
+					yield(2, 7);
 					set_state(tcb, RUNNING);
 					break;
 
@@ -62,22 +78,6 @@ void Scheduler::scheduler() {
 void Scheduler::garbage_collector() {
 	return;
 }
-
-/*
- * Scheduler::Scheduler(MASTER_CONTROL_BLOCK*)
- * Default constructor. 
- */ 
-Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb, int collector_timeout)
-	: master_control_block(mcb), garbage_collector_timeout(collector_timeout) {
-	assert(!pthread_create(&scheduler_thread, NULL, start_scheduler, this));
-	assert(!pthread_create(&garbage_collector_thread, NULL, start_garbage_collector, this));
-}
-
-/*
- * Scheduler::~Scheduler()
- * Default deconstructor. 
- */ 
-Scheduler::~Scheduler() {}
 
 /*
  * Scheduler::create_new_task(std::string, void* (void*), ARGUMENTS*)
@@ -140,7 +140,61 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 			break;
 	}
 
-	// THIS CRASHES RIGHT HERE FROM THE UI::WRITE FUNCTION
+	tcb->task_state = state;
+
+	std::string str_new;
+	switch (state) {
+		case DEAD:
+			str_new = "DEAD";
+			break;
+		case IDLE:
+			str_new = "IDLE";
+			break;
+		case BLOCKED:
+			str_new = "BLOCKED";
+			break;
+		case READY:
+			str_new = "READY";
+			break;
+		case RUNNING:
+			str_new = "RUNNING";
+			break;
+	}
+
+	master_control_block->ui->write_refresh(STATE_WINDOW, " Thread #"
+		+ std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
+	master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
+}
+
+/*
+ * Scheduler::set_state(int*, int)
+ * Changes task state in the list and logs to STATE WINDOW.
+ */
+void Scheduler::set_state(int task_id, int state) {	
+	TASK_CONTROL_BLOCK* tcb = get_task_control_block(task_id);
+
+	if (tcb->task_id == task_id)
+		return;
+
+	std::string str_old;
+	switch (tcb->task_state) {
+		case DEAD:
+			str_old = "DEAD";
+			break;
+		case IDLE:
+			str_old = "IDLE";
+			break;
+		case BLOCKED:
+			str_old = "BLOCKED";
+			break;
+		case READY:
+			str_old = "READY";
+			break;
+		case RUNNING:
+			str_old = "RUNNING";
+			break;
+	}
+
 	tcb->task_state = state;
 
 	std::string str_new;
@@ -206,4 +260,23 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results, TASK_CONTROL_
 	args->thread_results = thread_results;
 	args->task_control_block = task_control_block;
 	return args;
+}
+
+/*
+ * Scheduler::get_task_control_block(int)
+ * Returns a pointer to a thread's TASK_CONTROL_BLOCK given an ID.
+ */
+TASK_CONTROL_BLOCK* Scheduler::get_task_control_block(int tid) {
+	Queue<TASK_CONTROL_BLOCK*>* tmp = new Queue<TASK_CONTROL_BLOCK*>(task_list);
+
+	do {
+		TASK_CONTROL_BLOCK* tcb;
+		tmp->dequeue(tcb);
+
+		if (tcb->task_id == tid)
+			return tcb;
+
+	} while (!tmp->empty());
+
+	return NULL;
 }
