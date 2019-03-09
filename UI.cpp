@@ -1,39 +1,5 @@
 #include "inc/UI.h"
 
-/*
- * UI::refresher()
- * UI refresher loop. Refreshs windows that have events.
- */
-/*
-void UI::refresh() {
-	do {
-		if (!window_data->empty()) {
-
-			WINDOW_DATA* win_dat;
-			window_data->wait_and_pop(win_dat);
-
-			WINDOW_OBJECT* win_obj;
-			bool success = false;
-
-			while (!success && !window_object->empty()) {
-				window_object->wait_and_pop(win_obj);
-
-				if (win_obj->window_id == win_dat->window_id) {
-					win_dat->x && win_dat->y
-						? success = write_window_refresh(win_obj->window, win_dat->x, win_dat->y, win_dat->msg)
-						: success = write_window_refresh(win_obj->window, win_dat->msg);
-				}
-
-				window_object->push(win_obj);
-			}
-		}
-
-		// Refresh the loop based on refresh_rate
-		usleep(100000);
-	} while (enabled);
-}
-*/
-
 WINDOW* UI::fetch_window(int window_id) {
 	WINDOW_OBJECT* win_obj;
 	bool success = false;
@@ -450,13 +416,13 @@ void UI::write(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK*
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->tcb_semaphore->wait(tcb);
+	master_control_block->ui_semaphore->wait(tcb);
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, x, y, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	master_control_block->ui_semaphore->signal();
 }
 
 /*
@@ -489,13 +455,13 @@ void UI::write(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->tcb_semaphore->wait(tcb);
+	master_control_block->ui_semaphore->wait(tcb);
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	master_control_block->ui_semaphore->signal();
 }
 
 /*
@@ -528,13 +494,13 @@ void UI::write_refresh(int window_id, int x, int y, std::string msg, TASK_CONTRO
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->tcb_semaphore->wait(tcb);
+	master_control_block->ui_semaphore->wait(tcb);
 
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, x, y, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	master_control_block->ui_semaphore->signal();
 }
 
 /*
@@ -567,13 +533,13 @@ void UI::write_refresh(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) 
 	win_dat->msg = msg;
 	win_dat->task_control_block = tcb;
 
-	master_control_block->tcb_semaphore->wait(tcb);
+	master_control_block->ui_semaphore->wait(tcb);
 	
 	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	master_control_block->ui_semaphore->signal();
 }
 
 /*

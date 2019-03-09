@@ -49,6 +49,7 @@ public:
 	int task_list_size();
 	static void* start_scheduler(void*);
 	static void* start_garbage_collector(void*);
+	
 	ARGUMENTS* create_arguments(int, int);
 	ARGUMENTS* create_arguments(int, int, TASK_CONTROL_BLOCK*);
 	TASK_CONTROL_BLOCK* get_task_control_block(int);

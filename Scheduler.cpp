@@ -32,41 +32,35 @@ void Scheduler::scheduler() {
 	srand(time(NULL));
 	do {
 		if (!task_list.empty()) {
-
-			master_control_block->scheduler_semaphore->wait();
 			TASK_CONTROL_BLOCK* tcb;
-			task_list.dequeue(tcb);
-			master_control_block->scheduler_semaphore->signal();
-			
+			task_list.front(tcb);
+
+			while (tcb->task_arguments->locked) sleep(1);
+
 			switch(tcb->task_state) {
 				case DEAD:
 					break;
 
 				// Unused state, potentially for the future.
 				case IDLE:
-					yield(2, 7);
 					set_state(tcb, READY);
 					break;
 
 				case BLOCKED:
-					yield(2, 7);
-					set_state(tcb, READY);
 					break;
 
 				case READY:
-					yield(2, 7);
 					set_state(tcb, RUNNING);
 					break;
 
 				case RUNNING:
-					yield(2, 7);
 					set_state(tcb, READY);
 					break;
 			}
 
-			master_control_block->scheduler_semaphore->wait();
-			task_list.enqueue(tcb);
-			master_control_block->scheduler_semaphore->signal();
+			task_list.enqueue_dequeue();
+
+			yield(2, 7);
 		}
 	} while (true);
 }
@@ -173,7 +167,7 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 void Scheduler::set_state(int task_id, int state) {	
 	TASK_CONTROL_BLOCK* tcb = get_task_control_block(task_id);
 
-	if (tcb->task_id == task_id)
+	if (tcb->task_id == state)
 		return;
 
 	std::string str_old;
@@ -246,6 +240,7 @@ void* Scheduler::start_garbage_collector(void* p) {
 ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
 	ARGUMENTS* args = new ARGUMENTS;
 	args->id = id;
+	args->locked = false;
 	args->thread_results = thread_results;
 	return args;
 }
@@ -257,6 +252,7 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
 ARGUMENTS* Scheduler::create_arguments(int id, int thread_results, TASK_CONTROL_BLOCK* task_control_block) {
 	ARGUMENTS* args = new ARGUMENTS;
 	args->id = id;
+	args->locked = false;
 	args->thread_results = thread_results;
 	args->task_control_block = task_control_block;
 	return args;

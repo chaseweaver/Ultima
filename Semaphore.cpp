@@ -1,6 +1,5 @@
 #include "inc/Semaphore.h"
 
-
 /*
  * Semaphore::Semaphore(std::string, int)
  * Default constructor.
@@ -19,14 +18,13 @@ Semaphore::~Semaphore() {}
  * Locks threads depending on state.
  */
 void Semaphore::wait() {
-	std::unique_lock<std::mutex> lock(mutex);
+	pthread_mutex_lock(&mutex);
 
-	if (--value < 0) {
-		do {
-			cond.wait(lock);
-		} while (wakeups < 1);
-		--wakeups;
-	}
+	while (value == 0)
+		pthread_cond_wait(&cond, &mutex);
+		
+	--value;
+	pthread_mutex_unlock(&mutex);
 }
 
 /*
@@ -34,33 +32,15 @@ void Semaphore::wait() {
  * Locks threads depending on state.
  */
 void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
-	std::unique_lock<std::mutex> lock(mutex);
+	pthread_mutex_lock(&mutex);
 
-	if (--value < 0) {
-		do {
-			cond.wait(lock);
-		} while (wakeups < 1);
-
-		sema_queue.enqueue(tcb);
-		master_control_block->scheduler->set_state(tcb, BLOCKED);
-
-		--wakeups;
+	while (value == 0) {
+		tcb->task_state = BLOCKED;
+		pthread_cond_wait(&cond, &mutex);
 	}
-}
-
-/*
- * Semaphore::try_wait()
- * Returns whether or not an unlock can happen.
- */
-bool Semaphore::try_wait() {
-	std::unique_lock<std::mutex> lock(mutex);
-
-	if (value > 0) {
-		--value;
-		return true;
-	} else {
-		return false;
-	}
+		
+	--value;
+	pthread_mutex_unlock(&mutex);
 }
 
 /*
@@ -68,38 +48,28 @@ bool Semaphore::try_wait() {
  * Signals to other threads that one has finished.
  */
 void Semaphore::signal() {
-	std::unique_lock<std::mutex> lock(mutex);
-
-	if (++value <= 0) {
-		++wakeups;
-		cond.notify_one();
-		if (!sema_queue.empty())
-			master_control_block->scheduler->set_state(sema_queue.dequeue(), RUNNING);
-	}
+	pthread_mutex_lock(&mutex);
+	++value;
+	pthread_cond_signal(&cond);
+	pthread_mutex_unlock(&mutex);
 }
-
 
 /*
  * Logger::fetch_log()
  * Fetches contents of semaphore logs.
  */
 std::string Semaphore::fetch_log() {
-	wait();
-	
 	std::string header = " Semaphore Log\n";
 	std::string sema_title = " Title:";
 	std::string sema_value_title = " Value:";
-	std::string sema_wakeups_title = " Wakeups:";
 	std::string sema_list_title = " Queue:";
 
 	pad(sema_title, 11, ' ');
 	pad(sema_value_title, 11, ' ');
-	pad(sema_wakeups_title, 11, ' ');
 	pad(sema_list_title, 11, ' ');
 
 	sema_title += resource_name;
 	sema_value_title += std::to_string(value);
-	sema_wakeups_title += std::to_string(wakeups);
 
 	if (!sema_queue.empty()) {
 		Queue<TASK_CONTROL_BLOCK*>* tcb = new Queue<TASK_CONTROL_BLOCK*>(sema_queue);
@@ -110,6 +80,5 @@ std::string Semaphore::fetch_log() {
 		} while (!tcb->empty());
 	}
 
-	signal();
-	return header + "\n" + sema_title + "\n" + sema_value_title + "\n" + sema_wakeups_title + "\n" + sema_list_title;
+	return header + "\n" + sema_title + "\n" + sema_value_title + "\n" + sema_list_title;
 }

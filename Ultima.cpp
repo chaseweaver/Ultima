@@ -12,6 +12,8 @@ void* worker(void*);
 
 MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
 
+int NUMBER_OF_WORKERS = 8;
+
 int main() {
 	
 	master_control_block_init();
@@ -23,7 +25,7 @@ int main() {
 	mailbox_window(MAILBOX_WINDOW);
 
 	// Spawn child workers
-	for (int i = 1; i <= 8; i++) {
+	for (int i = 1; i <= NUMBER_OF_WORKERS; i++) {
 		i <= 4 
 			? master_control_block->ui->create_window_lock_spawn(" Worker #" + std::to_string(i)
 				+ ' ', 4, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
@@ -45,12 +47,12 @@ int main() {
  */ 
 void master_control_block_init() {
 	master_control_block->scheduler = new Scheduler(master_control_block, 5);
+	master_control_block->ui = new UI(master_control_block);
+	master_control_block->logger = new Logger(32);
 	master_control_block->ui_semaphore = new Semaphore("UI Handler", 1);
 	master_control_block->scheduler_semaphore = new Semaphore("Scheduler Handler", 1);
 	master_control_block->logger_semaphore = new Semaphore("Logger Handler", 1);
 	master_control_block->tcb_semaphore = new Semaphore("TCB Locker", 1);
-	master_control_block->ui = new UI(master_control_block);
-	master_control_block->logger = new Logger(32);
 }
 
 /*
@@ -117,17 +119,19 @@ void* worker(void* arguments) {
 	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
 	int& counter = args->thread_results;
 
-	int r = 1 + rand() % 100;
+	int r = 1 + rand() % 1000;
 	do {
-
 		while (tcb->task_state == RUNNING) {
 			if (counter == r)
 				break;
 
+			args->locked = true;
 			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
 			master_control_block->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id)
 				+ " is running #" + std::to_string(counter) + "\n");
-			usleep(1000000);
+			args->locked = false;
+			
+			usleep(100000);
 		}
 
 		sleep(1);

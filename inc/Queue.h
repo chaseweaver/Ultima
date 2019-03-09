@@ -115,6 +115,13 @@ public:
 		delete tmp;
 	}
 
+	// Enqueue generic datum into queue and increment the size
+	void enqueue_dequeue() {
+		T item;
+		dequeue(item);
+		enqueue(item);
+	}
+
 	// Returns the size of the queue
 	unsigned size(void) const {
 		return count;

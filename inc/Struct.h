@@ -11,6 +11,7 @@
 struct ARGUMENTS {
 	int id;
 	int thread_results;
+	bool locked;
 	struct TASK_CONTROL_BLOCK* task_control_block;
 };
 
