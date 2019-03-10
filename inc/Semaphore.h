@@ -10,12 +10,19 @@ struct MASTER_CONTROL_BLOCK;
 
 #include "Queue.h"
 #include <pthread.h>
+#include <thread>             
+#include <mutex>              
+#include <condition_variable> 
 
 class Semaphore {
 private:
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 	std::string resource_name;
+
+	std::mutex mtx;
+	std::condition_variable cv;
+
 	int value;
 
 	Queue<TASK_CONTROL_BLOCK*> sema_queue;

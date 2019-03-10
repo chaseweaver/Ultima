@@ -47,6 +47,7 @@ void Scheduler::scheduler() {
 					break;
 
 				case BLOCKED:
+					set_state(tcb, READY);
 					break;
 
 				case READY:

@@ -121,18 +121,21 @@ void* worker(void* arguments) {
 
 	int r = 1 + rand() % 1000;
 	do {
+
+		master_control_block->tcb_semaphore->wait(tcb);
+
 		while (tcb->task_state == RUNNING) {
 			if (counter == r)
 				break;
 
-			args->locked = true;
 			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
 			master_control_block->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id)
 				+ " is running #" + std::to_string(counter) + "\n");
-			args->locked = false;
 			
 			usleep(100000);
 		}
+
+		master_control_block->tcb_semaphore->signal();
 
 		sleep(1);
 	} while (counter != r);

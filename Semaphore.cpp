@@ -18,13 +18,9 @@ Semaphore::~Semaphore() {}
  * Locks threads depending on state.
  */
 void Semaphore::wait() {
-	pthread_mutex_lock(&mutex);
-
-	while (value == 0)
-		pthread_cond_wait(&cond, &mutex);
-		
+	std::unique_lock<std::mutex> lck(mtx);
+  while (value == 0) cv.wait(lck);
 	--value;
-	pthread_mutex_unlock(&mutex);
 }
 
 /*
@@ -32,15 +28,9 @@ void Semaphore::wait() {
  * Locks threads depending on state.
  */
 void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
-	pthread_mutex_lock(&mutex);
-
-	while (value == 0) {
-		tcb->task_state = BLOCKED;
-		pthread_cond_wait(&cond, &mutex);
-	}
-		
+	std::unique_lock<std::mutex> lck(mtx);
+  while (value == 0) { tcb->task_state = BLOCKED; cv.wait(lck); }
 	--value;
-	pthread_mutex_unlock(&mutex);
 }
 
 /*
@@ -48,10 +38,9 @@ void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
  * Signals to other threads that one has finished.
  */
 void Semaphore::signal() {
-	pthread_mutex_lock(&mutex);
-	++value;
-	pthread_cond_signal(&cond);
-	pthread_mutex_unlock(&mutex);
+	std::unique_lock<std::mutex> lck(mtx);
+  ++value;
+  cv.notify_one();
 }
 
 /*
