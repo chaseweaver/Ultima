@@ -122,6 +122,8 @@ void* worker(void* arguments) {
 	int r = 1 + rand() % 1000;
 	do {
 
+
+		args->locked = true;
 		master_control_block->tcb_semaphore->wait(tcb);
 
 		while (tcb->task_state == RUNNING) {
@@ -136,6 +138,7 @@ void* worker(void* arguments) {
 		}
 
 		master_control_block->tcb_semaphore->signal();
+		args->locked = false;
 
 		sleep(1);
 	} while (counter != r);

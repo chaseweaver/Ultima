@@ -35,7 +35,7 @@ void Scheduler::scheduler() {
 			TASK_CONTROL_BLOCK* tcb;
 			task_list.front(tcb);
 
-			while (tcb->task_arguments->locked) sleep(1);
+			//while (tcb->task_arguments->locked) sleep(1);
 
 			switch(tcb->task_state) {
 				case DEAD:
@@ -47,21 +47,22 @@ void Scheduler::scheduler() {
 					break;
 
 				case BLOCKED:
+					yield(2, 2);
 					set_state(tcb, READY);
 					break;
 
 				case READY:
+					yield(2, 2);
 					set_state(tcb, RUNNING);
 					break;
 
 				case RUNNING:
+					yield(2, 2);
 					set_state(tcb, READY);
 					break;
 			}
 
 			task_list.enqueue_dequeue();
-
-			yield(2, 7);
 		}
 	} while (true);
 }
@@ -81,7 +82,8 @@ void Scheduler::garbage_collector() {
 void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGUMENTS* task_arguments) {
 	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
 	tcb->task_id = ++number_of_workers;
-	tcb->task_state = READY;
+	// tcb->task_state = READY;
+	tcb->task_state = task_list.empty() ? RUNNING : READY;
 	tcb->task_name = task_name;
 	tcb->task_thread = *(new pthread_t);
 	task_arguments->task_control_block = tcb;

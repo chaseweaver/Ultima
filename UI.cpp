@@ -540,6 +540,7 @@ void UI::write_refresh(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) 
 	write_window_refresh(win, msg);
 
 	master_control_block->ui_semaphore->signal();
+	tcb->task_state = RUNNING;
 }
 
 /*

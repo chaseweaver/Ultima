@@ -29,7 +29,11 @@ void Semaphore::wait() {
  */
 void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
 	std::unique_lock<std::mutex> lck(mtx);
-  while (value == 0) { tcb->task_state = BLOCKED; cv.wait(lck); }
+  while (value == 0) { 
+		tcb->task_state = BLOCKED;
+		cv.wait(lck);
+	}
+	tcb->task_state = RUNNING;
 	--value;
 }
 
