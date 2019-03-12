@@ -9,19 +9,15 @@ struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
 #include "Queue.h"
-#include <pthread.h>
 #include <thread>             
 #include <mutex>              
 #include <condition_variable> 
 
 class Semaphore {
 private:
-	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-	std::string resource_name;
-
 	std::mutex mtx;
 	std::condition_variable cv;
+	std::string resource_name;
 
 	int value;
 
@@ -29,13 +25,14 @@ private:
 	MASTER_CONTROL_BLOCK* master_control_block;
 
 public:
-	Semaphore(std::string, int);
+	Semaphore(MASTER_CONTROL_BLOCK*, std::string, int);
 	~Semaphore();
 	void wait();
 	void wait(TASK_CONTROL_BLOCK*);
 	bool try_wait();
 	void signal();
 	std::string fetch_log();
+	void set_state(TASK_CONTROL_BLOCK* tcb, int state);
 };
 
 #endif

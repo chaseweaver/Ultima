@@ -35,34 +35,36 @@ void Scheduler::scheduler() {
 			TASK_CONTROL_BLOCK* tcb;
 			task_list.front(tcb);
 
-			//while (tcb->task_arguments->locked) sleep(1);
-
 			switch(tcb->task_state) {
 				case DEAD:
+					// Run garbage collector here
 					break;
 
 				// Unused state, potentially for the future.
 				case IDLE:
+					yield(2, 5);
 					set_state(tcb, READY);
+					task_list.enqueue_dequeue();
 					break;
 
 				case BLOCKED:
-					yield(2, 2);
+					yield(2, 5);
 					set_state(tcb, READY);
+					task_list.enqueue_dequeue();
 					break;
 
 				case READY:
-					yield(2, 2);
+					yield(2, 5);
 					set_state(tcb, RUNNING);
+					task_list.enqueue_dequeue();
 					break;
 
 				case RUNNING:
-					yield(2, 2);
+					yield(2, 5);
 					set_state(tcb, READY);
+					task_list.enqueue_dequeue();
 					break;
 			}
-
-			task_list.enqueue_dequeue();
 		}
 	} while (true);
 }
@@ -114,7 +116,7 @@ int Scheduler::task_list_size() {
  * Scheduler::set_state(TASK_CONTROL_BLOCK*, int)
  * Changes task state in the list and logs to STATE WINDOW.
  */
-void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {	
+void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 	if (tcb->task_state == state)
 		return;
 

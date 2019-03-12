@@ -70,7 +70,7 @@ std::string Logger::fetch_log() {
 	pad(task_state, 12, ' ');
 
 	std::string header;
-	header += " " + task_id + "| " + task_name + "| " + task_state + "| " + task_timestamp + "\n";
+	header += "\n " + task_id + "| " + task_name + "| " + task_state + "| " + task_timestamp + "\n";
 
 	std::string content;
 	do {

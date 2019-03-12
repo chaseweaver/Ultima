@@ -46,13 +46,15 @@ int main() {
  * Initializes the MASTER_CONTROL_BLOCK objects.
  */ 
 void master_control_block_init() {
+	master_control_block->ui_semaphore = new Semaphore(master_control_block, "UI Handler", 1);
+	master_control_block->scheduler_semaphore = new Semaphore(master_control_block, "Scheduler Handler", 1);
+	master_control_block->logger_semaphore = new Semaphore(master_control_block, "Logger Handler", 1);
+	master_control_block->tcb_semaphore = new Semaphore(master_control_block, "TCB Locker", 1);
+	master_control_block->ipc_semaphore = new Semaphore(master_control_block, "IPC Handler", 1);
 	master_control_block->scheduler = new Scheduler(master_control_block, 5);
 	master_control_block->ui = new UI(master_control_block);
 	master_control_block->logger = new Logger(32);
-	master_control_block->ui_semaphore = new Semaphore("UI Handler", 1);
-	master_control_block->scheduler_semaphore = new Semaphore("Scheduler Handler", 1);
-	master_control_block->logger_semaphore = new Semaphore("Logger Handler", 1);
-	master_control_block->tcb_semaphore = new Semaphore("TCB Locker", 1);
+	master_control_block->ipc = new IPC(master_control_block, NUMBER_OF_WORKERS, 8);
 }
 
 /*
@@ -90,7 +92,7 @@ void state_window(int win) {
 void console_window(int win) {
 	master_control_block->menu = new Menu(master_control_block,
 		master_control_block->ui->create_window_lock_spawn
-		(" Console ", 2, 0, win, 60, 12, 83, 34), win);
+		(" Console ", 2, 0, win, 80, 12, 83, 34), win);
 	master_control_block->menu->print_menu(win);
 }
 
@@ -99,7 +101,7 @@ void console_window(int win) {
  * Creates the initial output window.
  */ 
 void output_window(int win) {
-	master_control_block->ui->create_window_lock_spawn(" Output ", 2, 0, win, 60, 12, 83, 2);
+	master_control_block->ui->create_window_lock_spawn(" Output ", 2, 0, win, 80, 12, 83, 2);
 }
 
 /*
@@ -107,7 +109,7 @@ void output_window(int win) {
  * Creates the initial output window.
  */ 
 void mailbox_window(int win) {
-	master_control_block->ui->create_window_lock_spawn(" Mailbox ", 2, 0, win, 60, 20, 83, 14);
+	master_control_block->ui->create_window_lock_spawn(" Mailbox ", 2, 0, win, 80, 20, 83, 14);
 }
 
 /*
@@ -121,24 +123,31 @@ void* worker(void* arguments) {
 
 	int r = 1 + rand() % 1000;
 	do {
-
-
-		args->locked = true;
 		master_control_block->tcb_semaphore->wait(tcb);
 
 		while (tcb->task_state == RUNNING) {
 			if (counter == r)
 				break;
 
-			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n", tcb);
-			master_control_block->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id)
+			// Just for example, we have the workers let other workers know when they are half done.
+			if (counter == r / 2) {
+				int tmp_rand = 1 + rand() % 8;
+				master_control_block->ipc->message_send(
+					master_control_block->ipc->compose_message(tcb, tmp_rand, "I am half way done!")
+				);
+
+				master_control_block->ui->write_refresh(args->id,
+					"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n");
+			}
+
+			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
+			master_control_block->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id) 
 				+ " is running #" + std::to_string(counter) + "\n");
 			
 			usleep(100000);
 		}
 
 		master_control_block->tcb_semaphore->signal();
-		args->locked = false;
 
 		sleep(1);
 	} while (counter != r);

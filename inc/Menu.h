@@ -7,6 +7,7 @@
 
 struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
+
 #include "Struct.h"
 #include <ncurses.h>
 
@@ -31,10 +32,8 @@ public:
 	void stop();
 	void wait();
 	void print_log(int);
-	void print_ui_semaphore(int);
 	void print_tcb_semaphore(int);
-	void print_logger_semaphore(int);
-	void print_scheduler_semaphore(int);
+	void print_message_box_list(int);
 };
 
 #endif
