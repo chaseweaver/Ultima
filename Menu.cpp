@@ -29,14 +29,17 @@ void Menu::menu() {
 		case '1':
 			master_control_block->ui->clear_window(OUTPUT_WINDOW);
 			print_log(OUTPUT_WINDOW);
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ System Logs\n");
 			break;
 		case '2':
 			master_control_block->ui->clear_window(OUTPUT_WINDOW);
 			print_tcb_semaphore(OUTPUT_WINDOW);
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Semaphore Logs\n");
 			break;
 		case '3':
 			master_control_block->ui->clear_window(MAILBOX_WINDOW);
 			print_message_box_list(MAILBOX_WINDOW);
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Mailbox List\n");
 			break;
 		}
 
@@ -60,7 +63,7 @@ void* Menu::start_menu(void* p) {
 void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 2, 1, "Choose an option");
 	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs");
-	master_control_block->ui->write_refresh(win, 2, 4, "2: Semaphore Log");
+	master_control_block->ui->write_refresh(win, 2, 4, "2: Semaphore Logs");
 	master_control_block->ui->write_refresh(win, 2, 5, "3: Mailbox List");
 	master_control_block->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }

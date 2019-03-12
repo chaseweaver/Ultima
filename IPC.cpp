@@ -7,10 +7,8 @@
 IPC::IPC(MASTER_CONTROL_BLOCK* mcb, int number_of_threads, int max_message_box_size)
 	: master_control_block(mcb), message_box_size(max_message_box_size) {
 	// assert(!pthread_create(new pthread_t, NULL, start_message_monitor, this));
-	for (int i = 0; i < number_of_threads; i++) {
-		Queue<MESSAGE_TYPE*>* tmp = new Queue<MESSAGE_TYPE*>;
-		message_box.insert(std::pair<int, Queue<MESSAGE_TYPE*>>(i, *tmp));
-	}
+	for (int i = 0; i < number_of_threads; i++)
+		message_box[i] = * new Queue<MESSAGE_TYPE*>;
 }
 
 /*
@@ -40,7 +38,7 @@ int IPC::message_send(MESSAGE_TYPE* message) {
 
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item = message_box.find(message->destination_task_id);
 	if (item != message_box.end()) {
-		if (item->second.size() > message_box_size)
+		if (item->second.size() >= message_box_size)
 			item->second.dequeue();
 
 		item->second.enqueue(message);
@@ -122,8 +120,8 @@ void IPC::disable() {
  * Fetches the message box list.
  */ 
 std::string IPC::fetch_message_box_list() {
-	//if (message_count() <= 0)
-		//return "\n There are currently no messages in any message box.\n";
+	if (message_count() <= 0)
+		return "\n There are currently no messages in any message box.\n";
 
 	std::string timestamp = "Timestamp";
 	std::string message_size = "Size";
@@ -131,10 +129,10 @@ std::string IPC::fetch_message_box_list() {
 	std::string source_task_id = "From";
 	std::string message = "Content";
 
-	pad(timestamp, 12, ' ');
-	pad(message_size, 5, ' ');
-	pad(destination_task_id, 5, ' ');
-	pad(source_task_id, 5, ' ');
+	pad(timestamp, 14, ' ');
+	pad(message_size, 6, ' ');
+	pad(destination_task_id, 8, ' ');
+	pad(source_task_id, 8, ' ');
 
 	std::string header;
 	header += "\n " + timestamp + "| " + message_size + "| "
@@ -143,27 +141,26 @@ std::string IPC::fetch_message_box_list() {
 	master_control_block->ipc_semaphore->wait();
 
 	std::string content;
-	std::map<int, Queue<MESSAGE_TYPE*>>::const_iterator item;
+	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item;
 	for (item = message_box.begin(); item != message_box.end(); item++) {
 
-		if (item->second.empty())
-			break;
+		if (!item->second.empty()) {
+			Queue<MESSAGE_TYPE*>* tmp = new Queue<MESSAGE_TYPE*>(item->second);
+			MESSAGE_TYPE* tmp_msg = tmp->dequeue();
 
-		Queue<MESSAGE_TYPE*>* tmp = new Queue<MESSAGE_TYPE*>(item->second);
-		MESSAGE_TYPE* tmp_msg = tmp->dequeue();
+			std::string timestamp_ = std::to_string(tmp_msg->ms.count());
+			std::string message_size_ = std::to_string(tmp_msg->message_size);
+			std::string destination_task_id_ = "T-ID #" + std::to_string(tmp_msg->destination_task_id);
+			std::string source_task_id_ = "T-ID #" + std::to_string(tmp_msg->source_task_id);
 
-		std::string timestamp_ = std::to_string(tmp_msg->ms.count());
-		std::string message_size_ = std::to_string(tmp_msg->message_size);
-		std::string destination_task_id_ = std::to_string(tmp_msg->destination_task_id);
-		std::string source_task_id_ = std::to_string(tmp_msg->source_task_id);
+			pad(timestamp_, 14, ' ');
+			pad(message_size_, 6, ' ');
+			pad(destination_task_id_, 8, ' ');
+			pad(source_task_id_, 8, ' ');
 
-		pad(timestamp_, 12, ' ');
-		pad(message_size_, 5, ' ');
-		pad(destination_task_id_, 5, ' ');
-		pad(source_task_id_, 5, ' ');
-
-		header += " " + timestamp_ + "| " + message_size_ + "| "
-			+ destination_task_id_ + "| " + source_task_id_ + "| " + tmp_msg->msg + "\n";
+			header += " " + timestamp_ + "| " + message_size_ + "| "
+				+ destination_task_id_ + "| " + source_task_id_ + "| " + tmp_msg->msg + "\n";
+		}
 	}
 
 	master_control_block->ipc_semaphore->signal();

@@ -1,13 +1,7 @@
 #include "inc/MasterControlBlock.h"
 
 void master_control_block_init();
-void heading_window(int);
-void log_window(int);
-void state_window(int);
-void console_window(int);
-void output_window(int);
-void mailbox_window(int);
-void secret_window(int);
+void window_init();
 void* worker(void*);
 
 MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
@@ -17,12 +11,7 @@ int NUMBER_OF_WORKERS = 8;
 int main() {
 	
 	master_control_block_init();
-	heading_window(HEADING_WINDOW);
-	log_window(LOG_WINDOW);
-	state_window(STATE_WINDOW);
-	console_window(CONSOLE_WINDOW);
-	output_window(OUTPUT_WINDOW);
-	mailbox_window(MAILBOX_WINDOW);
+	window_init();
 
 	// Spawn child workers
 	for (int i = 1; i <= NUMBER_OF_WORKERS; i++) {
@@ -58,58 +47,27 @@ void master_control_block_init() {
 }
 
 /*
- * Ultima::heading_window(int)
- * Creates the initial heading window.
+ * Ultima::window_init()
+ * Creates the initial windows.
  */ 
-void heading_window(int win) {
-	master_control_block->ui->create_window_spawn(win, 79, 12, 3, 2);
-	master_control_block->ui->write(win, 26, 2, "ULTIMA 2.0 (Spring 2019)");
-	master_control_block->ui->write(win, 18, 3, "The Washington Redskins (Matt + Chase)");
-	master_control_block->ui->write(win, 2, 6, "$ Starting UI handler...");
-	master_control_block->ui->write_refresh(win, 2, 7, "$ Spawning child threads...");
-}
+void window_init() {
+	master_control_block->ui->create_window_spawn(HEADING_WINDOW, 79, 12, 3, 2);
+	master_control_block->ui->write(HEADING_WINDOW, 26, 2, "ULTIMA 2.0 (Spring 2019)");
+	master_control_block->ui->write(HEADING_WINDOW, 18, 3, "The Washington Redskins (Matt + Chase)");
+	master_control_block->ui->write(HEADING_WINDOW, 2, 6, "$ Starting UI handler...");
+	master_control_block->ui->write_refresh(HEADING_WINDOW, 2, 7, "$ Spawning child threads...");
 
-/*
- * Ultima::log_window(int)
- * Creates the initial log window.
- */
-void log_window(int win) {
-	master_control_block->ui->create_window_lock_spawn(" Log ", 2, 0, win, 39, 12, 3, 34);
-}
+	master_control_block->ui->create_window_lock_spawn(" Log ", 2, 0, LOG_WINDOW, 39, 12, 3, 34);
+	master_control_block->ui->create_window_lock_spawn(" State ", 2, 0, STATE_WINDOW, 39, 12, 43, 34);
+	master_control_block->ui->create_window_lock_spawn(" Output ", 2, 0, OUTPUT_WINDOW, 80, 12, 83, 2);
+	master_control_block->ui->create_window_lock_spawn(" Mailbox ", 2, 0, MAILBOX_WINDOW, 80, 20, 83, 14);
+	master_control_block->ui->create_window_lock_spawn(" Input ", 2, 0, INPUT_WINDOW, 21, 12, 142, 34);
+	master_control_block->ui->write(INPUT_WINDOW, "\n");
 
-/*
- * Ultima::state_window(int)
- * Creates the initial state window.
- */ 
-void state_window(int win) {
-	master_control_block->ui->create_window_lock_spawn(" State ", 2, 0, win, 39, 12, 43, 34);
-}
-
-/*
- * Ultima::console_window(int)
- * Creates the initial console window.
- */ 
-void console_window(int win) {
 	master_control_block->menu = new Menu(master_control_block,
 		master_control_block->ui->create_window_lock_spawn
-		(" Console ", 2, 0, win, 80, 12, 83, 34), win);
-	master_control_block->menu->print_menu(win);
-}
-
-/*
- * Ultima::output_window(int)
- * Creates the initial output window.
- */ 
-void output_window(int win) {
-	master_control_block->ui->create_window_lock_spawn(" Output ", 2, 0, win, 80, 12, 83, 2);
-}
-
-/*
- * Ultima::mailbox_window(int)
- * Creates the initial output window.
- */ 
-void mailbox_window(int win) {
-	master_control_block->ui->create_window_lock_spawn(" Mailbox ", 2, 0, win, 80, 20, 83, 14);
+		(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34), MENU_WINDOW);
+	master_control_block->menu->print_menu(MENU_WINDOW);
 }
 
 /*
@@ -121,7 +79,7 @@ void* worker(void* arguments) {
 	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
 	int& counter = args->thread_results;
 
-	int r = 1 + rand() % 1000;
+	int r = 1 + rand() % 100;
 	do {
 		master_control_block->tcb_semaphore->wait(tcb);
 

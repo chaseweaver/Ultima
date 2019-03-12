@@ -65,8 +65,8 @@ std::string Logger::fetch_log() {
 	std::string task_state = "Task State";
 	std::string task_timestamp = "Task Timestamp";
 
-	pad(task_id, 10, ' ');
-	pad(task_name, 12, ' ');
+	pad(task_id, 9, ' ');
+	pad(task_name, 11, ' ');
 	pad(task_state, 12, ' ');
 
 	std::string header;
@@ -77,7 +77,7 @@ std::string Logger::fetch_log() {
 
 		LOG_DATA* tmp;
 		log_data_->dequeue(tmp);
-		std::string task_id_ = std::to_string(tmp->task_id);
+		std::string task_id_ = "T-ID #" + std::to_string(tmp->task_id);
 		std::string task_name_ = tmp->task_name;
 		std::string task_timestamp_ = std::to_string(tmp->ms.count());
 
@@ -100,8 +100,8 @@ std::string Logger::fetch_log() {
 				break;
 		}
 
-		pad(task_id_, 10, ' ');
-		pad(task_name_, 12, ' ');
+		pad(task_id_, 9, ' ');
+		pad(task_name_, 11, ' ');
 		pad(task_state_, 12, ' ');
 
 		content += " " + task_id_ + "| " + task_name_ + "| " + task_state_ + "| " + task_timestamp_ + "\n";
