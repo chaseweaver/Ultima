@@ -19,6 +19,7 @@ class Semaphore;
 class Logger;
 class UI;
 class IPC;
+class Worker;
 
 #include "Scheduler.h"
 #include "UI.h"
@@ -27,12 +28,14 @@ class IPC;
 #include "Logger.h"
 #include "Queue.h"
 #include "IPC.h"
+#include "Worker.h"
 
 struct MASTER_CONTROL_BLOCK {
 	Scheduler* scheduler;
 	UI* ui;
 	Menu* menu;
 	IPC* ipc;
+	Worker* worker;
 	Logger* logger;
 	Semaphore* ui_semaphore;
 	Semaphore* scheduler_semaphore;

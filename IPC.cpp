@@ -6,7 +6,6 @@
  */ 
 IPC::IPC(MASTER_CONTROL_BLOCK* mcb, int number_of_threads, int max_message_box_size)
 	: master_control_block(mcb), message_box_size(max_message_box_size) {
-	// assert(!pthread_create(new pthread_t, NULL, start_message_monitor, this));
 	for (int i = 0; i < number_of_threads; i++)
 		message_box[i] = * new Queue<MESSAGE_TYPE*>;
 }

@@ -41,6 +41,28 @@ void Menu::menu() {
 			print_message_box_list(MAILBOX_WINDOW);
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Mailbox List\n");
 			break;
+		case '4':
+			master_control_block->ui->clear_window(MENU_WINDOW);
+			print_thread_menu(MENU_WINDOW);
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Spawn New Thread");
+			
+			int input = wgetch(menu_window);
+
+			do {
+				if (input >= 49 && input <= 56) {
+					master_control_block->scheduler->create_new_task("Worker #"
+						+ std::to_string(input), master_control_block->worker->start_worker_function, 
+					master_control_block->scheduler->create_arguments(input, 0));
+				}
+
+				input = wgetch(menu_window);
+				usleep(10000);
+			} while (input != 27);
+
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Return\n");
+			master_control_block->ui->clear_window(MENU_WINDOW);
+			print_menu(MENU_WINDOW);
+			break;
 		}
 
 		usleep(10000);
@@ -60,10 +82,23 @@ void* Menu::start_menu(void* p) {
  * Menu::print_menu(int)
  * Prints help menu.
  */
+void Menu::print_thread_menu(int win) {
+	master_control_block->ui->write_refresh(MENU_WINDOW, "\n Select Window to spawn new thread:\n");
+	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 1: Window #1\t 5: Window #5");
+	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 2: Window #2\t 6: Window #6");
+	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 3: Window #3\t 7: Window #7");
+	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 4: Window #4\t 8: Window #8");
+	master_control_block->ui->write_refresh(MENU_WINDOW, "\n\n ESC: Return");
+}
+
+/*
+ * Menu::print_menu(int)
+ * Prints help menu.
+ */
 void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 2, 1, "Choose an option");
-	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs");
-	master_control_block->ui->write_refresh(win, 2, 4, "2: Semaphore Logs");
+	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t4: Spawn New Thread");
+	master_control_block->ui->write_refresh(win, 2, 4, "2: Semaphore Logs\t");
 	master_control_block->ui->write_refresh(win, 2, 5, "3: Mailbox List");
 	master_control_block->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }

@@ -27,6 +27,7 @@ public:
 	Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int);
 	~Menu();
 	void print_menu(int);
+	void print_thread_menu(int);
 	void set_menu_window(WINDOW*, int);
 	void start();
 	void stop();

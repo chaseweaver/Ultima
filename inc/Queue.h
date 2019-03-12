@@ -116,7 +116,7 @@ public:
 	}
 
 	// Enqueue generic datum into queue and increment the size
-	void enqueue_dequeue() {
+	void move_to_back() {
 		T item;
 		dequeue(item);
 		enqueue(item);

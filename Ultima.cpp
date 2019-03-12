@@ -2,7 +2,7 @@
 
 void master_control_block_init();
 void window_init();
-void* worker(void*);
+void* worker_function(void*);
 
 MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
 
@@ -21,7 +21,7 @@ int main() {
 			: master_control_block->ui->create_window_lock_spawn(" Worker #" + std::to_string(i)
 		 		+ ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
 		master_control_block->scheduler->create_new_task("Worker #"
-			+ std::to_string(i), worker, master_control_block->scheduler->create_arguments(i, 0));
+			+ std::to_string(i), worker_function, master_control_block->scheduler->create_arguments(i, 0));
 	}
 
 	// Wait for UI thread to finish
@@ -44,6 +44,7 @@ void master_control_block_init() {
 	master_control_block->ui = new UI(master_control_block);
 	master_control_block->logger = new Logger(32);
 	master_control_block->ipc = new IPC(master_control_block, NUMBER_OF_WORKERS, 8);
+	master_control_block->worker = new Worker(master_control_block);
 }
 
 /*
@@ -70,17 +71,19 @@ void window_init() {
 	master_control_block->menu->print_menu(MENU_WINDOW);
 }
 
+
 /*
- * Ultima::worker(void*)
+ * Ultima::worker_function(void*)
  * Worker function to run in seperate threads.
  */
-void* worker(void* arguments) {
+void* worker_function(void* arguments) {
 	ARGUMENTS* args = (ARGUMENTS*) arguments;
 	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
 	int& counter = args->thread_results;
 
 	int r = 1 + rand() % 100;
 	do {
+		
 		master_control_block->tcb_semaphore->wait(tcb);
 
 		while (tcb->task_state == RUNNING) {
@@ -90,12 +93,15 @@ void* worker(void* arguments) {
 			// Just for example, we have the workers let other workers know when they are half done.
 			if (counter == r / 2) {
 				int tmp_rand = 1 + rand() % 8;
-				master_control_block->ipc->message_send(
+				int result = master_control_block->ipc->message_send(
 					master_control_block->ipc->compose_message(tcb, tmp_rand, "I am half way done!")
 				);
 
-				master_control_block->ui->write_refresh(args->id,
-					"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n");
+				result == 1
+					? master_control_block->ui->write_refresh(args->id,
+							"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n")
+					:	master_control_block->ui->write_refresh(args->id,
+							"\n Message failed\n to send.\n\n");
 			}
 
 			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");

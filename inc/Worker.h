@@ -5,55 +5,23 @@
 #pragma once
 #endif 
 
-#include "UI.h"
-#include <pthread.h>
+struct MASTER_CONTROL_BLOCK;
+#include "MasterControlBlock.h"
+
+#include "Struct.h"
+#include "Semaphore.h"
+#include "Scheduler.h"
 #include <iostream>
 
 class Worker {
-private:
-	//UI* ui;
-	
-public:
-	struct ARGUMENTS {
-		int id;
-		int thread_results;
-	};
+	private:
+		MASTER_CONTROL_BLOCK* master_control_block;
 
-	/*
-	 * Worker::Worker(UI*)
-	 * Default constructor. 
-	 */ 
-	//Worker(UI* u) : ui(u) {}
-	Worker(){}
-	/*
-	 * Worker::~Worker()
-	 * Default deconstructor. 
-	 */ 
-	~Worker() {}
-
-	/*
-	 * Worker::start()
-	 * Starts worker function. 
-	 */ 
-	static void* start(void* p) {
-		static_cast<Worker*>(p)->work;
-		return NULL;
-	}
-
-	ARGUMENTS* create_arguments(int id, int thread_results) {
-		ARGUMENTS* args = new ARGUMENTS;
-		args->id = id;
-		args->thread_results = thread_results;
-		return args;
-	}
-
-	static void work(void* a) {
-		ARGUMENTS* args = (ARGUMENTS *) a;
-
-		// sema.down();
-		// ui->write(4, 2, 2, "PENIS");
-		// sema.up();
-	}
+	public:
+		Worker(MASTER_CONTROL_BLOCK*);
+		~Worker();
+		static void* start_worker_function(void*);
+		void* worker_function(void*);
 };
 
 #endif
