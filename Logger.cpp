@@ -53,10 +53,8 @@ void Logger::set_max_number_of_logs_kept(int max_number_of_logs_kepts) {
  * Fetches contents of logs based on MAX_NUMBER_OF_LOGS_KEPT.
  */
 std::string Logger::fetch_log() {
-	//master_control_block->logger_semaphore->wait();
-
 	if (log_data.empty())
-		return "There are no logs available.";
+		return "\n There are no logs available.";
 
 	Queue<LOG_DATA*>* log_data_ = new Queue<LOG_DATA*>(log_data);
 

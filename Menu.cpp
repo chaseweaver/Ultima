@@ -33,15 +33,20 @@ void Menu::menu() {
 			break;
 		case '2':
 			master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			print_scheduler_logs(OUTPUT_WINDOW);
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Scheduler Logs\n");
+			break;
+		case '3':
+			master_control_block->ui->clear_window(OUTPUT_WINDOW);
 			print_tcb_semaphore(OUTPUT_WINDOW);
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Semaphore Logs\n");
 			break;
-		case '3':
+		case '4':
 			master_control_block->ui->clear_window(MAILBOX_WINDOW);
 			print_message_box_list(MAILBOX_WINDOW);
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Mailbox List\n");
 			break;
-		case '4':
+		case '5':
 			master_control_block->ui->clear_window(MENU_WINDOW);
 			print_thread_menu(MENU_WINDOW);
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Spawn New Thread");
@@ -97,9 +102,9 @@ void Menu::print_thread_menu(int win) {
  */
 void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 2, 1, "Choose an option");
-	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t4: Spawn New Thread");
-	master_control_block->ui->write_refresh(win, 2, 4, "2: Semaphore Logs\t");
-	master_control_block->ui->write_refresh(win, 2, 5, "3: Mailbox List");
+	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t4: Mailbox list");
+	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t5: Spawn New Thread");
+	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs");
 	master_control_block->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }
 
@@ -146,6 +151,14 @@ void Menu::wait() {
  */
 void Menu::print_log(int window_id) {
 	master_control_block->ui->write_refresh(window_id, master_control_block->logger->fetch_log());
+}
+
+/*
+ * Menu::print_scheduler_logs(int)
+ * Prints the log to a specific window given ID. 
+ */
+void Menu::print_scheduler_logs(int window_id) {
+	master_control_block->ui->write_refresh(window_id, master_control_block->scheduler->fetch_log());
 }
 
 /*

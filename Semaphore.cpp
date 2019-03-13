@@ -33,11 +33,13 @@ void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
 	if (value == 0)
 		sema_queue.enqueue(tcb);
   while (value == 0) {
-		set_state(tcb, BLOCKED);
+		if (tcb->task_state != DEAD)
+			set_state(tcb, BLOCKED);
 		cv.wait(lck);
 	}
 
-	 set_state(tcb, RUNNING);
+	if (tcb->task_state != DEAD)
+		set_state(tcb, RUNNING);
 	--value;
 }
 
@@ -54,7 +56,7 @@ void Semaphore::signal() {
 }
 
 /*
- * Logger::fetch_log()
+ * Semaphore::fetch_log()
  * Fetches contents of semaphore logs.
  */
 std::string Semaphore::fetch_log() {
@@ -85,9 +87,12 @@ std::string Semaphore::fetch_log() {
 /*
  * Semaphore::set_state(TASK_CONTROL_BLOCK*, int)
  * Changes task state in the list and logs to STATE WINDOW.
+ * This is done inside the Semaphore to remove the need to re-call the scheduler.
+ * For this project, the Semaphore needs to be coupled. This can be more-generic
+ * outside of this.
  */
 void Semaphore::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
-	if (tcb->task_state == state)
+	if (tcb->task_state == state || tcb->task_state == DEAD)
 		return;
 
 	std::string str_old;

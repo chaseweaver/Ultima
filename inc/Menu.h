@@ -33,6 +33,7 @@ public:
 	void stop();
 	void wait();
 	void print_log(int);
+	void print_scheduler_logs(int);
 	void print_tcb_semaphore(int);
 	void print_message_box_list(int);
 };

@@ -7,7 +7,7 @@
 Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb, int collector_timeout)
 	: master_control_block(mcb), garbage_collector_timeout(collector_timeout) {
 	assert(!pthread_create(&scheduler_thread, NULL, start_scheduler, this));
-	assert(!pthread_create(&garbage_collector_thread, NULL, start_garbage_collector, this));
+	// assert(!pthread_create(&garbage_collector_thread, NULL, start_garbage_collector, this));
 }
 
 /*
@@ -37,7 +37,11 @@ void Scheduler::scheduler() {
 
 			switch(tcb->task_state) {
 				case DEAD:
-					// Run garbage collector here
+					yield(2, 5);
+					master_control_block->ui->write_refresh(tcb->task_id, " \n Garbage\n Collected.\n");
+					task_list.dequeue();
+					delete(tcb);
+					--number_of_workers;
 					break;
 
 				// Unused state, potentially for the future.
@@ -65,8 +69,6 @@ void Scheduler::scheduler() {
 					task_list.move_to_back();
 					break;
 			}
-		} else {
-			return;
 		}
 	} while (true);
 }
@@ -108,9 +110,69 @@ void Scheduler::respawn(TASK_CONTROL_BLOCK* tcb, void* worker(void*), ARGUMENTS*
  * Returns the task_list size.
  */
 int Scheduler::task_list_size() {
-	master_control_block->scheduler_semaphore->wait();
 	return task_list.size();
+}
+
+/*
+ * Scheduler::fetch_log()
+ * Fetches contents of scheduler logs.
+ */
+std::string Scheduler::fetch_log() {
+	if (task_list.empty())
+		return "\n There are no logs available.";
+
+	std::string title = "\n Scheduler Log\n ";
+	std::string task_name = "Task Name";
+	std::string task_id = "Task ID";
+	std::string task_state = "Task State";
+
+	pad(task_name, 11, ' ');
+	pad(task_id, 9, ' ');
+	pad(task_state, 13, ' ');
+
+	std::string header = title + task_name + "| " + task_id + "| " + task_state + "\n";
+	master_control_block->scheduler_semaphore->wait();
+
+	std::string content;
+	if (!task_list.empty()) {
+		Queue<TASK_CONTROL_BLOCK*>* tmp = new Queue<TASK_CONTROL_BLOCK*>(task_list);
+		do {
+			TASK_CONTROL_BLOCK* tcb;
+			tmp->dequeue(tcb);
+			
+			std::string task_name_ = tcb->task_name;
+			std::string task_id_ = std::to_string(tcb->task_id);
+			std::string task_state_;
+
+			switch (tcb->task_state) {
+				case DEAD:
+					task_state_ = "DEAD";
+					break;
+				case IDLE:
+					task_state_ = "IDLE";
+					break;
+				case BLOCKED:
+					task_state_ = "BLOCKED";
+					break;
+				case READY:
+					task_state_ = "READY";
+					break;
+				case RUNNING:
+					task_state_ = "RUNNING";
+					break;
+			}
+
+			pad(task_name_, 15, ' ');
+			pad(task_id_, 10, ' ');
+
+			content += " " + task_name_ + task_id_ + task_state_ + "\n";
+
+		} while (!tmp->empty());
+	}
+
 	master_control_block->scheduler_semaphore->signal();
+
+	return header +content;
 }
 
 /*
@@ -118,7 +180,7 @@ int Scheduler::task_list_size() {
  * Changes task state in the list and logs to STATE WINDOW.
  */
 void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
-	if (tcb->task_state == state)
+	if (tcb->task_state == state || tcb->task_state == DEAD)
 		return;
 
 	std::string str_old;

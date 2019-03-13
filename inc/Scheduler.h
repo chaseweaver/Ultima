@@ -47,6 +47,8 @@ public:
 	void set_state(TASK_CONTROL_BLOCK*, int);
 	void set_state(int, int);
 	int task_list_size();
+	std::string fetch_log();
+
 	static void* start_scheduler(void*);
 	static void* start_garbage_collector(void*);
 	
