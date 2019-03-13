@@ -45,6 +45,7 @@ class IPC {
 		void enable();
 		void disable();
 		std::string fetch_message_box_list();
+		std::string fetch_message_box_list(int);
 		MESSAGE_TYPE* compose_message(TASK_CONTROL_BLOCK*, int, std::string);
 };
 

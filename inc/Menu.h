@@ -28,6 +28,7 @@ public:
 	~Menu();
 	void print_menu(int);
 	void print_thread_menu(int);
+	void print_thread_inbox_menu(int);
 	void set_menu_window(WINDOW*, int);
 	void start();
 	void stop();
@@ -36,6 +37,7 @@ public:
 	void print_scheduler_logs(int);
 	void print_tcb_semaphore(int);
 	void print_message_box_list(int);
+	void get_thread_message_box(int, int);
 };
 
 #endif

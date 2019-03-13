@@ -81,6 +81,9 @@ std::string Semaphore::fetch_log() {
 		} while (!tcb->empty());
 	}
 
+	if (sema_list_title.length() == 9)
+		sema_list_title = "There are no tasks in the queue.";
+
 	return header + "\n" + sema_title + "\n" + sema_value_title + "\n" + sema_list_title;
 }
 

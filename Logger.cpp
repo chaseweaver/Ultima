@@ -105,7 +105,5 @@ std::string Logger::fetch_log() {
 		content += " " + task_id_ + "| " + task_name_ + "| " + task_state_ + "| " + task_timestamp_ + "\n";
 	} while (!log_data_->empty());
 
-	//master_control_block->logger_semaphore->signal();
-	
 	return header + content;
 }
