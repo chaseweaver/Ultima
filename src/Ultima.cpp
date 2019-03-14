@@ -40,7 +40,7 @@ void master_control_block_init() {
 	master_control_block->logger_semaphore = new Semaphore(master_control_block, "Logger Handler", 1);
 	master_control_block->tcb_semaphore = new Semaphore(master_control_block, "TCB Locker", 1);
 	master_control_block->ipc_semaphore = new Semaphore(master_control_block, "IPC Handler", 1);
-	master_control_block->scheduler = new Scheduler(master_control_block, 5);
+	master_control_block->scheduler = new Scheduler(master_control_block);
 	master_control_block->ui = new UI(master_control_block);
 	master_control_block->logger = new Logger(32);
 	master_control_block->ipc = new IPC(master_control_block, NUMBER_OF_WORKERS, 8);
@@ -115,7 +115,7 @@ void* worker_function(void* arguments) {
 			if (counter == num / 2) {
 				int tmp_rand = 1 + rand() % 8;
 				int result = master_control_block->ipc->message_send(
-					master_control_block->ipc->compose_message(tcb, tmp_rand, message_lists[rand() % 18])
+					master_control_block->ipc->compose_message(tcb, tmp_rand, message_lists[rand() % 16])
 				);
 
 				result == 1

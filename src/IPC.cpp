@@ -6,7 +6,7 @@
  */ 
 IPC::IPC(MASTER_CONTROL_BLOCK* mcb, int number_of_threads, int max_message_box_size)
 	: master_control_block(mcb), message_box_size(max_message_box_size) {
-	for (int i = 0; i < number_of_threads; i++)
+	for (int i = 1; i <= number_of_threads; i++)
 		message_box[i] = *(new Queue<MESSAGE_TYPE*>);
 }
 
@@ -15,15 +15,6 @@ IPC::IPC(MASTER_CONTROL_BLOCK* mcb, int number_of_threads, int max_message_box_s
  * Default deconstructor.
  */ 
 IPC::~IPC() {}
-
-void IPC::monitor_messages() {
-	return;
-}
-
-void* IPC::start_message_monitor(void* p) {
-	static_cast<IPC*>(p)->monitor_messages();
-	return NULL;
-}
 
 /*
  * IPC::message_send(MESSAGE_TYPE*)
@@ -93,22 +84,6 @@ int IPC::message_count(int task_id) {
 }
 
 /*
- * IPC::enable()
- * Enables the message handler.
- */ 
-void IPC::enable() {
-	enabled = true;
-}
-
-/*
- * IPC::disable()
- * Disables the message handler.
- */ 
-void IPC::disable() {
-	enabled = false;
-}
-
-/*
  * IPC::fetch_message_box_list()
  * Fetches the message box list.
  */ 
@@ -132,7 +107,7 @@ std::string IPC::fetch_message_box_list() {
 
 	master_control_block->ipc_semaphore->wait();
 
-	std::string content = "";
+	std::string content = " ";
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item;
 	for (item = message_box.begin(); item != message_box.end(); item++) {
 
@@ -154,7 +129,7 @@ std::string IPC::fetch_message_box_list() {
 
 				// while (tmp_msg_.length() % 32 >= 32)
 
-				content += " " + timestamp_ + "| " + message_size_ + "| "
+				content += timestamp_ + "| " + message_size_ + "| "
 					+ destination_task_id_ + "| " + source_task_id_ + "| " + tmp_msg->msg + "\n";
 			}
 		}
@@ -186,7 +161,7 @@ std::string IPC::fetch_message_box_list(int thread_id) {
 
 	master_control_block->ipc_semaphore->wait();
 
-	std::string content = "";
+	std::string content = " ";
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item;
 	for (item = message_box.begin(); item != message_box.end(); item++) {
 
@@ -206,7 +181,7 @@ std::string IPC::fetch_message_box_list(int thread_id) {
 
 				// while (tmp_msg_.length() % 32 >= 32)
 
-				content += " " + timestamp_ + "| " + message_size_ + "| " + source_task_id_ + "| " + tmp_msg->msg + "\n";
+				content += timestamp_ + "| " + message_size_ + "| " + source_task_id_ + "| " + tmp_msg->msg + "\n";
 			}
 		}
 	}

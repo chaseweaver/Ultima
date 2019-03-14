@@ -28,12 +28,7 @@ class IPC {
 		
 		MASTER_CONTROL_BLOCK* master_control_block;
 		std::map<int, Queue<MESSAGE_TYPE*>> message_box;
-
-		bool enabled;
 		int message_box_size;
-
-		void monitor_messages();
-		static void* start_message_monitor(void*);
 
 	public:
 		IPC(MASTER_CONTROL_BLOCK*, int, int);
@@ -42,8 +37,6 @@ class IPC {
 		int message_box_count();
 		int message_count();
 		int message_count(int task_id);
-		void enable();
-		void disable();
 		std::string fetch_message_box_list();
 		std::string fetch_message_box_list(int);
 		MESSAGE_TYPE* compose_message(TASK_CONTROL_BLOCK*, int, std::string);

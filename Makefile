@@ -1,16 +1,23 @@
 CXX := g++
 INC := -lncurses -lpthread
-SRC := src/
-OBJ := obj/
+SRCDIR := src
+OUT := ultima.out
+EXEC := exec
 
-CPPFILES=$(wildcard $(SRC)*.cpp)
+CPPFILES=$(wildcard $(SRCDIR)/*.cpp)
 OBJFILES=$(CPPFILES:.cpp=.o)
 
-res.out: $(OBJFILES)
+all: $(OUT)
+
+$(OUT): $(OBJFILES)
 	$(CXX) $(INC) -o $@ $^ -g
 
 %.o: %.cpp
 	$(CXX) -c -o $@ $< -g
 
+run: $(OUT)
+	$(EXEC) ./$(OUT)
+
+.PHONY: clean
 clean:
-	rm *.o *.out
+	rm -rf $(SRCDIR)/*.o *.out

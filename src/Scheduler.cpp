@@ -4,10 +4,8 @@
  * Scheduler::Scheduler(MASTER_CONTROL_BLOCK*)
  * Default constructor. 
  */ 
-Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb, int collector_timeout)
-	: master_control_block(mcb), garbage_collector_timeout(collector_timeout) {
+Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
 	assert(!pthread_create(&scheduler_thread, NULL, start_scheduler, this));
-	// assert(!pthread_create(&garbage_collector_thread, NULL, start_garbage_collector, this));
 }
 
 /*
@@ -74,14 +72,6 @@ void Scheduler::scheduler() {
 }
 
 /*
- * Scheduler::garbage_collector()
- * Function to handle automatic garbage collecting switching.
- */
-void Scheduler::garbage_collector() {
-	return;
-}
-
-/*
  * Scheduler::create_new_task(std::string, void* (void*), ARGUMENTS*)
  * Creates a new TASK_CONTROL_BLOCK and spawns a new child function in a new thread.
  */
@@ -133,7 +123,7 @@ std::string Scheduler::fetch_log() {
 	std::string header = title + task_name + "| " + task_id + "| " + task_state + "\n";
 	master_control_block->scheduler_semaphore->wait();
 
-	std::string content;
+	std::string content = "";
 	if (!task_list.empty()) {
 		Queue<TASK_CONTROL_BLOCK*>* tmp = new Queue<TASK_CONTROL_BLOCK*>(task_list);
 		do {
@@ -171,7 +161,6 @@ std::string Scheduler::fetch_log() {
 	}
 
 	master_control_block->scheduler_semaphore->signal();
-
 	return header +content;
 }
 
@@ -183,7 +172,7 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 	if (tcb->task_state == state || tcb->task_state == DEAD)
 		return;
 
-	std::string str_old;
+	std::string str_old = "";
 	switch (tcb->task_state) {
 		case DEAD:
 			str_old = "DEAD";
@@ -204,7 +193,7 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 
 	tcb->task_state = state;
 
-	std::string str_new;
+	std::string str_new = "";
 	switch (state) {
 		case DEAD:
 			str_new = "DEAD";
@@ -238,7 +227,7 @@ void Scheduler::set_state(int task_id, int state) {
 	if (tcb->task_id == state)
 		return;
 
-	std::string str_old;
+	std::string str_old = "";
 	switch (tcb->task_state) {
 		case DEAD:
 			str_old = "DEAD";
@@ -259,7 +248,7 @@ void Scheduler::set_state(int task_id, int state) {
 
 	tcb->task_state = state;
 
-	std::string str_new;
+	std::string str_new = "";
 	switch (state) {
 		case DEAD:
 			str_new = "DEAD";
@@ -289,15 +278,6 @@ void Scheduler::set_state(int task_id, int state) {
  */
 void* Scheduler::start_scheduler(void* p) {
 	static_cast<Scheduler*>(p)->scheduler();
-	return NULL;
-}
-
-/*
- * Scheduler::start_garbage_collector(void*)
- * Starts the garbage collector loop in a new thread.
- */
-void* Scheduler::start_garbage_collector(void* p) {
-	static_cast<Scheduler*>(p)->garbage_collector();
 	return NULL;
 }
 

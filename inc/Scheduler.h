@@ -30,17 +30,12 @@ private:
 	Queue<TASK_CONTROL_BLOCK*> task_list;
 
 	int number_of_workers = 0;
-	int garbage_collector_timeout;
-	
 	pthread_t scheduler_thread;
-	pthread_t garbage_collector_thread;
 
 	void yield(int, int);
 	void scheduler();
-	void garbage_collector();
-
 public:
-	Scheduler(MASTER_CONTROL_BLOCK*, int);
+	Scheduler(MASTER_CONTROL_BLOCK*);
 	~Scheduler();
 	void create_new_task(std::string, void*(void*), ARGUMENTS*);
 	void respawn(TASK_CONTROL_BLOCK*, void*(void*), ARGUMENTS*);
@@ -50,7 +45,6 @@ public:
 	std::string fetch_log();
 
 	static void* start_scheduler(void*);
-	static void* start_garbage_collector(void*);
 	
 	ARGUMENTS* create_arguments(int, int);
 	ARGUMENTS* create_arguments(int, int, TASK_CONTROL_BLOCK*);

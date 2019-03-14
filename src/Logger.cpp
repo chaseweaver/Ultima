@@ -63,10 +63,8 @@ std::string Logger::fetch_log() {
 	pad(task_name, 11, ' ');
 	pad(task_state, 12, ' ');
 
-	std::string header = "";
-	header += "\n " + task_id + "| " + task_name + "| " + task_state + "| " + task_timestamp + "\n";
-
-	std::string content;
+	std::string header = "\n " + task_id + "| " + task_name + "| " + task_state + "| " + task_timestamp + "\n";
+	std::string content = "";
 	do {
 
 		LOG_DATA* tmp;
