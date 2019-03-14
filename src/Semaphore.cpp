@@ -1,4 +1,4 @@
-#include "inc/Semaphore.h"
+#include "../inc/Semaphore.h"
 
 /*
  * Semaphore::Semaphore(std::string, int)

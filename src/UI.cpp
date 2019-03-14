@@ -1,4 +1,4 @@
-#include "inc/UI.h"
+#include "../inc/UI.h"
 
 WINDOW* UI::fetch_window(int window_id) {
 	WINDOW_OBJECT* win_obj;

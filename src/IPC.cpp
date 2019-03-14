@@ -1,4 +1,4 @@
-#include "inc/IPC.h"
+#include "../inc/IPC.h"
 
 /*
  * IPC::IPC()

@@ -1,4 +1,4 @@
-#include "inc/Worker.h"
+#include "../inc/Worker.h"
 
 /*
  * Worker::worker(MASTER_CONTROL_BLOCK*)

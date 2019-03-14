@@ -1,4 +1,4 @@
-#include "inc/Menu.h"
+#include "../inc/Menu.h"
 
 /*
  * Menu::Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int)
