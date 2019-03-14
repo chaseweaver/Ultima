@@ -18,8 +18,6 @@ Logger::~Logger() {}
  * Adds a log to the queue.
  */
 void Logger::add_log(int task_id, std::string task_name, int task_state) {
-	//master_control_block->logger_semaphore->wait();
-
 	if (log_data.size() >= MAX_NUMBER_OF_LOGS_KEPT)
 		log_data.dequeue();
 
@@ -28,8 +26,6 @@ void Logger::add_log(int task_id, std::string task_name, int task_state) {
 	log->task_name = task_name;
 	log->task_state = task_state;
 	log_data.enqueue(log);
-
-	//master_control_block->logger_semaphore->signal();
 }
 
 /*
@@ -67,7 +63,7 @@ std::string Logger::fetch_log() {
 	pad(task_name, 11, ' ');
 	pad(task_state, 12, ' ');
 
-	std::string header;
+	std::string header = "";
 	header += "\n " + task_id + "| " + task_name + "| " + task_state + "| " + task_timestamp + "\n";
 
 	std::string content;

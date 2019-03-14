@@ -94,16 +94,16 @@ void* worker_function(void* arguments) {
 		"What do you call an elephant that doesn't matter? An irrelephant",
 		"What do you call cheese that isn't yours? Nacho Cheese.",
 		"What did the grape do when he got stepped on? He let out a little wine.",
-		"I would avoid the sushi if I was you. It’s a little fishy.",
+		"I would avoid the sushi if I was you. It's a little fishy.",
 		"What's brown and sticky? A stick.",
 		"I thought about going on an all-almond diet. But that's just nuts",
 		"People don't like having to bend over to get their drinks. We really need to raise the bar.",
-		"I don’t play soccer because I enjoy the sport. I’m just doing it for kicks.",
+		"I don't play soccer because I enjoy the sport. I'm just doing it for kicks.",
 		"Why do you never see elephants hiding in trees? Because they're so good at it."
 	};
 
 	int num = 1 + rand() % 100;
-	do {	
+	do {
 		master_control_block->tcb_semaphore->wait(tcb);
 
 		while (tcb->task_state == RUNNING) {
@@ -111,6 +111,7 @@ void* worker_function(void* arguments) {
 				break;
 
 			// Just for example, we have the workers let other workers know when they are half done.
+			// For a bonus, they tell jokes.
 			if (counter == num / 2) {
 				int tmp_rand = 1 + rand() % 8;
 				int result = master_control_block->ipc->message_send(
@@ -119,9 +120,9 @@ void* worker_function(void* arguments) {
 
 				result == 1
 					? master_control_block->ui->write_refresh(args->id,
-						"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n")
+							"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n")
 					:	master_control_block->ui->write_refresh(args->id,
-						"\n Message failed\n to send.\n\n");
+							"\n Message failed\n to send.\n\n");
 			}
 
 			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");

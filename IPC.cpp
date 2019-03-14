@@ -7,7 +7,7 @@
 IPC::IPC(MASTER_CONTROL_BLOCK* mcb, int number_of_threads, int max_message_box_size)
 	: master_control_block(mcb), message_box_size(max_message_box_size) {
 	for (int i = 0; i < number_of_threads; i++)
-		message_box[i] = * new Queue<MESSAGE_TYPE*>;
+		message_box[i] = *(new Queue<MESSAGE_TYPE*>);
 }
 
 /*
@@ -127,13 +127,12 @@ std::string IPC::fetch_message_box_list() {
 	pad(destination_task_id, 8, ' ');
 	pad(source_task_id, 8, ' ');
 
-	std::string header;
-	header += "\n " + timestamp + "| " + message_size + "| "
+	std::string header = "\n " + timestamp + "| " + message_size + "| "
 		+ destination_task_id + "| " + source_task_id + "| " + message + "\n";
 
 	master_control_block->ipc_semaphore->wait();
 
-	std::string content;
+	std::string content = "";
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item;
 	for (item = message_box.begin(); item != message_box.end(); item++) {
 
@@ -152,8 +151,6 @@ std::string IPC::fetch_message_box_list() {
 				pad(message_size_, 6, ' ');
 				pad(destination_task_id_, 8, ' ');
 				pad(source_task_id_, 8, ' ');
-
-				std::string tmp_msg_ = tmp_msg->msg;
 
 				// while (tmp_msg_.length() % 32 >= 32)
 
@@ -184,13 +181,12 @@ std::string IPC::fetch_message_box_list(int thread_id) {
 	pad(message_size, 6, ' ');
 	pad(source_task_id, 8, ' ');
 
-	std::string header;
-	header += "\n Thread #" + std::to_string(thread_id) + "'s Inbox\n\n "
+	std::string header = "\n Thread #" + std::to_string(thread_id) + "'s Inbox\n\n "
 		+ timestamp + "| " + message_size + "| " + source_task_id + "| " + message + "\n";
 
 	master_control_block->ipc_semaphore->wait();
 
-	std::string content;
+	std::string content = "";
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item;
 	for (item = message_box.begin(); item != message_box.end(); item++) {
 
@@ -207,8 +203,6 @@ std::string IPC::fetch_message_box_list(int thread_id) {
 				pad(timestamp_, 14, ' ');
 				pad(message_size_, 6, ' ');
 				pad(source_task_id_, 8, ' ');
-
-				std::string tmp_msg_ = tmp_msg->msg;
 
 				// while (tmp_msg_.length() % 32 >= 32)
 
