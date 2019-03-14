@@ -34,12 +34,12 @@ void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
 		sema_queue.enqueue(tcb);
   while (value == 0) {
 		if (tcb->task_state != DEAD)
-			set_state(tcb, BLOCKED);
+			master_control_block->scheduler->set_state(tcb, BLOCKED);
 		cv.wait(lck);
 	}
 
 	if (tcb->task_state != DEAD)
-		set_state(tcb, RUNNING);
+		master_control_block->scheduler->set_state(tcb, RUNNING);
 	--value;
 }
 
@@ -85,60 +85,4 @@ std::string Semaphore::fetch_log() {
 		sema_list_title += "There are no tasks in the queue.";
 
 	return header + "\n" + sema_title + "\n" + sema_value_title + "\n" + sema_list_title;
-}
-
-/*
- * Semaphore::set_state(TASK_CONTROL_BLOCK*, int)
- * Changes task state in the list and logs to STATE WINDOW.
- * This is done inside the Semaphore to remove the need to re-call the scheduler.
- * For this project, the Semaphore needs to be coupled. This can be more-generic
- * outside of this.
- */
-void Semaphore::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
-	if (tcb->task_state == state || tcb->task_state == DEAD)
-		return;
-
-	std::string str_old;
-	switch (tcb->task_state) {
-		case DEAD:
-			str_old = "DEAD";
-			break;
-		case IDLE:
-			str_old = "IDLE";
-			break;
-		case BLOCKED:
-			str_old = "BLOCKED";
-			break;
-		case READY:
-			str_old = "READY";
-			break;
-		case RUNNING:
-			str_old = "RUNNING";
-			break;
-	}
-
-	tcb->task_state = state;
-
-	std::string str_new;
-	switch (state) {
-		case DEAD:
-			str_new = "DEAD";
-			break;
-		case IDLE:
-			str_new = "IDLE";
-			break;
-		case BLOCKED:
-			str_new = "BLOCKED";
-			break;
-		case READY:
-			str_new = "READY";
-			break;
-		case RUNNING:
-			str_new = "RUNNING";
-			break;
-	}
-
-	master_control_block->ui->write_refresh(STATE_WINDOW, " Thread #"
-		+ std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
-	master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }

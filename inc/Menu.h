@@ -22,22 +22,22 @@ private:
 
 	void menu();
 	static void* start_menu(void*);
-
-public:
-	Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int);
-	~Menu();
-	void print_menu(int);
-	void print_thread_menu(int);
-	void print_thread_inbox_menu(int);
-	void set_menu_window(WINDOW*, int);
-	void start();
-	void stop();
-	void wait();
 	void print_log(int);
 	void print_scheduler_logs(int);
 	void print_tcb_semaphore(int);
 	void print_message_box_list(int);
 	void get_thread_message_box(int, int);
+	void print_thread_menu(int);
+	void print_thread_inbox_menu(int);
+
+public:
+	Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int);
+	~Menu();
+	void set_menu_window(WINDOW*, int);
+	void start();
+	void stop();
+	void wait();
+	void print_menu(int);
 };
 
 #endif

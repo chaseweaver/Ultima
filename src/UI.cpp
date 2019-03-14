@@ -19,15 +19,6 @@ WINDOW* UI::fetch_window(int window_id) {
 }
 
 /*
- * UI::start_refresh(void*)
- * Start UI refresher in new thread
- */
-void* UI::start_refresh(void* p) {
-	//static_cast<UI*>(p)->refresh();
-	return NULL;
-}
-
-/*
  * UI::write_window(WINDOW*, std::string)
  * Writes message to window. DOES NOT REFRESH.
  */
@@ -97,58 +88,6 @@ UI::UI(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
  */ 
 UI::~UI() {
 	endwin();
-}
-
-/*
- * UI::start()
- * Starts the UI refresher in a new thread;
- */ 
-void UI::start() {
-	if (!enabled) {
-		enabled = true;
-		assert(!pthread_create(&ui_thread, NULL, start_refresh, this));
-	}
-}
-
-/*
- * UI::stop()
- * Stops the UI refresher.
- */
-void UI::stop() {
-	enabled = false;
-	pthread_kill(ui_thread, 0);
-}
-
-/*
- * UI::wait()
- * Waits for the UI thread to finish.
- */ 
-void UI::wait() {
-	pthread_join(ui_thread, NULL);
-}
-
-/*
- * UI::is_running()
- * Returns true if the refresher is running, false otherwise.
- */ 
-bool UI::is_running() {
-	return enabled;
-}
-
-/*
- * UI::set_refresh_rate(int)
- * Sets the refresh rate of the windows. 
- */ 
-void UI::set_refresh_rate(int rate) {
-	refresh_rate = rate;
-}
-
-/*
- * UI::get_refresh_rate()
- * Returns the refresh rate of the windows. 
- */ 
-int UI::get_refresh_rate() {
-	return refresh_rate;
 }
 
 /*

@@ -5,7 +5,6 @@ void window_init();
 void* worker_function(void*);
 
 MASTER_CONTROL_BLOCK* master_control_block = new MASTER_CONTROL_BLOCK;
-
 int NUMBER_OF_WORKERS = 8;
 
 int main() {
@@ -20,8 +19,15 @@ int main() {
 				+ ' ', 4, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
 			: master_control_block->ui->create_window_lock_spawn(" Worker #" + std::to_string(i)
 		 		+ ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
+
+		/*
 		master_control_block->scheduler->create_new_task("Worker #"
-			+ std::to_string(i), worker_function, master_control_block->scheduler->create_arguments(i, 0));
+			+ std::to_string(i), master_control_block->worker->start_worker_function, 
+			master_control_block->scheduler->create_arguments(i, 0));
+		*/
+
+		master_control_block->scheduler->create_new_task("Worker #" + std::to_string(i),
+			worker_function, master_control_block->scheduler->create_arguments(i, 0));
 	}
 
 	// Wait for UI thread to finish
@@ -120,9 +126,9 @@ void* worker_function(void* arguments) {
 
 				result == 1
 					? master_control_block->ui->write_refresh(args->id,
-							"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n")
+						"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n")
 					:	master_control_block->ui->write_refresh(args->id,
-							"\n Message failed\n to send.\n\n");
+						"\n Message failed\n to send.\n\n");
 			}
 
 			master_control_block->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");

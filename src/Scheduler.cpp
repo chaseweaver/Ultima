@@ -91,10 +91,6 @@ void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGU
 	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
 }
 
-void Scheduler::respawn(TASK_CONTROL_BLOCK* tcb, void* worker(void*), ARGUMENTS* task_arguments) {
-	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
-}
-
 /*
  * Scheduler::task_list_size()
  * Returns the task_list size.

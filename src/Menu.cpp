@@ -116,12 +116,12 @@ void* Menu::start_menu(void* p) {
  * Prints help menu for windows.
  */
 void Menu::print_thread_menu(int win) {
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n Select Window to spawn new thread:\n");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 1: Window #1\t 5: Window #5");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 2: Window #2\t 6: Window #6");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 3: Window #3\t 7: Window #7");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 4: Window #4\t 8: Window #8");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n\n ESC: Return");
+	master_control_block->ui->write_refresh(win, "\n Select Window to spawn new thread:\n");
+	master_control_block->ui->write_refresh(win, "\n 1: Window #1\t 5: Window #5");
+	master_control_block->ui->write_refresh(win, "\n 2: Window #2\t 6: Window #6");
+	master_control_block->ui->write_refresh(win, "\n 3: Window #3\t 7: Window #7");
+	master_control_block->ui->write_refresh(win, "\n 4: Window #4\t 8: Window #8");
+	master_control_block->ui->write_refresh(win, "\n\n ESC: Return");
 }
 
 /*
@@ -129,12 +129,12 @@ void Menu::print_thread_menu(int win) {
  * Prints help menu for threads.
  */
 void Menu::print_thread_inbox_menu(int win) {
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n Select Thread to check inbox:\n");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 1: Thread #1\t 5: Thread #5");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 2: Thread #2\t 6: Thread #6");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 3: Thread #3\t 7: Thread #7");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n 4: Thread #4\t 8: Thread #8");
-	master_control_block->ui->write_refresh(MENU_WINDOW, "\n\n ESC: Return");
+	master_control_block->ui->write_refresh(win, "\n Select Thread to check inbox:\n");
+	master_control_block->ui->write_refresh(win, "\n 1: Thread #1\t 5: Thread #5");
+	master_control_block->ui->write_refresh(win, "\n 2: Thread #2\t 6: Thread #6");
+	master_control_block->ui->write_refresh(win, "\n 3: Thread #3\t 7: Thread #7");
+	master_control_block->ui->write_refresh(win, "\n 4: Thread #4\t 8: Thread #8");
+	master_control_block->ui->write_refresh(win, "\n\n ESC: Return");
 }
 
 /*

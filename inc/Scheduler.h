@@ -15,8 +15,6 @@ struct MASTER_CONTROL_BLOCK;
 #include <assert.h>
 #include <unistd.h>
 
-#define STATE_WINDOW -3
-
 #define DEAD 0
 #define BLOCKED 1
 #define IDLE 2
@@ -25,7 +23,6 @@ struct MASTER_CONTROL_BLOCK;
 
 class Scheduler {
 private:
-
 	MASTER_CONTROL_BLOCK* master_control_block;
 	Queue<TASK_CONTROL_BLOCK*> task_list;
 
@@ -34,17 +31,16 @@ private:
 
 	void yield(int, int);
 	void scheduler();
+	static void* start_scheduler(void*);
+
 public:
 	Scheduler(MASTER_CONTROL_BLOCK*);
 	~Scheduler();
 	void create_new_task(std::string, void*(void*), ARGUMENTS*);
-	void respawn(TASK_CONTROL_BLOCK*, void*(void*), ARGUMENTS*);
 	void set_state(TASK_CONTROL_BLOCK*, int);
 	void set_state(int, int);
 	int task_list_size();
 	std::string fetch_log();
-
-	static void* start_scheduler(void*);
 	
 	ARGUMENTS* create_arguments(int, int);
 	ARGUMENTS* create_arguments(int, int, TASK_CONTROL_BLOCK*);

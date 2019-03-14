@@ -47,8 +47,6 @@ private:
 	Queue<WINDOW_DATA*>* window_data;
 	Queue<WINDOW_OBJECT*>* window_object;
 
-	void refresh();
-	static void* start_refresh(void* p);
 	WINDOW* fetch_window(int);
 	bool write_window(WINDOW* win, std::string msg);
 	bool write_window(WINDOW* win, int x, int y, std::string msg);
@@ -58,12 +56,6 @@ private:
 public:
 	UI(MASTER_CONTROL_BLOCK* mcb);
 	~UI();
-	void start();
-	void stop();
-	void wait();
-	bool is_running();
-	void set_refresh_rate(int);
-	int get_refresh_rate();
 	WINDOW* create_window_spawn(std::string, int, int, int, int, int, int, int);
 	WINDOW* create_window(std::string, int, int, int, int, int, int, int);
 	WINDOW* create_window_spawn(std::string, int, int, int, int, int);

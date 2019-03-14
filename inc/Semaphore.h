@@ -32,7 +32,6 @@ public:
 	bool try_wait();
 	void signal();
 	std::string fetch_log();
-	void set_state(TASK_CONTROL_BLOCK* tcb, int state);
 };
 
 #endif

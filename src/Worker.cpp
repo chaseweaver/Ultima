@@ -51,7 +51,8 @@ void* Worker::worker_function(void* arguments) {
 	};
 
 	int num = 1 + rand() % 100;
-	do {	
+	do {
+
 		master_control_block->tcb_semaphore->wait(tcb);
 
 		while (tcb->task_state == RUNNING) {
@@ -62,7 +63,7 @@ void* Worker::worker_function(void* arguments) {
 			if (counter == num / 2) {
 				int tmp_rand = 1 + rand() % 8;
 				int result = master_control_block->ipc->message_send(
-					master_control_block->ipc->compose_message(tcb, tmp_rand, message_lists[rand() % 18])
+					master_control_block->ipc->compose_message(tcb, tmp_rand, message_lists[rand() % 16])
 				);
 
 				result == 1
