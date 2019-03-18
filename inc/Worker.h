@@ -15,9 +15,9 @@ struct MASTER_CONTROL_BLOCK;
 
 class Worker {
 private:
-	MASTER_CONTROL_BLOCK* master_control_block;
 	void* worker_function(void*);
-	
+	MASTER_CONTROL_BLOCK* master_control_block;
+
 public:
 	Worker(MASTER_CONTROL_BLOCK*);
 	~Worker();

@@ -2,7 +2,6 @@ CXX := g++
 INC := -lncurses -lpthread
 SRCDIR := src
 OUT := ultima.out
-EXEC := exec
 FLAGS := 
 
 CPPFILES=$(wildcard $(SRCDIR)/*.cpp)
@@ -17,7 +16,7 @@ $(OUT): $(OBJFILES)
 	$(CXX) $(FLAGS) -c -o $@ $< -g
 
 run: $(OUT)
-	$(EXEC) ./$(OUT)
+	./$(OUT)
 
 .PHONY: clean
 clean:

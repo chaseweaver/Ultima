@@ -33,10 +33,11 @@ class IPC {
 	public:
 		IPC(MASTER_CONTROL_BLOCK*, int, int);
 		~IPC();
-		int message_send(MESSAGE_TYPE* message);
+		int message_send(MESSAGE_TYPE*);
 		int message_box_count();
 		int message_count();
-		int message_count(int task_id);
+		int message_count(int);
+		void delete_all_messages(int);
 		std::string fetch_message_box_list();
 		std::string fetch_message_box_list(int);
 		MESSAGE_TYPE* compose_message(TASK_CONTROL_BLOCK*, int, std::string);

@@ -27,11 +27,12 @@ int IPC::message_send(MESSAGE_TYPE* message) {
 	master_control_block->ipc_semaphore->wait();
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item = message_box.find(message->destination_task_id);
 	if (item != message_box.end()) {
-		if (item->second.size() >= message_box_size)
-			item->second.dequeue();
-
-		item->second.enqueue(message);
-		result = 1;
+		if (item->second.size() >= message_box_size) {
+			result = -1;
+		} else {
+			item->second.enqueue(message);
+			result = 1;
+		}
 	} else {
 		result = -1;
 	}
@@ -81,6 +82,22 @@ int IPC::message_count(int task_id) {
 
 	master_control_block->ipc_semaphore->signal();
 	return size;
+}
+
+/*
+ * IPC::delete_all_messages(int)
+ * Deletes all messages in a given Task's message box.
+ */ 
+void IPC::delete_all_messages(int task_id) {
+	int size = 0;
+
+	master_control_block->ipc_semaphore->wait();
+	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item = message_box.find(task_id);
+	if (item != message_box.end())
+		while (!item->second.empty())
+			item->second.dequeue();
+
+	master_control_block->ipc_semaphore->signal();
 }
 
 /*
@@ -144,7 +161,7 @@ std::string IPC::fetch_message_box_list() {
  * Fetches the message box list.
  */ 
 std::string IPC::fetch_message_box_list(int thread_id) {
-	if (message_count() <= 0)
+	if (message_count(thread_id) <= 0)
 		return "\n There are currently no messages in Thread #" + std::to_string(thread_id) + "'s inbox.\n";
 
 	std::string timestamp = "Timestamp";

@@ -77,7 +77,6 @@ bool UI::write_window_refresh(WINDOW* win, int x, int y, std::string msg) {
  * Default constructor. 
  */ 
 UI::UI(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
-	window_data = new Queue<WINDOW_DATA*>;
 	window_object = new Queue<WINDOW_OBJECT*>;
 	initscr();
 }
@@ -348,16 +347,8 @@ WINDOW* UI::create_window_lock(std::string title, int title_x,
  * Writes a message to a window given ID and (X, Y) and stores TASK ID.
  */ 
 void UI::write(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->x = x;
-	win_dat->y = y;
-	win_dat->msg = msg;
-	win_dat->task_control_block = tcb;
-
 	master_control_block->tcb_semaphore->wait(tcb);
 
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, x, y, msg);
 
@@ -369,15 +360,8 @@ void UI::write(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK*
  * Writes a message to a window given ID and (X, Y).
  */ 
 void UI::write(int window_id, int x, int y, std::string msg) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->x = x;
-	win_dat->y = y;
-	win_dat->msg = msg;
-
 	master_control_block->ui_semaphore->wait();
 
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, x, y, msg);
 	
@@ -389,14 +373,8 @@ void UI::write(int window_id, int x, int y, std::string msg) {
  * Writes a message to a window given ID and stores TASK CONTROL BLOCK.
  */ 
 void UI::write(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->msg = msg;
-	win_dat->task_control_block = tcb;
-
 	master_control_block->tcb_semaphore->wait(tcb);
 
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, msg);
 
@@ -408,13 +386,8 @@ void UI::write(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
  * Writes a message to a window given ID.
  */ 
 void UI::write(int window_id, std::string msg) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->msg = msg;
-
 	master_control_block->ui_semaphore->wait();
 
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, msg);
 
@@ -426,16 +399,8 @@ void UI::write(int window_id, std::string msg) {
  * Writes a message to a window given ID and (X, Y) and stores TASK ID.
  */ 
 void UI::write_refresh(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->x = x;
-	win_dat->y = y;
-	win_dat->msg = msg;
-	win_dat->task_control_block = tcb;
-
 	master_control_block->tcb_semaphore->wait(tcb);
 
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, x, y, msg);
 
@@ -447,15 +412,8 @@ void UI::write_refresh(int window_id, int x, int y, std::string msg, TASK_CONTRO
  * Writes a message to a window given ID and (X, Y).
  */ 
 void UI::write_refresh(int window_id, int x, int y, std::string msg) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->x = x;
-	win_dat->y = y;
-	win_dat->msg = msg;
-
 	master_control_block->ui_semaphore->wait();
 
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, x, y, msg);
 
@@ -467,14 +425,8 @@ void UI::write_refresh(int window_id, int x, int y, std::string msg) {
  * Writes a message to a window given ID and stores TASK CONTROL BLOCK.
  */ 
 void UI::write_refresh(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->msg = msg;
-	win_dat->task_control_block = tcb;
-
 	master_control_block->tcb_semaphore->wait(tcb);
 	
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, msg);
 
@@ -486,13 +438,8 @@ void UI::write_refresh(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) 
  * Writes a message to a window given ID.
  */ 
 void UI::write_refresh(int window_id, std::string msg) {
-	WINDOW_DATA* win_dat = new WINDOW_DATA;
-	win_dat->window_id = window_id;
-	win_dat->msg = msg;
-
 	master_control_block->ui_semaphore->wait();
 
-	window_data->enqueue(win_dat);
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, msg);
 
@@ -533,14 +480,6 @@ void UI::clear_window(int window_id) {
 		master_control_block->ui_semaphore->signal();
 	} while (!win_obj->empty() || !success);
 }	
-
-/*
- * UI::get_message_list_size()
- * Returns the amount of messages in the list.
- */ 
-int UI::get_message_list_size() {
-	return window_data->size();
-}
 
 /*
  * UI::get_window_amount()

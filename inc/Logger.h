@@ -31,7 +31,7 @@ private:
 	int MAX_NUMBER_OF_LOGS_KEPT;
 
 public:
-	Logger(int max_number_of_logs_kept);
+	Logger(int);
 	~Logger();
 	void add_log(int, std::string, int);
 	int get_max_number_of_logs_kept();

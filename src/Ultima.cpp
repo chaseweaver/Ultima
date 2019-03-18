@@ -20,18 +20,12 @@ int main() {
 			: master_control_block->ui->create_window_lock_spawn(" Worker #" + std::to_string(i)
 		 		+ ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
 
-		/*
-		master_control_block->scheduler->create_new_task("Worker #"
-			+ std::to_string(i), master_control_block->worker->start_worker_function, 
-			master_control_block->scheduler->create_arguments(i, 0));
-		*/
-
+		// In the future, seperate worker functions into their own classes.
 		master_control_block->scheduler->create_new_task("Worker #" + std::to_string(i),
 			worker_function, master_control_block->scheduler->create_arguments(i, 0));
 	}
 
-	// Wait for UI thread to finish
-	// master_control_block->ui->wait();
+	// Wait for Menu thread to finish
 	master_control_block->menu->wait();
 	return 0;
 }
@@ -76,7 +70,6 @@ void window_init() {
 		(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34), MENU_WINDOW);
 	master_control_block->menu->print_menu(MENU_WINDOW);
 }
-
 
 /*
  * Ultima::worker_function(void*)
@@ -124,6 +117,7 @@ void* worker_function(void* arguments) {
 					master_control_block->ipc->compose_message(tcb, tmp_rand, message_lists[rand() % 16])
 				);
 
+				// Did the message fail to send or not?
 				result == 1
 					? master_control_block->ui->write_refresh(args->id,
 						"\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n")

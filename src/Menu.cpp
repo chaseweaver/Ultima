@@ -55,28 +55,6 @@ void Menu::menu() {
 
 		case '5':
 			master_control_block->ui->clear_window(MENU_WINDOW);
-			print_thread_menu(MENU_WINDOW);
-			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Spawn New Thread");
-			
-			input = wgetch(menu_window);
-
-			do {
-				if (input >= 49 && input <= 56)
-					master_control_block->scheduler->create_new_task("Worker #"
-						+ std::to_string(input - 48), master_control_block->worker->start_worker_function, 
-						master_control_block->scheduler->create_arguments(input - 48, 0));
-
-				input = wgetch(menu_window);
-				usleep(10000);
-			} while (input != 27);
-
-			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Return\n");
-			master_control_block->ui->clear_window(MENU_WINDOW);
-			print_menu(MENU_WINDOW);
-			break;
-
-		case '6':
-			master_control_block->ui->clear_window(MENU_WINDOW);
 			print_thread_inbox_menu(MENU_WINDOW);
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Thread Inbox\n");
 			
@@ -144,8 +122,8 @@ void Menu::print_thread_inbox_menu(int win) {
 void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 2, 1, "Choose an option");
 	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t4: Mailbox list");
-	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t5: Spawn New Thread");
-	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs\t6: Check Thread Inbox");
+	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t5: Check Thread Inbox");
+	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs");
 	master_control_block->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }
 

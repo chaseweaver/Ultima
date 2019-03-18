@@ -29,7 +29,6 @@ public:
 	~Semaphore();
 	void wait();
 	void wait(TASK_CONTROL_BLOCK*);
-	bool try_wait();
 	void signal();
 	std::string fetch_log();
 };

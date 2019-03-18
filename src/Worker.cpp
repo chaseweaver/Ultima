@@ -26,6 +26,7 @@ void* Worker::start_worker_function(void* p) {
  * Worker function to run in seperate threads.
  */
 void* Worker::worker_function(void* arguments) {
+
 	ARGUMENTS* args = (ARGUMENTS*) arguments;
 	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
 	int& counter = args->thread_results;
@@ -54,6 +55,8 @@ void* Worker::worker_function(void* arguments) {
 	do {
 
 		master_control_block->tcb_semaphore->wait(tcb);
+
+		sleep(5);
 
 		while (tcb->task_state == RUNNING) {
 			if (counter == num)

@@ -157,7 +157,7 @@ std::string Scheduler::fetch_log() {
 	}
 
 	master_control_block->scheduler_semaphore->signal();
-	return header +content;
+	return header + content;
 }
 
 /*
@@ -284,7 +284,6 @@ void* Scheduler::start_scheduler(void* p) {
 ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
 	ARGUMENTS* args = new ARGUMENTS;
 	args->id = id;
-	args->locked = false;
 	args->thread_results = thread_results;
 	return args;
 }
@@ -296,7 +295,6 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
 ARGUMENTS* Scheduler::create_arguments(int id, int thread_results, TASK_CONTROL_BLOCK* task_control_block) {
 	ARGUMENTS* args = new ARGUMENTS;
 	args->id = id;
-	args->locked = false;
 	args->thread_results = thread_results;
 	args->task_control_block = task_control_block;
 	return args;
