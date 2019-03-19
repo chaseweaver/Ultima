@@ -4,8 +4,8 @@
  * Menu::Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int)
  * Default constructor.
  */
-Menu::Menu(MASTER_CONTROL_BLOCK* mcb, WINDOW* win, int window_id)
-	: master_control_block(mcb), menu_window(win), menu_window_id(window_id) {
+Menu::Menu(MASTER_CONTROL_BLOCK* mcb, WINDOW* win)
+	: master_control_block(mcb), menu_window(win) {
 	start();
 }
 
@@ -128,15 +128,6 @@ void Menu::print_menu(int win) {
 }
 
 /*
- * Menu::set_menu_window(WINDOW*, int)
- * Sets the menu window to write to.
- */ 
-void Menu::set_menu_window(WINDOW* win, int window_id) {
-	menu_window = win;
-	menu_window_id = window_id;
-}
-
-/*
  * Menu::start()
  * Starts the menu handler in a new thread.
  */ 
@@ -152,7 +143,7 @@ void Menu::start() {
  * Enables the menu handler.
  */ 
 void Menu::stop() {
-	enabled = true;
+	enabled = false;
 	pthread_kill(menu_thread, 0);
 }
 

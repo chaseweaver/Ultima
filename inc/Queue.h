@@ -19,24 +19,36 @@ public:
 	T value;
 	Node* next;
 
-	// Returns the value at a node in the queue
+	/*
+	 * Node::get_value(void)
+	 * Returns the value at a node in the queue.
+	 */ 
 	T get_value(void) {
 		return value;
 	}
 
-	// Next value in line of queue
+	/*
+	 * Node::*get_next(void)
+	 * Next value in line of queue.
+	 */ 
 	Node* get_next(void) {
 		return next;
 	}
 
-	// Sets the node value with a template value (any kind)
-	void set_value(T dat) {
-		value = dat;
+	/*
+	 * Node::set_value(T)
+	 * Sets the node value with a template value (any kind).
+	 */ 
+	void set_value(T item) {
+		value = item;
 	}
 
-	// Sets the next value in line of queue
-	void set_next(Node<T>* dat) {
-		next  = dat;
+	/*
+	 * Node::set_next(T)
+	 * Sets the next value in line of queue.
+	 */ 
+	void set_next(Node<T>* item) {
+		next = item;
 	}
 };
 
@@ -54,7 +66,10 @@ public:
 		count = 0;
 	}
 
-	// Copy constructor
+	/*
+	 * Queue::Queue(const Queue&)
+	 * Default copy constructor.
+	 */ 
 	Queue(const Queue& other) {
 		head = NULL;
 		tail = NULL;
@@ -67,16 +82,22 @@ public:
 		}
 	}
 
-	// Deconstructor
+	/*
+	 * Queue::~Queue(void)
+	 * Default deconstructor.
+	 */ 
 	~Queue(void) {
 		while (count != 0)
 			dequeue();
 	}
 
-	// Enqueue generic datum into queue and increment the size
-	void enqueue(T ele) {
+	/*
+	 * Queue::enqueue(T)
+	 * Enqueue generic datum into queue and increment the size.
+	 */ 
+	void enqueue(T item) {
 		Node<T>* tmp = new Node<T>();
-		tmp -> set_value(ele);
+		tmp -> set_value(item);
 		tmp -> set_next(NULL);
 
 		if (count == 0)
@@ -88,7 +109,10 @@ public:
 		count++;
 	}
 
-	// Dequeue the first element in the queue off
+	/*
+	 * Queue::dequeue(void)
+	 * Dequeue the first element in the queue off.
+	 */ 
 	T dequeue(void) {
 		if (empty())
 			return 0;
@@ -102,7 +126,10 @@ public:
 		return val;
 	}
 
-	// Dequeue the first element in the queue off
+	/*
+	 * Queue::dequeue(T&)
+	 * Dequeue the first element in the queue off.
+	 */ 
 	void dequeue(T& item) {
 		if (empty())
 			return;
@@ -115,19 +142,28 @@ public:
 		delete tmp;
 	}
 
-	// Enqueue generic datum into queue and increment the size
+	/*
+	 * Queue::move_to_back()
+	 * A wrapper for the dequeue(T&) and enqueue(T&) operations.
+	 */ 
 	void move_to_back() {
 		T item;
 		dequeue(item);
 		enqueue(item);
 	}
 
-	// Returns the size of the queue
+	/*
+	 * Queue::size(void) const
+	 * Returns the size of the queue.
+	 */ 
 	unsigned size(void) const {
 		return count;
 	}
 
-	// Returns front of queue
+	/*
+	 * Queue::front(void)
+	 * Returns front of the queue.
+	 */ 
 	T front(void) {
 		if (empty())
 			return;
@@ -136,7 +172,10 @@ public:
 		return ret;
 	}
 
-	// Returns back of queue
+	/*
+	 * Queue::back(void)
+	 * Returns back of the queue.
+	 */ 
 	T back(void) {
 		if (empty())
 			return;
@@ -145,7 +184,10 @@ public:
 		return ret;
 	}
 
-	// Returns front of queue
+	/*
+	 * Queue::front(T&)
+	 * Returns front of queue.
+	 */ 
 	void front(T& item) {
 		if (empty())
 			return;
@@ -153,7 +195,10 @@ public:
 		item = head -> get_value();
 	}
 
-	// Returns back of queue
+	/*
+	 * Queue::back(T&)
+	 * Returns back of the queue.
+	 */ 
 	void back(T& item) {
 		if (empty())
 			return;
@@ -161,7 +206,10 @@ public:
 		item = tail -> get_value();
 	}
 
-	// Checks if queue is empty
+	/*
+	 * Queue::empty(void) const
+	 * Checks if the queue is empty.
+	 */ 
 	bool empty(void) const {
 		return count == 0 ? true : false;
 	}

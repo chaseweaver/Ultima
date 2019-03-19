@@ -45,6 +45,8 @@ void master_control_block_init() {
 	master_control_block->logger = new Logger(32);
 	master_control_block->ipc = new IPC(master_control_block, NUMBER_OF_WORKERS, 8);
 	master_control_block->worker = new Worker(master_control_block);
+	master_control_block->menu = new Menu(master_control_block, master_control_block->ui->create_window_lock_spawn
+		(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
 }
 
 /*
@@ -64,10 +66,6 @@ void window_init() {
 	master_control_block->ui->create_window_lock_spawn(" Mailbox ", 2, 0, MAILBOX_WINDOW, 80, 20, 83, 14);
 	master_control_block->ui->create_window_lock_spawn(" Input ", 2, 0, INPUT_WINDOW, 21, 12, 142, 34);
 	master_control_block->ui->write(INPUT_WINDOW, "\n");
-
-	master_control_block->menu = new Menu(master_control_block,
-		master_control_block->ui->create_window_lock_spawn
-		(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34), MENU_WINDOW);
 	master_control_block->menu->print_menu(MENU_WINDOW);
 }
 

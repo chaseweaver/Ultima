@@ -16,7 +16,6 @@ private:
 	WINDOW* menu_window;
 	bool enabled = false;
 	pthread_t menu_thread;
-	int menu_window_id;
 
 	MASTER_CONTROL_BLOCK* master_control_block;
 
@@ -31,9 +30,8 @@ private:
 	void print_thread_inbox_menu(int);
 
 public:
-	Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int);
+	Menu(MASTER_CONTROL_BLOCK*, WINDOW*);
 	~Menu();
-	void set_menu_window(WINDOW*, int);
 	void start();
 	void stop();
 	void wait();
