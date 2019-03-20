@@ -78,6 +78,7 @@ void Menu::menu() {
 		case '6':
 			master_control_block->ui->clear_window(OUTPUT_WINDOW);
 			master_control_block->ui->write_refresh(OUTPUT_WINDOW, master_control_block->memory_manager->memory_dump());
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Dump\n");
 		}
 
 		usleep(10000);
@@ -127,7 +128,7 @@ void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 2, 1, "Choose an option");
 	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t4: Mailbox list");
 	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t5: Check Thread Inbox");
-	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs");
+	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs\t6: Print Memory Dump");
 	master_control_block->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }
 
