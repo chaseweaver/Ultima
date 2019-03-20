@@ -74,6 +74,10 @@ void Menu::menu() {
 			master_control_block->ui->clear_window(MENU_WINDOW);
 			print_menu(MENU_WINDOW);
 			break;
+
+		case '6':
+			master_control_block->ui->clear_window(OUTPUT_WINDOW);
+			master_control_block->ui->write_refresh(OUTPUT_WINDOW, master_control_block->memory_manager->memory_dump());
 		}
 
 		usleep(10000);
