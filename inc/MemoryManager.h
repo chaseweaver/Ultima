@@ -27,18 +27,18 @@ private:
 	};
 
 	char* memory;
-	const int memory_capacity;
 	const int block_size;
+	int memory_capacity;
 	int null_character;
 
-	int memory_sectors;
 	int free_capacity;
-	int used_capacity;
 	int memory_counter;
+
+	int current_loc;
 
 	Queue<MEMORY_DATA*> memory_data;
 
-	// bool is_sector_valid(int);
+	bool enough_blocks_available(int);
 
 public:
 	MemoryManager(const unsigned int, const unsigned int, char);

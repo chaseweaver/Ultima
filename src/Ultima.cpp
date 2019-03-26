@@ -45,7 +45,7 @@ void master_control_block_init() {
 	master_control_block->logger = new Logger(32);
 	master_control_block->ipc = new IPC(master_control_block, NUMBER_OF_WORKERS, 8);
 	master_control_block->worker = new Worker(master_control_block);
-	master_control_block->memory_manager = new MemoryManager(1024, 128, '.');
+	master_control_block->memory_manager = new MemoryManager(1024, 32, '.');
 	master_control_block->menu = new Menu(master_control_block, master_control_block->ui->create_window_lock_spawn
 		(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
 }

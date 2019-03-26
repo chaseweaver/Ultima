@@ -4,8 +4,6 @@ MemoryManager::MemoryManager(const unsigned int memory_size, const unsigned int 
 	: memory_capacity(memory_size), free_capacity(memory_size), block_size(memory_block_size), null_character(fill_character) {
 	memory = new char[memory_size];
 	std::fill_n(memory, memory_size, fill_character);
-
-	memory_sectors = memory_capacity / block_size;
 }
 
 MemoryManager::~MemoryManager() {
@@ -13,53 +11,58 @@ MemoryManager::~MemoryManager() {
 }
 
 int MemoryManager::allocate(int size) {
-	int index = 0, index_last = 0;
-	int bounds = sizeof(memory) / sizeof(*memory);
-	bool valid;
+	int blocks_to_allocate = size / block_size + (size % block_size != 0);
+	int tmp_block = blocks_to_allocate;
 
-	for (int i = 0; i < bounds; i += block_size) {
-		if (memory[i] == null_character) {
-			index = i;
+	// Return an error if not enough requested space is available
+	if (!enough_blocks_available(blocks_to_allocate))
+		return -1;
 
-			for (int j = index + 1; j < size, j < bounds; j++) {
-				if (memory[j] != null_character) {
-					valid = false;
-					break;
-				} else {
-					index_last = j;
-					valid = true;
-				}
-			}
+	// Incrememnt memory id
+	++memory_counter;
 
-			if (valid)
-				break;
-		}
-	}
+	// Check index of core memory every block_size
+	for (int i = 0; i < memory_capacity, blocks_to_allocate != 0; i+= block_size) {
+		if (memory[i] != null_character)
+			break;
 
-	if (valid) {
+		// Set the current location equal to the index
+		current_loc = i;
+
 		MEMORY_DATA* mem = new MEMORY_DATA;
-		mem->start_loc = index;
-		mem->end_loc = index + block_size;
-		mem->current_loc = index_last;
-		mem->memory_size = size;
-		mem->memory_id = ++memory_counter;
+		mem->start_loc = i;
+		mem->memory_id = memory_counter;
+		
+		// No bueno?
+		mem->memory_size = (blocks_to_allocate != 0 ? size -= block_size : size);
+
 		memory_data.enqueue(mem);
 
-		return memory_counter;
+		free_capacity -= size;
+		--blocks_to_allocate;
 	}
 
-	return -1;
+	return memory_counter;
 }
 
 void MemoryManager::write(int memory_id, std::string data) {
-	Queue<MEMORY_DATA*> tmp_mem_dat = Queue<MEMORY_DATA*>(memory_data);
+	
+	Queue<MEMORY_DATA*> tmp = Queue<MEMORY_DATA*>(memory_data);
+	int tmp_ctr = 0;
+	bool more_to_put = true;
 
-	for (int i = 0; i < tmp_mem_dat.size(); i++) {
-		MEMORY_DATA* mem = tmp_mem_dat.dequeue();
+	for (int i = 0; i < tmp.size(); i++) {
+		MEMORY_DATA* mem = tmp.dequeue();
 		
-		if (mem->memory_id == memory_id)
-			for (int j = 0; j < data.length(); j++)
+		if (mem->memory_id == memory_id) {
+
+			for (int j = 0; j < data.length(); j++) {
 				memory[mem->start_loc + j] = data[j];
+				
+				// more_to_put = data.length() - j > 0 ? true : false;	
+			}	
+		}
+		
 	}
 }
 
@@ -71,6 +74,11 @@ std::string MemoryManager::memory_dump() {
 	return std::string(memory);
 }
 
-// bool MemoryManager::is_sector_valid(int size) {
-// 	return false;
-// }
+bool MemoryManager::enough_blocks_available(int requested_block_size) {
+	int tmp = 0;
+	for (int i = 0; i < memory_capacity; i+= block_size)
+		if (memory[i] == null_character)
+			++tmp;
+
+	return tmp >= requested_block_size;
+}
