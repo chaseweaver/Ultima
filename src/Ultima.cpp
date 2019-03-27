@@ -108,14 +108,14 @@ void* worker_function(void* arguments) {
 			if (counter == num)
 				break;
 
-			if (counter == num / 4) {
-				master_control_block->memory_manager->write(
-					master_control_block->memory_manager->allocate(18),
-					"Hello from Task #" + std::to_string(args->id) 
-				);
+			// if (counter == num / 4) {
+			// 	master_control_block->memory_manager->write(
+			// 		master_control_block->memory_manager->allocate(18),
+			// 		"Hello from Task #" + std::to_string(args->id) 
+			// 	);
 
-				master_control_block->ui->write_refresh(LOG_WINDOW, " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
-			}
+			// 	master_control_block->ui->write_refresh(LOG_WINDOW, " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
+			// }
 
 			// Just for example, we have the workers let other workers know when they are half done.
 			// For a bonus, they tell jokes.

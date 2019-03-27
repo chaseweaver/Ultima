@@ -77,6 +77,10 @@ void Menu::menu() {
 
 		case '6':
 			master_control_block->ui->clear_window(MAILBOX_WINDOW);
+
+			int tmp = master_control_block->memory_manager->allocate(39);
+			master_control_block->memory_manager->write(tmp, "This is a joke.");
+
 			master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Dump\n");
 		}

@@ -34,11 +34,12 @@ private:
 
 	Queue<MEMORY_NODE*> memory_list;
 	int next_handle();
+	MEMORY_NODE* find_hole(int);
+	bool enough_blocks_exist(int);
 
 public:
 	MemoryManager(const unsigned int, const unsigned int, char);
 	~MemoryManager();
-	MEMORY_NODE* find_a_hole(int);
 	int allocate(const unsigned int);
 	int read(int, char&);
 	int read(int, std::string&);

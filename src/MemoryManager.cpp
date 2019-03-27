@@ -26,11 +26,11 @@ MemoryManager::MemoryManager(const unsigned int memory_size, const unsigned int 
 MemoryManager::~MemoryManager() {}
 
 /*
- * MemoryManager::find_a_hold(int)
+ * MemoryManager::find_hold(int)
  * Finds a valid hole in memory capable of supporting the requested size.
  * Returns a pointer to the hole, nullptr otherwise.
  */
-MemoryManager::MEMORY_NODE* MemoryManager::find_a_hole(int size) {
+MemoryManager::MEMORY_NODE* MemoryManager::find_hole(int size) {
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -43,34 +43,61 @@ MemoryManager::MEMORY_NODE* MemoryManager::find_a_hole(int size) {
 	return nullptr;
 }
 
+
+/*
+ * MemoryManager::enough_blocks_exist(int)
+ * Returns true if enough blocks exist as holes, false otherwise..
+ */
+bool MemoryManager::enough_blocks_exist(int size) {
+	int tmp = 0;
+
+	// Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	// do {
+	// 	MEMORY_NODE* tmp_node = tmp->dequeue();
+
+	// 	if (tmp_node->status == HOLE && tmp_node->limit - tmp_node->base >= size)
+	// 		return tmp_node;
+
+	// } while (!tmp->empty());
+
+	return false;
+}
+
 /*
  * MemoryManager::allocate(const unsigned int)
  * Allocates a block of N size for a memory.
  * Returns -1 if a segfault occurs, a unique memory id otherwise.
  */
 int MemoryManager::allocate(const unsigned int size) {
-	if (size > block_size)
-		return -1;
+	int blocks_needed = size / block_size + (size % block_size != 0);
+	// Checks if enough blocks are available
+	// if (!enough_blocks_exist(size / block_size + (size % block_size != 0)));
+	// 	return -1;
 
-	MEMORY_NODE* hole = find_a_hole(size);
+	// do {
+		MEMORY_NODE* hole = find_hole(size * blocks_needed);
 
-	// Returns an error if no holes are available
-	if (hole == nullptr)
-		return -1;
+		// Returns an error if no holes are available
+		if (hole == nullptr)
+			return -1;
 
-	MEMORY_NODE* mem = new MEMORY_NODE;
+		MEMORY_NODE* mem = new MEMORY_NODE;
 
-	mem->owner = pthread_self();
-	mem->limit = hole->limit;
-	mem->base = mem->limit - block_size;
-	hole->limit = mem->base - 1;
-	mem->handle = next_handle();
-	mem->current_read = 0;
-	mem->current_write = 0;
-	mem->status = PROCESS;
+		mem->owner = pthread_self();
+		mem->limit = hole->limit;
+		mem->base = mem->limit - (block_size * blocks_needed);
+		hole->limit = mem->base - 1;
+		mem->handle = next_handle();
+		mem->current_read = 0;
+		mem->current_write = 0;
+		mem->status = PROCESS;
 
-	memory_list.enqueue(mem);
-	return mem->handle;
+		memory_list.enqueue(mem);
+		return mem->handle;
+
+	// } while (true);
+
+	//return mem->handle;
 }
 
 /*
@@ -264,7 +291,8 @@ std::string MemoryManager::memory_dump() {
 
 	do {
 		MEMORY_NODE* mem = tmp->dequeue();
-		str += std::to_string(mem->handle) + " | " + memory_dump(mem->base, mem->limit - mem->base) + "\n";
+		str += std::to_string(mem->handle) + " @ " + std::to_string(mem->limit - mem->base)
+			+ " | " + memory_dump(mem->base, mem->limit - mem->base) + "\n";
 	} while (!tmp->empty());
 
 	return str;
