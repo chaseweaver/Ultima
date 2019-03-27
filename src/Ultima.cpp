@@ -79,6 +79,7 @@ void* worker_function(void* arguments) {
 	ARGUMENTS* args = (ARGUMENTS*) arguments;
 	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
 	int& counter = args->thread_results;
+	int tracker;
 
 	std::string message_lists[17] = {
 		"Did you hear about the restaurant on the moon? Great food, no atmosphere.",
@@ -89,12 +90,12 @@ void* worker_function(void* arguments) {
 		"How does a penguin build it's house? Igloos it together.",
 		"Dad, did you get a haircut? No I got them all cut.",
 		"Why did the scarecrow win an award? Because he was outstanding in his field.",
-		"What do you call an elephant that doesn't matter? An irrelephant",
+		"What do you call an elephant that doesn't matter? An irrelephant!",
 		"What do you call cheese that isn't yours? Nacho Cheese.",
 		"What did the grape do when he got stepped on? He let out a little wine.",
 		"I would avoid the sushi if I was you. It's a little fishy.",
 		"What's brown and sticky? A stick.",
-		"I thought about going on an all-almond diet. But that's just nuts",
+		"I thought about going on an all-almond diet. But that's just nuts.",
 		"People don't like having to bend over to get their drinks. We really need to raise the bar.",
 		"I don't play soccer because I enjoy the sport. I'm just doing it for kicks.",
 		"Why do you never see elephants hiding in trees? Because they're so good at it."
@@ -111,7 +112,8 @@ void* worker_function(void* arguments) {
 			std::string msg = message_lists[rand() % 16];
 
 			if (counter == num / 4) {
-				master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(msg.length()), msg);
+				tracker = master_control_block->memory_manager->allocate(msg.length());
+				master_control_block->memory_manager->write(tracker, msg);
 				master_control_block->ui->write_refresh(LOG_WINDOW, " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
 			}
 
@@ -142,6 +144,8 @@ void* worker_function(void* arguments) {
 
 		sleep(1);
 	} while (counter != num);
+
+	master_control_block->memory_manager->free_no_coalesce(tracker);
 
 	master_control_block->ui->write_refresh(args->id, "\n Thread #"
 		+ std::to_string(args->id) + "\n has ended.\n");

@@ -77,12 +77,16 @@ void Menu::menu() {
 
 		case '6':
 			master_control_block->ui->clear_window(MAILBOX_WINDOW);
-
-			// int tmp = master_control_block->memory_manager->allocate(39);
-			// master_control_block->memory_manager->write(tmp, "This is a joke.");
-
 			master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Dump\n");
+			break;
+
+		case '7':
+			master_control_block->ui->clear_window(MAILBOX_WINDOW);
+			master_control_block->memory_manager->coalesce();
+			master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Coalesce\n");
+			break;
 		}
 
 		usleep(10000);
@@ -130,9 +134,10 @@ void Menu::print_thread_inbox_menu(int win) {
  */
 void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 2, 1, "Choose an option");
-	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t4: Mailbox list");
-	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t5: Check Thread Inbox");
-	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs\t6: Print Memory Dump");
+	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t5: Check Thread Inbox");
+	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t6: Print Memory Dump");
+	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs\t7: Memory Coalesce");
+	master_control_block->ui->write_refresh(win, 2, 6, "4: Mailbox List");
 	master_control_block->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }
 

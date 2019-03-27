@@ -44,11 +44,16 @@ public:
 	int read(int, char&);
 	int read(int, std::string&);
 	int write(int, char);
+	int write(int, int, char);
 	int write(int, std::string);
-	int free(int);
+	int write(int, int, std::string);
+	int write(int, int, int, std::string);
+	void free(int);
+	void free_no_coalesce(int);
 	int memory_left();
 	int memory_largest();
 	int memory_smallest();
+	void coalesce();
 	std::string memory_dump(const unsigned int, const unsigned int);
 	std::string memory_dump();
 };

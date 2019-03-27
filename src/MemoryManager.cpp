@@ -107,21 +107,23 @@ int MemoryManager::allocate(const unsigned int size) {
  * The char is returned by reference.
  */
 int MemoryManager::read(int memory_handle, char& ch) {
+
+	// Prevent writing to an invalid position
 	if (memory_handle <= -1)
 		return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
-		if (tmp_node->handle == memory_handle) {
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
 			
-			// Segfault
-			if (tmp_node->base + tmp_node->current_read >= tmp_node->limit)
-				return -1;
+		// Segfault
+		if (tmp_node->base + tmp_node->current_read > tmp_node->limit)
+			return -1;
 
-			memory_core->read(tmp_node->base + tmp_node->current_read++, ch);
-		}
-			
+		memory_core->read(tmp_node->base + tmp_node->current_read++, ch);
+		
 	} while (!tmp->empty());
 	return 1;
 }
@@ -133,21 +135,23 @@ int MemoryManager::read(int memory_handle, char& ch) {
  * The string is returned by reference.
  */
 int MemoryManager::read(int memory_handle, std::string& str) {
+
+	// Prevent writing to an invalid position
 	if (memory_handle <= -1)
 		return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
-		if (tmp_node->handle == memory_handle) {
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
 			
-			// Segfault
-			if (tmp_node->base + tmp_node->current_read >= tmp_node->limit)
-				return -1;
+		// Segfault
+		if (tmp_node->base + tmp_node->current_read > tmp_node->limit)
+			return -1;
 
-			for (int i = 0; i < str.size(); i++)
-				memory_core->read(tmp_node->base + tmp_node->current_read++, str[i]);
-		}
+		for (int i = 0; i < str.size(); i++)
+			memory_core->read(tmp_node->base + tmp_node->current_read++, str[i]);
 			
 	} while (!tmp->empty());
 	return 1;
@@ -159,20 +163,22 @@ int MemoryManager::read(int memory_handle, std::string& str) {
  * Returns -1 if a segfault occurs, 1 otherwise.
  */
 int MemoryManager::write(int memory_handle, char ch) {
+
+	// Prevent writing to an invalid position
 	if (memory_handle <= -1)
 		return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
-		if (tmp_node->handle == memory_handle) {
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
 			
-			// Segfault
-			if (tmp_node->base + tmp_node->current_write >= tmp_node->limit)
-				return -1;
+		// Segfault
+		if (tmp_node->base + tmp_node->current_write > tmp_node->limit)
+			return -1;
 
-			memory_core->write(tmp_node->base + tmp_node->current_write++, ch);
-		}
+		memory_core->write(tmp_node->base + tmp_node->current_write++, ch);
 
 	} while (!tmp->empty());
 	return 1;
@@ -184,50 +190,194 @@ int MemoryManager::write(int memory_handle, char ch) {
  * Returns -1 if a segfault occurs, 1 otherwise.
  */
 int MemoryManager::write(int memory_handle, std::string str) {
+
+	// Prevent writing to an invalid position
 	if (memory_handle <= -1)
 		return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue(); 
-		if (tmp_node->handle == memory_handle) {
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
 
-			// Segfault
-			if (tmp_node->base + tmp_node->current_write >= tmp_node->limit + str.length())
-				return -1;
+		// Segfault
+		if (tmp_node->base + tmp_node->current_write > tmp_node->limit + str.length())
+			return -1;
 
-			for (int i = 0; i < str.size(); i++)
-				memory_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
-		}
+		for (int i = 0; i < str.size(); i++)
+			memory_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
 
 	} while (!tmp->empty());
 	return 1;
 }
 
-//TODO: FINISH THIS SHIT
+/*
+ * MemoryManager::write(int, int, std::string)
+ * Writes a string to a block given a memory id with an offset.
+ * Returns -1 if a segfault occurs, 1 otherwise.
+ */
+int MemoryManager::write(int memory_handle, int offset_from_begin, std::string str) {
+
+	// Prevent writing to an invalid position
+	if (memory_handle <= -1)
+		return -1;
+
+	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	do {
+		MEMORY_NODE* tmp_node = tmp->dequeue(); 
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
+
+		// Segfault
+		if (tmp_node->base + offset_from_begin > tmp_node->limit)
+			return -1;
+
+		tmp_node->current_write = offset_from_begin;
+		for (int i = 0; i < str.size(); i++)
+			memory_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
+
+	} while (!tmp->empty());
+	return 1;
+}
+
+/*
+ * MemoryManager::write(int, int, char ch)
+ * Writes a char to a block given a memory id with an offset.
+ * Returns -1 if a segfault occurs, 1 otherwise.
+ */
+int MemoryManager::write(int memory_handle, int offset_from_begin, char ch) {
+
+	// Prevent writing to an invalid position
+	if (memory_handle <= -1)
+		return -1;
+
+	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	do {
+		MEMORY_NODE* tmp_node = tmp->dequeue(); 
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
+
+		// Segfault
+		if (tmp_node->base + offset_from_begin > tmp_node->limit)
+			return -1;
+
+		tmp_node->current_write = offset_from_begin;
+		memory_core->write(tmp_node->base + tmp_node->current_write++, ch);
+
+	} while (!tmp->empty());
+	return 1;
+}
+
+/*
+ * MemoryManager::write(int, int, int, std::string)
+ * Writes a char to a block given a memory id from START to END.
+ * Returns -1 if a segfault occurs, 1 otherwise.
+ */
+int MemoryManager::write(int memory_handle, int begin, int end, std::string str) {
+
+	// Prevent writing to an invalid position
+	if (memory_handle <= -1)
+		return -1;
+
+	// Prevent the writing of a string too large for the space requested
+	if (end - begin <= str.length())
+		return -1;
+
+	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	do {
+		MEMORY_NODE* tmp_node = tmp->dequeue(); 
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
+
+		// Segfault
+		if (tmp_node->base + begin > tmp_node->limit || tmp_node->base + end > tmp_node->limit)
+			return -1;
+
+		tmp_node->current_write = begin;
+		for (int i = 0; i < str.length() && i < end; i++)
+			memory_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
+
+	} while (!tmp->empty());
+	return 1;
+}
+
 /*
  * MemoryManager::free(int)
- * 
+ * Sets a block's status to HOLE and places '#' in all positions.
  */
-int MemoryManager::free(int memory_handle) {
+void MemoryManager::free(int memory_handle) {
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
 
-		if (tmp_node->handle != memory_handle)
-			break;
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
 
 		tmp_node->status = HOLE;
 
-		// Write fill here from CORE
+		for (int i = 0; i < tmp_node->limit - tmp_node->base; i++)
+			memory_core->write(tmp_node->base + i, '#');
 			
 	} while (!tmp->empty());
-	return 1;
+
+	coalesce();
+}
+
+
+// TODO: MAKE THIS WORK
+
+/*
+ * MemoryManager::coalesce()
+ * Combines two or more contiguous blocks of free space. 
+ */
+void MemoryManager::coalesce() {
+	int size = memory_list.size();
+
+	if (size <= 1)
+		return;
+
+	do {
+		MEMORY_NODE* tmp_node = memory_list.dequeue();
+		MEMORY_NODE* tmp_sec = memory_list.dequeue();
+
+		if (tmp_node->status == HOLE && tmp_sec->status == HOLE) {
+			for (int i = 0; i < tmp_node->limit - tmp_node->base; i++)
+				memory_core->write(tmp_node->base + i, '.');
+
+			for (int i = 0; i < tmp_sec->limit - tmp_sec->base; i++)
+				memory_core->write(tmp_sec->base + i, '.');
+
+			tmp_sec->base = tmp_node->base;
+			memory_list.enqueue(tmp_sec);
+		}
+			
+	} while (--size > 1);
+}
+
+/*
+ * MemoryManager::free_no_coalesce(int)
+ * Sets a block's status to HOLE and places '#' in all positions.
+ */
+void MemoryManager::free_no_coalesce(int memory_handle) {
+	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	do {
+		MEMORY_NODE* tmp_node = tmp->dequeue();
+
+		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self())
+			continue;
+
+		tmp_node->status = HOLE;
+
+		for (int i = 0; i < tmp_node->limit - tmp_node->base; i++)
+			memory_core->write(tmp_node->base + i, '#');
+			
+	} while (!tmp->empty());
 }
 
 /*
  * MemoryManager::memory_largest()
- * Returns the largest amount of data in any block.
+ * Returns the largest block.
  */
 int MemoryManager::memory_largest() {
 	int largest = 0;
@@ -235,7 +385,15 @@ int MemoryManager::memory_largest() {
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* mem = tmp->dequeue();
-		largest >= mem->limit - mem->base;
+
+		// Ignore unused blocks
+		if (mem->status == HOLE)
+			continue;
+
+		// Finds the largest block size available
+		if (largest <= mem->limit - mem->base)
+			largest = mem->limit - mem->base;
+
 	} while (!tmp->empty());
 
 	return largest;
@@ -243,7 +401,7 @@ int MemoryManager::memory_largest() {
 
 /*
  * MemoryManager::memory_smallest()
- * Returns the smallest amount of data in any block.
+ * Returns the smallest block.
  */
 int MemoryManager::memory_smallest() {
 	int smallest = memory_left();
@@ -251,7 +409,15 @@ int MemoryManager::memory_smallest() {
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	do {
 		MEMORY_NODE* mem = tmp->dequeue();
-		smallest >= mem->limit - mem->base;
+
+		// Ignore unused blocks
+		if (mem->status == HOLE)
+			continue;
+
+		// Finds the smallest block size available
+		if (smallest >= mem->limit - mem->base)
+			smallest = mem->limit - mem->base;
+
 	} while (!tmp->empty());
 
 	return smallest;
