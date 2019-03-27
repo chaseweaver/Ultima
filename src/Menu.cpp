@@ -78,14 +78,8 @@ void Menu::menu() {
 		case '6':
 			master_control_block->ui->clear_window(MAILBOX_WINDOW);
 
-			int test1 = master_control_block->memory_manager->allocate(33);
-			master_control_block->memory_manager->write(test1, "this is a test of some length.");
-
-			int test2 = master_control_block->memory_manager->allocate(9);
-			master_control_block->memory_manager->write(test2, "wow rude.");
-			
-			master_control_block->ui->write_refresh(INPUT_WINDOW, std::to_string(test1) + " ");
-			master_control_block->ui->write_refresh(INPUT_WINDOW, std::to_string(test2) + " ");
+			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(6), "this is dumb");
+			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(12), "super dumb");
 
 			master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Dump\n");
