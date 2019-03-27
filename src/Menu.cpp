@@ -78,8 +78,10 @@ void Menu::menu() {
 		case '6':
 			master_control_block->ui->clear_window(MAILBOX_WINDOW);
 
-			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(6), "this is dumb");
-			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(12), "super dumb");
+			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(6), "TEST A");
+			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(12), "TEST B");
+			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(6), "TEST C");
+			master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(12), "TEST D");
 
 			master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
 			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Dump\n");

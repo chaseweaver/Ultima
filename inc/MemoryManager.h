@@ -29,21 +29,25 @@ private:
 	};
 
 	MemoryCore* memory_core;
-
 	const int block_size;
 	int memory_handle;
 
 	Queue<MEMORY_NODE*> memory_list;
+	int next_handle();
+
 public:
 	MemoryManager(const unsigned int, const unsigned int, char);
 	~MemoryManager();
 	MEMORY_NODE* find_a_hole(int);
 	int allocate(const unsigned int);
-	int next_handle();
 	int read(int, char&);
+	int read(int, std::string&);
 	int write(int, char);
 	int write(int, std::string);
 	int free(int);
+	int memory_left();
+	int memory_largest();
+	int memory_smallest();
 	std::string memory_dump(const unsigned int, const unsigned int);
 	std::string memory_dump();
 };
