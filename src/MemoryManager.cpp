@@ -264,10 +264,7 @@ std::string MemoryManager::memory_dump() {
 
 	do {
 		MEMORY_NODE* mem = tmp->dequeue();
-		if (mem->status == PROCESS) {
-			// str += std::to_string(++num) + " | (" + std::to_string(mem->base) + ", " + std::to_string(mem->limit) + ")\n";
-			str += std::to_string(mem->handle) + " | " + memory_dump(mem->base, mem->limit) + "\n";
-		}
+		str += std::to_string(mem->handle) + " | " + memory_dump(mem->base, mem->limit - mem->base) + "\n";
 	} while (!tmp->empty());
 
 	return str;
