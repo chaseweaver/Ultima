@@ -108,21 +108,19 @@ void* worker_function(void* arguments) {
 			if (counter == num)
 				break;
 
-			// if (counter == num / 4) {
-			// 	master_control_block->memory_manager->write(
-			// 		master_control_block->memory_manager->allocate(18),
-			// 		"Hello from Task #" + std::to_string(args->id) 
-			// 	);
+			std::string msg = message_lists[rand() % 16];
 
-			// 	master_control_block->ui->write_refresh(LOG_WINDOW, " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
-			// }
+			if (counter == num / 4) {
+				master_control_block->memory_manager->write(master_control_block->memory_manager->allocate(msg.length()), msg);
+				master_control_block->ui->write_refresh(LOG_WINDOW, " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
+			}
 
 			// Just for example, we have the workers let other workers know when they are half done.
 			// For a bonus, they tell jokes.
 			if (counter == num / 2) {
 				int tmp_rand = 1 + rand() % 8;
 				int result = master_control_block->ipc->message_send(
-					master_control_block->ipc->compose_message(tcb, tmp_rand, message_lists[rand() % 16])
+					master_control_block->ipc->compose_message(tcb, tmp_rand, msg)
 				);
 
 				// Did the message fail to send or not?
