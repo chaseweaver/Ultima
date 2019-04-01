@@ -471,10 +471,14 @@ void MemoryManager::memory_cleanup(){
 
 	Queue<MEMORY_NODE *> *tmp = new Queue<MEMORY_NODE *>();
 
-	for(int i = 0; i <= memory_list.size(); i++ ){
+	for(int i = 0; i < memory_list.size(); i++ ){
 		tmp_node = memory_list.dequeue();
 		if(tmp_node->limit - tmp_node->base > 0)
-			tmp->enqueue(tmp_node);
+			if(tmp_node->handle == -1){
+				memory_list.enqueue(tmp_node);
+			} else {
+				tmp->enqueue(tmp_node);
+			}
 	}
 
 	while(!tmp->empty()){
@@ -516,7 +520,25 @@ int MemoryManager::memory_largest()
  */
 int MemoryManager::memory_smallest()
 {
-	int smallest = memory_left();
+	int smallest_segment = memory_core->memory_size();
+
+	Queue<MEMORY_NODE *> *tmp = new Queue<MEMORY_NODE *>(memory_list);
+
+	do
+	{
+		MEMORY_NODE *tmp_node = tmp->dequeue();
+
+
+		if (tmp_node->status == HOLE){
+			// Finds the smallest block size available
+			if (smallest_segment >= tmp_node->limit - tmp_node->base)
+				smallest_segment = tmp_node->limit - tmp_node->base;
+		}
+
+	} while (!tmp->empty());
+
+	return smallest_segment;
+	/*int smallest = memory_left();
 
 	Queue<MEMORY_NODE *> *tmp = new Queue<MEMORY_NODE *>(memory_list);
 	do
@@ -533,6 +555,7 @@ int MemoryManager::memory_smallest()
 	} while (!tmp->empty());
 	
 	return smallest;
+	*/
 }
 
 /*
@@ -541,7 +564,17 @@ int MemoryManager::memory_smallest()
  */
 int MemoryManager::memory_left()
 {
-	return memory_core->memory_left();
+	Queue<MEMORY_NODE *> *tmp = new Queue<MEMORY_NODE *>(memory_list);
+	int mem_left_amnt = 0;
+	do
+	{
+		MEMORY_NODE *tmp_node = tmp->dequeue();
+		if(tmp_node->status == HOLE){
+			mem_left_amnt =+ tmp_node->limit - tmp_node->base;
+		}
+	 } while (!tmp->empty());
+	return mem_left_amnt;
+	//return memory_core->memory_left();
 }
 
 /*

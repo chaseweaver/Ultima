@@ -100,17 +100,17 @@ void Menu::menu() {
 							break;
 						//MEMEORY LEFT (NEEDS TO BE MADE)
 						case 3:
-							master_control_block->ui->write_refresh(MAILBOX_WINDOW, std::to_string(master_control_block->memory_manager->memory_left()));
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, "The amount of un-allocated memory is: " + std::to_string(master_control_block->memory_manager->memory_left()));
 							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ MEM LEFT\n");
 							break;
 						//LARGEST FREE BLOCK
 						case 4:
-							master_control_block->ui->write_refresh(MAILBOX_WINDOW, std::to_string(master_control_block->memory_manager->memory_largest()));
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, "The largest segment is: " + std::to_string(master_control_block->memory_manager->memory_largest()));
 							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Largest\n");
 							break;
 						//SMALLEST FREE BLOCK
 						case 5:
-							master_control_block->ui->write_refresh(MAILBOX_WINDOW, std::to_string(master_control_block->memory_manager->memory_smallest()));
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, "The smallest segment is: " + std::to_string(master_control_block->memory_manager->memory_smallest()));
 							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Smallest\n");
 							break;
 					
