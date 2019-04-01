@@ -27,7 +27,7 @@ class IPC {
 		};
 		
 		MASTER_CONTROL_BLOCK* master_control_block;
-		std::map<int, Queue<MESSAGE_TYPE*>> message_box;
+		std::map<int, Queue<MESSAGE_TYPE*> > message_box;
 		int message_box_size;
 
 	public:

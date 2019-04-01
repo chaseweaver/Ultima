@@ -28,6 +28,7 @@ private:
 	void get_thread_message_box(int, int);
 	void print_thread_menu(int);
 	void print_thread_inbox_menu(int);
+	void print_memory_mgmt_menu(int);
 
 public:
 	Menu(MASTER_CONTROL_BLOCK*, WINDOW*);

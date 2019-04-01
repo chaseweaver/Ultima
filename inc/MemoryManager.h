@@ -36,6 +36,7 @@ private:
 	int next_handle();
 	MEMORY_NODE* find_hole(int);
 	bool enough_blocks_exist(int);
+	void memory_cleanup();
 
 public:
 	MemoryManager(const unsigned int, const unsigned int, char);
@@ -49,13 +50,15 @@ public:
 	int write(int, int, std::string);
 	int write(int, int, int, std::string);
 	void free(int);
-	void free_no_coalesce(int);
 	int memory_left();
 	int memory_largest();
 	int memory_smallest();
-	void coalesce();
+	void coalesce(int);
 	std::string memory_dump(const unsigned int, const unsigned int);
 	std::string memory_dump();
+	std::string memory_dump_mem();
+
+	
 };
 
 #endif

@@ -19,6 +19,7 @@ public:
 	MemoryCore(const unsigned int, const unsigned int, char);
 	~MemoryCore();
 	void write(const unsigned int, char);
+	void write_free(const unsigned in, char);
 	void read(const unsigned int, char&);
 	std::string memory_dump(const unsigned int, const unsigned int);
 	std::string memory_dump();

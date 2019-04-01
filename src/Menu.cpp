@@ -76,16 +76,57 @@ void Menu::menu() {
 			break;
 
 		case '6':
-			master_control_block->ui->clear_window(MAILBOX_WINDOW);
-			master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
-			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Dump\n");
-			break;
+			master_control_block->ui->clear_window(MENU_WINDOW);
+			print_memory_mgmt_menu(MENU_WINDOW);
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Menu\n");
 
-		case '7':
-			master_control_block->ui->clear_window(MAILBOX_WINDOW);
-			master_control_block->memory_manager->coalesce();
-			master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
-			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Memory Coalesce\n");
+			input = wgetch(menu_window);
+
+			do {
+				
+				if (input >= 49 && input <= 56) {
+					master_control_block->ui->clear_window(MAILBOX_WINDOW);
+					switch (input - 48)
+					{
+						//DUMP MANAGER QUEUE
+						case 1:
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump());
+							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Mem Mgr Dump\n");
+							break;
+						//DUMP MAIN MEM
+						case 2:
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, master_control_block->memory_manager->memory_dump_mem());
+							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Main Mem Dump\n");
+							break;
+						//MEMEORY LEFT (NEEDS TO BE MADE)
+						case 3:
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, std::to_string(master_control_block->memory_manager->memory_left()));
+							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ MEM LEFT\n");
+							break;
+						//LARGEST FREE BLOCK
+						case 4:
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, std::to_string(master_control_block->memory_manager->memory_largest()));
+							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Largest\n");
+							break;
+						//SMALLEST FREE BLOCK
+						case 5:
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, std::to_string(master_control_block->memory_manager->memory_smallest()));
+							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Smallest\n");
+							break;
+					
+						default:
+							break;
+					}
+					
+				}
+
+				input = wgetch(menu_window);
+				usleep(10000);
+			} while (input != 27);
+
+			master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Return\n");
+			master_control_block->ui->clear_window(MENU_WINDOW);
+			print_menu(MENU_WINDOW);
 			break;
 		}
 
@@ -128,6 +169,16 @@ void Menu::print_thread_inbox_menu(int win) {
 	master_control_block->ui->write_refresh(win, "\n\n ESC: Return");
 }
 
+void Menu::print_memory_mgmt_menu(int win){
+	master_control_block->ui->write_refresh(win, "Select A Function To Run:\n");
+	master_control_block->ui->write_refresh(win, "\n 1: Dump Manager Queue");
+	master_control_block->ui->write_refresh(win, "\n 2: Dump Main Memory");
+	master_control_block->ui->write_refresh(win, "\n 3: Show Memory Left Free");
+	master_control_block->ui->write_refresh(win, "\n 4: Show Largest Memory");
+	master_control_block->ui->write_refresh(win, "\n 5: Show Smallest Memory");
+	master_control_block->ui->write_refresh(win, "\n\n ESC: Return");
+}
+
 /*
  * Menu::print_menu(int)
  * Prints help menu.
@@ -135,8 +186,8 @@ void Menu::print_thread_inbox_menu(int win) {
 void Menu::print_menu(int win) {
 	master_control_block->ui->write_refresh(win, 2, 1, "Choose an option");
 	master_control_block->ui->write_refresh(win, 2, 3, "1: System Logs   \t5: Check Thread Inbox");
-	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t6: Print Memory Dump");
-	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs\t7: Memory Coalesce");
+	master_control_block->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t6: Memory Options");
+	master_control_block->ui->write_refresh(win, 2, 5, "3: Semaphore Logs");
 	master_control_block->ui->write_refresh(win, 2, 6, "4: Mailbox List");
 	master_control_block->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }

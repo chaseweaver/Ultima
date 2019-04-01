@@ -145,7 +145,8 @@ void* worker_function(void* arguments) {
 		sleep(1);
 	} while (counter != num);
 
-	master_control_block->memory_manager->free_no_coalesce(tracker);
+	master_control_block->memory_manager->free(tracker);
+	//master_control_block->memory_manager->free_no_coalesce(tracker);
 
 	master_control_block->ui->write_refresh(args->id, "\n Thread #"
 		+ std::to_string(args->id) + "\n has ended.\n");

@@ -11,6 +11,11 @@ void MemoryCore::write(const unsigned int location, char ch) {
 	--free_capacity;
 }
 
+void MemoryCore::write_free(const unsigned int location, char ch) {
+	memory[location] = ch;
+	++free_capacity;
+}
+
 void MemoryCore::read(const unsigned int location, char& ch) {
 	ch = memory[location];
 }
