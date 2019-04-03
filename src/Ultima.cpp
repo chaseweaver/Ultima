@@ -39,13 +39,14 @@ void master_control_block_init() {
 	master_control_block->scheduler_semaphore = new Semaphore(master_control_block, "Scheduler Handler", 1);
 	master_control_block->logger_semaphore = new Semaphore(master_control_block, "Logger Handler", 1);
 	master_control_block->tcb_semaphore = new Semaphore(master_control_block, "TCB Locker", 1);
+	master_control_block->memory_semaphore = new Semaphore(master_control_block, "Memory Semaphore", 1);
 	master_control_block->ipc_semaphore = new Semaphore(master_control_block, "IPC Handler", 1);
 	master_control_block->scheduler = new Scheduler(master_control_block);
 	master_control_block->ui = new UI(master_control_block);
 	master_control_block->logger = new Logger(32);
 	master_control_block->ipc = new IPC(master_control_block, NUMBER_OF_WORKERS, 8);
 	master_control_block->worker = new Worker(master_control_block);
-	master_control_block->memory_manager = new MemoryManager(1024, 32, '.');
+	master_control_block->memory_manager = new MemoryManager(master_control_block, 1024, 32, '.');
 	master_control_block->menu = new Menu(master_control_block, master_control_block->ui->create_window_lock_spawn
 		(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
 }
@@ -146,7 +147,6 @@ void* worker_function(void* arguments) {
 	} while (counter != num);
 
 	master_control_block->memory_manager->free(tracker);
-	//master_control_block->memory_manager->free_no_coalesce(tracker);
 
 	master_control_block->ui->write_refresh(args->id, "\n Thread #"
 		+ std::to_string(args->id) + "\n has ended.\n");

@@ -31,6 +31,7 @@ private:
 	MemoryCore* memory_core;
 	const int block_size;
 	int memory_handle;
+	MASTER_CONTROL_BLOCK* master_control_block;
 
 	Queue<MEMORY_NODE*> memory_list;
 	int next_handle();
@@ -39,7 +40,7 @@ private:
 	void memory_cleanup();
 
 public:
-	MemoryManager(const unsigned int, const unsigned int, char);
+	MemoryManager(MASTER_CONTROL_BLOCK*, const unsigned int, const unsigned int, char);
 	~MemoryManager();
 	int allocate(const unsigned int);
 	int read(int, char&);

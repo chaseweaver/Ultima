@@ -45,6 +45,7 @@ struct MASTER_CONTROL_BLOCK {
 	Semaphore* logger_semaphore;
 	Semaphore* tcb_semaphore;
 	Semaphore* ipc_semaphore;
+	Semaphore* memory_semaphore;
 };
 
 #endif

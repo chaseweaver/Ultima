@@ -4,8 +4,8 @@
  * MemoryManager::MemoryManager()
  * Default constructor.
  */
-MemoryManager::MemoryManager(const unsigned int memory_size, const unsigned int memory_block_size, char null_character)
-	: block_size(memory_block_size)
+MemoryManager::MemoryManager(MASTER_CONTROL_BLOCK* mcb, const unsigned int memory_size, const unsigned int memory_block_size, char null_character)
+	: block_size(memory_block_size), master_control_block(mcb)
 {
 
 	memory_core = new MemoryCore(memory_size, memory_block_size, null_character);
@@ -327,6 +327,8 @@ int MemoryManager::write(int memory_handle, int begin, int end, std::string str)
  */
 void MemoryManager::free(int memory_handle)
 {
+
+	master_control_block->memory_semaphore->wait();	
 	Queue<MEMORY_NODE *> *tmp = new Queue<MEMORY_NODE *>(memory_list);
 
 	do
@@ -338,10 +340,12 @@ void MemoryManager::free(int memory_handle)
 
 		tmp_node->status = HOLE;
 
-		for (int i = 0; i < tmp_node->limit - tmp_node->base; i++)
+		for (int i = 0; i <= tmp_node->limit - tmp_node->base; i++)
 			memory_core->write_free(tmp_node->base + i, '#');
 
 	} while (!tmp->empty());
+
+	master_control_block->memory_semaphore->signal();
 
 	coalesce(memory_handle);
 }
@@ -354,6 +358,7 @@ void MemoryManager::free(int memory_handle)
  */
 void MemoryManager::coalesce(int memory_handle)
 {
+
 	Queue<MEMORY_NODE *> *tmp = new Queue<MEMORY_NODE *>(memory_list);
 	Queue<MEMORY_NODE *> *tmp_2 = new Queue<MEMORY_NODE *>(memory_list);
 	Queue<MEMORY_NODE *> *tmp_3 = new Queue<MEMORY_NODE *>(memory_list);
@@ -462,7 +467,6 @@ void MemoryManager::coalesce(int memory_handle)
 	}
 	
 	memory_cleanup();
-
 	
 }
 

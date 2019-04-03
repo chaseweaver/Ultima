@@ -105,12 +105,12 @@ void Menu::menu() {
 							break;
 						//LARGEST FREE BLOCK
 						case 4:
-							master_control_block->ui->write_refresh(MAILBOX_WINDOW, "The largest segment is: " + std::to_string(master_control_block->memory_manager->memory_largest()));
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, "The largest free segment is: " + std::to_string(master_control_block->memory_manager->memory_largest()));
 							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Largest\n");
 							break;
 						//SMALLEST FREE BLOCK
 						case 5:
-							master_control_block->ui->write_refresh(MAILBOX_WINDOW, "The smallest segment is: " + std::to_string(master_control_block->memory_manager->memory_smallest()));
+							master_control_block->ui->write_refresh(MAILBOX_WINDOW, "The smallest free segment is: " + std::to_string(master_control_block->memory_manager->memory_smallest()));
 							master_control_block->ui->write_refresh(INPUT_WINDOW, " $ Smallest\n");
 							break;
 					
@@ -128,6 +128,7 @@ void Menu::menu() {
 			master_control_block->ui->clear_window(MENU_WINDOW);
 			print_menu(MENU_WINDOW);
 			break;
+		
 		}
 
 		usleep(10000);
