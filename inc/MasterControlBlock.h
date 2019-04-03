@@ -45,7 +45,6 @@ struct MASTER_CONTROL_BLOCK {
 	Semaphore*		 log_sema;
 	Semaphore*		 tcb_sema;
 	Semaphore*		 ipc_sema;
-	Semaphore*		 mm_sema;
 };
 
 #endif

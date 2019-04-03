@@ -39,7 +39,6 @@ void mcb_init() {
 	mcb->log_sema = new Semaphore(mcb, "Logger Handler", 1);
 	mcb->tcb_sema = new Semaphore(mcb, "TCB Locker", 1);
 	mcb->ipc_sema = new Semaphore(mcb, "IPC Handler", 1);
-	mcb->mm_sema	= new Semaphore(mcb, "Memory Manager", 1);
 
 	mcb->scheduler = new Scheduler(mcb);
 	mcb->ui				 = new UI(mcb);
@@ -65,7 +64,8 @@ void window_init() {
 	mcb->ui->create_window_lock_spawn(" Log ", 2, 0, LOG_WINDOW, 39, 12, 3, 34);
 	mcb->ui->create_window_lock_spawn(" State ", 2, 0, STATE_WINDOW, 39, 12, 43, 34);
 	mcb->ui->create_window_lock_spawn(" Output ", 2, 0, OUTPUT_WINDOW, 80, 12, 83, 2);
-	mcb->ui->create_window_lock_spawn(" Mailbox ", 2, 0, MAILBOX_WINDOW, 80, 20, 83, 14);
+	mcb->ui->create_window_lock_spawn(
+		" Mailbox / Memory Core ", 2, 0, MAILBOX_WINDOW, 80, 20, 83, 14);
 	mcb->ui->create_window_lock_spawn(" Input ", 2, 0, INPUT_WINDOW, 21, 12, 142, 34);
 	mcb->ui->write(INPUT_WINDOW, "\n");
 	mcb->menu->print_menu(MENU_WINDOW);

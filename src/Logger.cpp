@@ -30,9 +30,7 @@ void Logger::add_log(int task_id, std::string task_name, int task_state) {
  * Logger::get_max_number_of_logs_kept()
  * Returns the maximum number of logs to be kept.
  */
-int Logger::get_max_number_of_logs_kept() {
-	return MAX_NUMBER_OF_LOGS_KEPT;
-}
+int Logger::get_max_number_of_logs_kept() { return MAX_NUMBER_OF_LOGS_KEPT; }
 
 /*
  * Logger::set_max_number_of_logs_kept(int)

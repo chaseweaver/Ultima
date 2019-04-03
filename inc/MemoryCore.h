@@ -5,10 +5,15 @@
 #pragma once
 #endif
 
+// struct MASTER_CONTROL_BLOCK;
+// #include "MasterControlBlock.h"
+
 #include <iostream>
 
 class MemoryCore {
 	private:
+	// MASTER_CONTROL_BLOCK* mcb;
+
 	char*			memory;
 	const int block_size;
 	int				memory_capacity;

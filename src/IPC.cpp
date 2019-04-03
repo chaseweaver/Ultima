@@ -45,9 +45,7 @@ int IPC::message_send(MESSAGE_TYPE* message) {
  * IPC::message_box_count()
  * Returns the amount of message boxes.
  */
-int IPC::message_box_count() {
-	return message_box.size();
-}
+int IPC::message_box_count() { return message_box.size(); }
 
 /*
  * IPC::message_count()

@@ -19,26 +19,16 @@ void MemoryCore::write_free(const unsigned int location, char ch) {
 	++free_capacity;
 }
 
-void MemoryCore::read(const unsigned int location, char& ch) {
-	ch = memory[location];
-}
+void MemoryCore::read(const unsigned int location, char& ch) { ch = memory[location]; }
 
 std::string MemoryCore::memory_dump(const unsigned int start, const unsigned int end) {
 	return std::string(memory).substr(start, end);
 }
 
-std::string MemoryCore::memory_dump() {
-	return std::string(memory);
-}
+std::string MemoryCore::memory_dump() { return std::string(memory); }
 
-int MemoryCore::memory_size() {
-	return memory_capacity;
-}
+int MemoryCore::memory_size() { return memory_capacity; }
 
-int MemoryCore::memory_blocks() {
-	return memory_capacity / block_size;
-}
+int MemoryCore::memory_blocks() { return memory_capacity / block_size; }
 
-int MemoryCore::memory_left() {
-	return free_capacity;
-}
+int MemoryCore::memory_left() { return free_capacity; }

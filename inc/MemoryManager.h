@@ -5,11 +5,13 @@
 #pragma once
 #endif
 
+
 struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
 #include "MemoryCore.h"
 #include "Queue.h"
+#include "Semaphore.h"
 #include <iostream>
 #include <pthread.h>
 
@@ -36,6 +38,9 @@ class MemoryManager {
 	int									next_handle();
 	MEMORY_NODE*				find_hole(int);
 	void								memory_cleanup();
+
+	MASTER_CONTROL_BLOCK* mcb;
+	Semaphore*						mm_sema = new Semaphore(mcb, "Memory Manager", 1);
 
 	public:
 	MemoryManager(const unsigned int, const unsigned int, char);
