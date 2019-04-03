@@ -3,22 +3,22 @@
 
 #ifdef _MSC_VER
 #pragma once
-#endif 
+#endif
 
 struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
-#include "Struct.h"
-#include "Semaphore.h"
 #include "Scheduler.h"
+#include "Semaphore.h"
+#include "Struct.h"
 #include <iostream>
 
 class Worker {
-private:
-	void* worker_function(void*);
-	MASTER_CONTROL_BLOCK* master_control_block;
+	private:
+	void*									worker_function(void*);
+	MASTER_CONTROL_BLOCK* mcb;
 
-public:
+	public:
 	Worker(MASTER_CONTROL_BLOCK*);
 	~Worker();
 	static void* start_worker_function(void*);

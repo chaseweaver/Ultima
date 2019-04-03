@@ -22,29 +22,30 @@ class IPC;
 class Worker;
 class MemoryManager;
 
-#include "Scheduler.h"
-#include "UI.h"
-#include "Menu.h"
-#include "Semaphore.h"
-#include "Logger.h"
-#include "Queue.h"
 #include "IPC.h"
-#include "Worker.h"
+#include "Logger.h"
 #include "MemoryManager.h"
+#include "Menu.h"
+#include "Queue.h"
+#include "Scheduler.h"
+#include "Semaphore.h"
+#include "UI.h"
+#include "Worker.h"
 
 struct MASTER_CONTROL_BLOCK {
-	Scheduler* scheduler;
-	UI* ui;
-	Menu* menu;
-	IPC* ipc;
-	Worker* worker;
-	Logger* logger;
-	MemoryManager* memory_manager;
-	Semaphore* ui_semaphore;
-	Semaphore* scheduler_semaphore;
-	Semaphore* logger_semaphore;
-	Semaphore* tcb_semaphore;
-	Semaphore* ipc_semaphore;
+	Scheduler*		 scheduler;
+	UI*						 ui;
+	Menu*					 menu;
+	IPC*					 ipc;
+	Worker*				 worker;
+	Logger*				 logger;
+	MemoryManager* mem_man;
+	Semaphore*		 ui_sema;
+	Semaphore*		 sch_sema;
+	Semaphore*		 log_sema;
+	Semaphore*		 tcb_sema;
+	Semaphore*		 ipc_sema;
+	Semaphore*		 mm_sema;
 };
 
 #endif

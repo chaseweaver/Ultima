@@ -2,16 +2,16 @@
 
 /*
  * Scheduler::Scheduler(MASTER_CONTROL_BLOCK*)
- * Default constructor. 
- */ 
-Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
+ * Default constructor.
+ */
+Scheduler::Scheduler(MASTER_CONTROL_BLOCK* mcb) : mcb(mcb) {
 	assert(!pthread_create(&scheduler_thread, NULL, start_scheduler, this));
 }
 
 /*
  * Scheduler::~Scheduler()
- * Default deconstructor. 
- */ 
+ * Default deconstructor.
+ */
 Scheduler::~Scheduler() {}
 
 /*
@@ -33,12 +33,12 @@ void Scheduler::scheduler() {
 			TASK_CONTROL_BLOCK* tcb;
 			task_list.front(tcb);
 
-			switch(tcb->task_state) {
+			switch (tcb->task_state) {
 				case DEAD:
 					// yield(2, 5);
-					master_control_block->ui->write_refresh(tcb->task_id, " \n Garbage\n Collected.\n");
+					mcb->ui->write_refresh(tcb->task_id, " \n Garbage\n Collected.\n");
 					task_list.dequeue();
-					delete(tcb);
+					delete (tcb);
 					--number_of_workers;
 					break;
 
@@ -75,18 +75,20 @@ void Scheduler::scheduler() {
  * Scheduler::create_new_task(std::string, void* (void*), ARGUMENTS*)
  * Creates a new TASK_CONTROL_BLOCK and spawns a new child function in a new thread.
  */
-void Scheduler::create_new_task(std::string task_name, void* worker(void*), ARGUMENTS* task_arguments) {
-	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
-	tcb->task_id = ++number_of_workers;
-	tcb->task_state = task_list.empty() ? RUNNING : READY;
-	tcb->task_name = task_name;
-	tcb->task_thread = *(new pthread_t);
+void Scheduler::create_new_task(std::string task_name,
+																void*				worker(void*),
+																ARGUMENTS*	task_arguments) {
+	TASK_CONTROL_BLOCK* tcb						 = new TASK_CONTROL_BLOCK;
+	tcb->task_id											 = ++number_of_workers;
+	tcb->task_state										 = task_list.empty() ? RUNNING : READY;
+	tcb->task_name										 = task_name;
+	tcb->task_thread									 = *(new pthread_t);
 	task_arguments->task_control_block = tcb;
-	tcb->task_arguments = task_arguments;
+	tcb->task_arguments								 = task_arguments;
 
-	master_control_block->scheduler_semaphore->wait();
+	mcb->sch_sema->wait();
 	task_list.enqueue(tcb);
-	master_control_block->scheduler_semaphore->signal();
+	mcb->sch_sema->signal();
 
 	assert(!pthread_create(&tcb->task_thread, NULL, worker, tcb->task_arguments));
 }
@@ -104,12 +106,11 @@ int Scheduler::task_list_size() {
  * Fetches contents of scheduler logs.
  */
 std::string Scheduler::fetch_log() {
-	if (task_list.empty())
-		return "\n There are no logs available.";
+	if (task_list.empty()) return "\n There are no logs available.";
 
-	std::string title = "\n Scheduler Log\n ";
-	std::string task_name = "Task Name";
-	std::string task_id = "Task ID";
+	std::string title			 = "\n Scheduler Log\n ";
+	std::string task_name	= "Task Name";
+	std::string task_id		 = "Task ID";
 	std::string task_state = "Task State";
 
 	pad(task_name, 11, ' ');
@@ -117,7 +118,7 @@ std::string Scheduler::fetch_log() {
 	pad(task_state, 13, ' ');
 
 	std::string header = title + task_name + "| " + task_id + "| " + task_state + "\n";
-	master_control_block->scheduler_semaphore->wait();
+	mcb->sch_sema->wait();
 
 	std::string content = "";
 	if (!task_list.empty()) {
@@ -125,27 +126,17 @@ std::string Scheduler::fetch_log() {
 		do {
 			TASK_CONTROL_BLOCK* tcb;
 			tmp->dequeue(tcb);
-			
+
 			std::string task_name_ = tcb->task_name;
-			std::string task_id_ = std::to_string(tcb->task_id);
+			std::string task_id_	 = std::to_string(tcb->task_id);
 			std::string task_state_;
 
 			switch (tcb->task_state) {
-				case DEAD:
-					task_state_ = "DEAD";
-					break;
-				case IDLE:
-					task_state_ = "IDLE";
-					break;
-				case BLOCKED:
-					task_state_ = "BLOCKED";
-					break;
-				case READY:
-					task_state_ = "READY";
-					break;
-				case RUNNING:
-					task_state_ = "RUNNING";
-					break;
+				case DEAD: task_state_ = "DEAD"; break;
+				case IDLE: task_state_ = "IDLE"; break;
+				case BLOCKED: task_state_ = "BLOCKED"; break;
+				case READY: task_state_ = "READY"; break;
+				case RUNNING: task_state_ = "RUNNING"; break;
 			}
 
 			pad(task_name_, 15, ' ');
@@ -156,7 +147,7 @@ std::string Scheduler::fetch_log() {
 		} while (!tmp->empty());
 	}
 
-	master_control_block->scheduler_semaphore->signal();
+	mcb->sch_sema->signal();
 	return header + content;
 }
 
@@ -165,107 +156,67 @@ std::string Scheduler::fetch_log() {
  * Changes task state in the list and logs to STATE WINDOW.
  */
 void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
-	if (tcb->task_state == state || tcb->task_state == DEAD)
-		return;
+	if (tcb->task_state == state || tcb->task_state == DEAD) return;
 
 	std::string str_old = "";
 	switch (tcb->task_state) {
-		case DEAD:
-			str_old = "DEAD";
-			break;
-		case IDLE:
-			str_old = "IDLE";
-			break;
-		case BLOCKED:
-			str_old = "BLOCKED";
-			break;
-		case READY:
-			str_old = "READY";
-			break;
-		case RUNNING:
-			str_old = "RUNNING";
-			break;
+		case DEAD: str_old = "DEAD"; break;
+		case IDLE: str_old = "IDLE"; break;
+		case BLOCKED: str_old = "BLOCKED"; break;
+		case READY: str_old = "READY"; break;
+		case RUNNING: str_old = "RUNNING"; break;
 	}
 
 	tcb->task_state = state;
 
 	std::string str_new = "";
 	switch (state) {
-		case DEAD:
-			str_new = "DEAD";
-			break;
-		case IDLE:
-			str_new = "IDLE";
-			break;
-		case BLOCKED:
-			str_new = "BLOCKED";
-			break;
-		case READY:
-			str_new = "READY";
-			break;
-		case RUNNING:
-			str_new = "RUNNING";
-			break;
+		case DEAD: str_new = "DEAD"; break;
+		case IDLE: str_new = "IDLE"; break;
+		case BLOCKED: str_new = "BLOCKED"; break;
+		case READY: str_new = "READY"; break;
+		case RUNNING: str_new = "RUNNING"; break;
 	}
 
-	master_control_block->ui->write_refresh(STATE_WINDOW, " Thread #"
-		+ std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
-	master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
+	mcb->ui->write_refresh(STATE_WINDOW,
+												 " Thread #" + std::to_string(tcb->task_id) + " " + str_old + " -> " +
+													 str_new + "\n");
+	mcb->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }
 
 /*
  * Scheduler::set_state(int*, int)
  * Changes task state in the list and logs to STATE WINDOW.
  */
-void Scheduler::set_state(int task_id, int state) {	
+void Scheduler::set_state(int task_id, int state) {
 	TASK_CONTROL_BLOCK* tcb = get_task_control_block(task_id);
 
-	if (tcb->task_id == state)
-		return;
+	if (tcb->task_id == state) return;
 
 	std::string str_old = "";
 	switch (tcb->task_state) {
-		case DEAD:
-			str_old = "DEAD";
-			break;
-		case IDLE:
-			str_old = "IDLE";
-			break;
-		case BLOCKED:
-			str_old = "BLOCKED";
-			break;
-		case READY:
-			str_old = "READY";
-			break;
-		case RUNNING:
-			str_old = "RUNNING";
-			break;
+		case DEAD: str_old = "DEAD"; break;
+		case IDLE: str_old = "IDLE"; break;
+		case BLOCKED: str_old = "BLOCKED"; break;
+		case READY: str_old = "READY"; break;
+		case RUNNING: str_old = "RUNNING"; break;
 	}
 
 	tcb->task_state = state;
 
 	std::string str_new = "";
 	switch (state) {
-		case DEAD:
-			str_new = "DEAD";
-			break;
-		case IDLE:
-			str_new = "IDLE";
-			break;
-		case BLOCKED:
-			str_new = "BLOCKED";
-			break;
-		case READY:
-			str_new = "READY";
-			break;
-		case RUNNING:
-			str_new = "RUNNING";
-			break;
+		case DEAD: str_new = "DEAD"; break;
+		case IDLE: str_new = "IDLE"; break;
+		case BLOCKED: str_new = "BLOCKED"; break;
+		case READY: str_new = "READY"; break;
+		case RUNNING: str_new = "RUNNING"; break;
 	}
 
-	master_control_block->ui->write_refresh(STATE_WINDOW, " Thread #"
-		+ std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
-	master_control_block->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
+	mcb->ui->write_refresh(STATE_WINDOW,
+												 " Thread #" + std::to_string(tcb->task_id) + " " + str_old + " -> " +
+													 str_new + "\n");
+	mcb->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }
 
 /*
@@ -282,8 +233,8 @@ void* Scheduler::start_scheduler(void* p) {
  * Creates a new ARGUMENTS struct.
  */
 ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
-	ARGUMENTS* args = new ARGUMENTS;
-	args->id = id;
+	ARGUMENTS* args			 = new ARGUMENTS;
+	args->id						 = id;
 	args->thread_results = thread_results;
 	return args;
 }
@@ -292,10 +243,12 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
  * Scheduler::create_arguments(int, int, TASK_CONTROL_BLOCK*)
  * Creates a new ARGUMENTS struct.
  */
-ARGUMENTS* Scheduler::create_arguments(int id, int thread_results, TASK_CONTROL_BLOCK* task_control_block) {
-	ARGUMENTS* args = new ARGUMENTS;
-	args->id = id;
-	args->thread_results = thread_results;
+ARGUMENTS* Scheduler::create_arguments(int								 id,
+																			 int								 thread_results,
+																			 TASK_CONTROL_BLOCK* task_control_block) {
+	ARGUMENTS* args					 = new ARGUMENTS;
+	args->id								 = id;
+	args->thread_results		 = thread_results;
 	args->task_control_block = task_control_block;
 	return args;
 }
@@ -311,8 +264,7 @@ TASK_CONTROL_BLOCK* Scheduler::get_task_control_block(int tid) {
 		TASK_CONTROL_BLOCK* tcb;
 		tmp->dequeue(tcb);
 
-		if (tcb->task_id == tid)
-			return tcb;
+		if (tcb->task_id == tid) return tcb;
 
 	} while (!tmp->empty());
 

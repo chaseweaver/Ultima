@@ -8,24 +8,24 @@
 #include <iostream>
 
 class MemoryCore {
-private:
-	char* memory;
+	private:
+	char*			memory;
 	const int block_size;
-	int memory_capacity;
-	int null_character;
-	int free_capacity;
+	int				memory_capacity;
+	int				null_character;
+	int				free_capacity;
 
-public:
+	public:
 	MemoryCore(const unsigned int, const unsigned int, char);
 	~MemoryCore();
-	void write(const unsigned int, char);
-	void write_free(const unsigned in, char);
-	void read(const unsigned int, char&);
+	void				write(const unsigned int, char);
+	void				write_free(const unsigned in, char);
+	void				read(const unsigned int, char&);
 	std::string memory_dump(const unsigned int, const unsigned int);
 	std::string memory_dump();
-	int memory_blocks();
-	int memory_size();
-	int memory_left();
+	int					memory_blocks();
+	int					memory_size();
+	int					memory_left();
 };
 
 #endif

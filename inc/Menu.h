@@ -12,25 +12,25 @@ struct MASTER_CONTROL_BLOCK;
 #include <ncurses.h>
 
 class Menu {
-private:
-	WINDOW* menu_window;
-	bool enabled = false;
+	private:
+	WINDOW*		menu_window;
+	bool			enabled = false;
 	pthread_t menu_thread;
 
-	MASTER_CONTROL_BLOCK* master_control_block;
+	MASTER_CONTROL_BLOCK* mcb;
 
-	void menu();
+	void				 menu();
 	static void* start_menu(void*);
-	void print_log(int);
-	void print_scheduler_logs(int);
-	void print_tcb_semaphore(int);
-	void print_message_box_list(int);
-	void get_thread_message_box(int, int);
-	void print_thread_menu(int);
-	void print_thread_inbox_menu(int);
-	void print_memory_mgmt_menu(int);
+	void				 print_log(int);
+	void				 print_scheduler_logs(int);
+	void				 print_tcb_sema(int);
+	void				 print_message_box_list(int);
+	void				 get_thread_message_box(int, int);
+	void				 print_thread_menu(int);
+	void				 print_thread_inbox_menu(int);
+	void				 print_memory_mgmt_menu(int);
 
-public:
+	public:
 	Menu(MASTER_CONTROL_BLOCK*, WINDOW*);
 	~Menu();
 	void start();
