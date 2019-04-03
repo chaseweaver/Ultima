@@ -30,7 +30,7 @@ class UI {
 	};
 
 	MASTER_CONTROL_BLOCK* mcb;
-	Queue<WINDOW_OBJECT*>* window_object;
+	Queue< WINDOW_OBJECT* >* window_object;
 
 	WINDOW* fetch_window(int);
 	bool write_window(WINDOW*, std::string);

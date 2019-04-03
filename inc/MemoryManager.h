@@ -35,7 +35,7 @@ class MemoryManager {
 	int memory_handle;
 	MASTER_CONTROL_BLOCK* master_control_block;
 
-	Queue<MEMORY_NODE*> memory_list;
+	Queue< MEMORY_NODE* > memory_list;
 	int next_handle();
 	MEMORY_NODE* find_hole(int);
 	void memory_cleanup();

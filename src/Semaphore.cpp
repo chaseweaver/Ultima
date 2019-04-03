@@ -18,7 +18,7 @@ Semaphore::~Semaphore() {}
  * Locks threads depending on state.
  */
 void Semaphore::wait() {
-	std::unique_lock<std::mutex> lck(mtx);
+	std::unique_lock< std::mutex > lck(mtx);
 	while (value == 0) cv.wait(lck);
 	--value;
 }
@@ -28,7 +28,7 @@ void Semaphore::wait() {
  * Locks threads depending on state.
  */
 void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
-	std::unique_lock<std::mutex> lck(mtx);
+	std::unique_lock< std::mutex > lck(mtx);
 	if (value == 0) sema_queue.enqueue(tcb);
 	while (value == 0) {
 		if (tcb->task_state != DEAD) mcb->scheduler->set_state(tcb, BLOCKED);
@@ -44,7 +44,7 @@ void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
  * Signals to other threads that one has finished.
  */
 void Semaphore::signal() {
-	std::unique_lock<std::mutex> lck(mtx);
+	std::unique_lock< std::mutex > lck(mtx);
 	++value;
 	if (!sema_queue.empty()) sema_queue.dequeue();
 	cv.notify_one();
@@ -68,7 +68,7 @@ std::string Semaphore::fetch_log() {
 	sema_value_title += std::to_string(value);
 
 	if (!sema_queue.empty()) {
-		Queue<TASK_CONTROL_BLOCK*>* tcb = new Queue<TASK_CONTROL_BLOCK*>(sema_queue);
+		Queue< TASK_CONTROL_BLOCK* >* tcb = new Queue< TASK_CONTROL_BLOCK* >(sema_queue);
 		do {
 			TASK_CONTROL_BLOCK* tmp;
 			tcb->dequeue(tmp);

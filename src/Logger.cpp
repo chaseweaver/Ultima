@@ -47,7 +47,7 @@ void Logger::set_max_number_of_logs_kept(int max_number_of_logs_kepts) {
 std::string Logger::fetch_log() {
 	if (log_data.empty()) return "\n There are no logs available.";
 
-	Queue<LOG_DATA*>* log_data_ = new Queue<LOG_DATA*>(log_data);
+	Queue< LOG_DATA* >* log_data_ = new Queue< LOG_DATA* >(log_data);
 
 	std::string task_id = "Task ID";
 	std::string task_name = "Task Name";

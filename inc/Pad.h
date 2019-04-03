@@ -12,8 +12,8 @@
  * Pad::pad(T, T, T)
  * Pads a Template variable.
  */
-template <typename T>
-void pad(std::basic_string<T>& s, typename std::basic_string<T>::size_type n, T c) {
+template < typename T >
+void pad(std::basic_string< T >& s, typename std::basic_string< T >::size_type n, T c) {
 	if (n > s.length()) s.append(n - s.length(), c);
 };
 

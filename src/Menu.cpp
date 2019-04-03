@@ -142,7 +142,7 @@ void Menu::menu() {
  * Start menu handler in new thread.
  */
 void* Menu::start_menu(void* p) {
-	static_cast<Menu*>(p)->menu();
+	static_cast< Menu* >(p)->menu();
 	return NULL;
 }
 

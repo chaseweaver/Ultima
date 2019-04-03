@@ -13,7 +13,7 @@
 #include <mutex>
 #include <queue>
 
-template <class T>
+template < class T >
 class Node {
 	public:
 	T value;
@@ -41,14 +41,14 @@ class Node {
 	 * Node::set_next(T)
 	 * Sets the next value in line of queue.
 	 */
-	void set_next(Node<T>* item) { next = item; }
+	void set_next(Node< T >* item) { next = item; }
 };
 
-template <class T>
+template < class T >
 class Queue {
 	private:
-	Node<T>* head;
-	Node<T>* tail;
+	Node< T >* head;
+	Node< T >* tail;
 	int count;
 
 	public:
@@ -66,7 +66,7 @@ class Queue {
 		head = NULL;
 		tail = NULL;
 		count = 0;
-		Node<T>* p = other.head;
+		Node< T >* p = other.head;
 		while (p != NULL) {
 			enqueue(p->get_value());
 			tail->set_value(p->get_value());
@@ -87,7 +87,7 @@ class Queue {
 	 * Enqueue generic datum into queue and increment the size.
 	 */
 	void enqueue(T item) {
-		Node<T>* tmp = new Node<T>();
+		Node< T >* tmp = new Node< T >();
 		tmp->set_value(item);
 		tmp->set_next(NULL);
 
@@ -108,7 +108,7 @@ class Queue {
 		if (empty()) return 0;
 
 		T val = head->get_value();
-		Node<T>* tmp = head;
+		Node< T >* tmp = head;
 		head = head->get_next();
 		count--;
 
@@ -124,7 +124,7 @@ class Queue {
 		if (empty()) return;
 
 		item = head->get_value();
-		Node<T>* tmp = head;
+		Node< T >* tmp = head;
 		head = head->get_next();
 		count--;
 

@@ -118,7 +118,7 @@ std::string Scheduler::fetch_log() {
 
 	std::string content = "";
 	if (!task_list.empty()) {
-		Queue<TASK_CONTROL_BLOCK*>* tmp = new Queue<TASK_CONTROL_BLOCK*>(task_list);
+		Queue< TASK_CONTROL_BLOCK* >* tmp = new Queue< TASK_CONTROL_BLOCK* >(task_list);
 		do {
 			TASK_CONTROL_BLOCK* tcb;
 			tmp->dequeue(tcb);
@@ -220,7 +220,7 @@ void Scheduler::set_state(int task_id, int state) {
  * Starts the scheduler loop in a new thread.
  */
 void* Scheduler::start_scheduler(void* p) {
-	static_cast<Scheduler*>(p)->scheduler();
+	static_cast< Scheduler* >(p)->scheduler();
 	return NULL;
 }
 
@@ -254,7 +254,7 @@ ARGUMENTS* Scheduler::create_arguments(int id,
  * Returns a pointer to a thread's TASK_CONTROL_BLOCK given an ID.
  */
 TASK_CONTROL_BLOCK* Scheduler::get_task_control_block(int tid) {
-	Queue<TASK_CONTROL_BLOCK*>* tmp = new Queue<TASK_CONTROL_BLOCK*>(task_list);
+	Queue< TASK_CONTROL_BLOCK* >* tmp = new Queue< TASK_CONTROL_BLOCK* >(task_list);
 
 	do {
 		TASK_CONTROL_BLOCK* tcb;

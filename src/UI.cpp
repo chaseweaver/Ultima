@@ -77,7 +77,7 @@ bool UI::write_window_refresh(WINDOW* win, int x, int y, std::string msg) {
  * Default constructor.
  */
 UI::UI(MASTER_CONTROL_BLOCK* mcb) : mcb(mcb) {
-	window_object = new Queue<WINDOW_OBJECT*>;
+	window_object = new Queue< WINDOW_OBJECT* >;
 	initscr();
 }
 
@@ -460,7 +460,7 @@ void UI::clear_window(WINDOW* win) {
  */
 void UI::clear_window(int window_id) {
 	mcb->ui_sema->wait();
-	Queue<WINDOW_OBJECT*>* win_obj = new Queue<WINDOW_OBJECT*>(*window_object);
+	Queue< WINDOW_OBJECT* >* win_obj = new Queue< WINDOW_OBJECT* >(*window_object);
 	mcb->ui_sema->signal();
 
 	bool success = false;

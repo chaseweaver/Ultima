@@ -21,7 +21,7 @@ class Semaphore {
 	std::string resource_name;
 	int value;
 
-	Queue<TASK_CONTROL_BLOCK*> sema_queue;
+	Queue< TASK_CONTROL_BLOCK* > sema_queue;
 	MASTER_CONTROL_BLOCK* mcb;
 
 	public:

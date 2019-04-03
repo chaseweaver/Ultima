@@ -24,11 +24,11 @@ class IPC {
 		int destination_task_id;
 		int message_size;
 		std::string msg;
-		const milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+		const milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 	};
 
 	MASTER_CONTROL_BLOCK* mcb;
-	std::map<int, Queue<MESSAGE_TYPE*>> message_box;
+	std::map< int, Queue< MESSAGE_TYPE* > > message_box;
 	int message_box_size;
 
 	public:

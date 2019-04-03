@@ -35,7 +35,7 @@ MemoryManager::~MemoryManager() {}
  * Returns a pointer to the hole, nullptr otherwise.
  */
 MemoryManager::MEMORY_NODE* MemoryManager::find_hole(int size) {
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
 
@@ -87,7 +87,7 @@ int MemoryManager::read(int memory_handle, char& ch) {
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -116,7 +116,7 @@ int MemoryManager::read(int memory_handle, std::string& str) {
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -144,7 +144,7 @@ int MemoryManager::write(int memory_handle, char ch) {
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -171,7 +171,7 @@ int MemoryManager::write(int memory_handle, std::string str) {
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -199,7 +199,7 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, std::string s
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -228,7 +228,7 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, char ch) {
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -259,7 +259,7 @@ int MemoryManager::write(int memory_handle, int begin, int end, std::string str)
 	// Prevent the writing of a string too large for the space requested
 	if (end - begin <= str.length()) return -1;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -285,10 +285,11 @@ int MemoryManager::write(int memory_handle, int begin, int end, std::string str)
  * Sets a block's status to HOLE and places '#' in all positions.
  */
 void MemoryManager::free(int memory_handle) {
+
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	mem_sema->wait();
 
 	do {
@@ -304,8 +305,6 @@ void MemoryManager::free(int memory_handle) {
 	} while (!tmp->empty());
 	mem_sema->signal();
 
-	master_control_block->memory_semaphore->signal();
-
 	coalesce(memory_handle);
 }
 
@@ -314,9 +313,9 @@ void MemoryManager::free(int memory_handle) {
  * Combines two or more contiguous blocks of free space.
  */
 void MemoryManager::coalesce(int memory_handle) {
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	Queue<MEMORY_NODE*>* tmp_2 = new Queue<MEMORY_NODE*>(memory_list);
-	Queue<MEMORY_NODE*>* tmp_3 = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
+	Queue< MEMORY_NODE* >* tmp_2 = new Queue< MEMORY_NODE* >(memory_list);
+	Queue< MEMORY_NODE* >* tmp_3 = new Queue< MEMORY_NODE* >(memory_list);
 
 	MEMORY_NODE* tmp_node = nullptr;
 	MEMORY_NODE* tmp_node_2 = nullptr;
@@ -420,7 +419,7 @@ void MemoryManager::memory_cleanup() {
 
 	mem_sema->wait();
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>();
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >();
 	int size = memory_list.size();
 
 	do {
@@ -447,7 +446,7 @@ void MemoryManager::memory_cleanup() {
 int MemoryManager::memory_largest() {
 	int largest = 0;
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 	do {
 		MEMORY_NODE* mem = tmp->dequeue();
 
@@ -472,7 +471,7 @@ int MemoryManager::memory_smallest() {
 	int smallest_segment = mem_core->memory_size();
 	mem_sema->signal();
 
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -492,7 +491,7 @@ int MemoryManager::memory_smallest() {
  * Returns the amount of free space left in memory.
  */
 int MemoryManager::memory_left() {
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 
 	int mem_left_amnt = 0;
 
@@ -523,14 +522,14 @@ std::string MemoryManager::memory_dump(const unsigned int start, const unsigned 
  */
 std::string MemoryManager::memory_dump() {
 	std::string str = "";
-	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
+	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 
 	do {
 		MEMORY_NODE* mem = tmp->dequeue();
 
 		str += (mem->handle == -1 ? "Free" : std::to_string(mem->handle)) + " @ " +
-					 std::to_string(mem->limit - mem->base) + " | " +
-					 memory_dump(mem->base, mem->limit - mem->base) + "\n";
+			std::to_string(mem->limit - mem->base) + " | " +
+			memory_dump(mem->base, mem->limit - mem->base) + "\n";
 	} while (!tmp->empty());
 
 	return str;
@@ -538,5 +537,5 @@ std::string MemoryManager::memory_dump() {
 
 std::string MemoryManager::memory_dump_mem() {
 	return "Main Memory @ " + std::to_string(mem_core->memory_size()) + " | " +
-				 mem_core->memory_dump() + "\n";
+		mem_core->memory_dump() + "\n";
 }

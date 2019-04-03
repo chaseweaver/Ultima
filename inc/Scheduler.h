@@ -24,7 +24,7 @@ struct MASTER_CONTROL_BLOCK;
 class Scheduler {
 	private:
 	MASTER_CONTROL_BLOCK* mcb;
-	Queue<TASK_CONTROL_BLOCK*> task_list;
+	Queue< TASK_CONTROL_BLOCK* > task_list;
 
 	int number_of_workers = 0;
 
