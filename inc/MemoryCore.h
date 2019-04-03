@@ -5,17 +5,22 @@
 #pragma once
 #endif
 
+// struct MASTER_CONTROL_BLOCK;
+// #include "MasterControlBlock.h"
+
 #include <iostream>
 
 class MemoryCore {
-private:
+	private:
+	// MASTER_CONTROL_BLOCK* mcb;
+
 	char* memory;
 	const int block_size;
 	int memory_capacity;
 	int null_character;
 	int free_capacity;
 
-public:
+	public:
 	MemoryCore(const unsigned int, const unsigned int, char);
 	~MemoryCore();
 	void write(const unsigned int, char);

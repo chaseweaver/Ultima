@@ -2,7 +2,7 @@ CXX := g++
 INC := -lncurses -lpthread
 SRCDIR := src
 OUT := ultima.out
-FLAGS := 
+FLAGS := # -Wall -Wextra -Wreorder
 
 CPPFILES=$(wildcard $(SRCDIR)/*.cpp)
 OBJFILES=$(CPPFILES:.cpp=.o)

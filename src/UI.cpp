@@ -74,28 +74,26 @@ bool UI::write_window_refresh(WINDOW* win, int x, int y, std::string msg) {
 
 /*
  * UI::UI()
- * Default constructor. 
- */ 
-UI::UI(MASTER_CONTROL_BLOCK* mcb) : master_control_block(mcb) {
+ * Default constructor.
+ */
+UI::UI(MASTER_CONTROL_BLOCK* mcb) : mcb(mcb) {
 	window_object = new Queue<WINDOW_OBJECT*>;
 	initscr();
 }
 
 /*
  * UI::~UI()
- * Default deconstructor. 
- */ 
-UI::~UI() {
-	endwin();
-}
+ * Default deconstructor.
+ */
+UI::~UI() { endwin(); }
 
 /*
  * UI::create_window_spawn(std::string, int, int, int, int, int, int, int)
  * Adds a Curses window with a title (X, Y) to the UI window object list.
  * Returns a pointer to the WINDOW object.
- */ 
-WINDOW* UI::create_window_spawn(std::string title, int title_x, int title_y,
-	int window_id, int width, int height, int x, int y) {
+ */
+WINDOW* UI::create_window_spawn(
+	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -109,14 +107,14 @@ WINDOW* UI::create_window_spawn(std::string title, int title_x, int title_y,
 	win_obj->window_x = x;
 	win_obj->window_y = y;
 	win_obj->window = win;
-	
-	master_control_block->ui_semaphore->wait();
-	
+
+	mcb->ui_sema->wait();
+
 	window_object->enqueue(win_obj);
 	write_window(win, title_x, title_y, title);
 	wrefresh(win);
-	
-	master_control_block->ui_semaphore->signal();
+
+	mcb->ui_sema->signal();
 	return win;
 }
 
@@ -124,9 +122,9 @@ WINDOW* UI::create_window_spawn(std::string title, int title_x, int title_y,
  * UI::create_window(std::string, int, int, int, int, int, int, int)
  * Adds a Curses window with a title (X, Y) to the UI window object list.
  * Returns a pointer to the WINDOW object.
- */ 
-WINDOW* UI::create_window(std::string title, int title_x, int title_y,
-	int window_id, int width, int height, int x, int y) {
+ */
+WINDOW* UI::create_window(
+	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -141,12 +139,12 @@ WINDOW* UI::create_window(std::string title, int title_x, int title_y,
 	win_obj->window_y = y;
 	win_obj->window = win;
 
-	master_control_block->ui_semaphore->wait();
-	
+	mcb->ui_sema->wait();
+
 	window_object->enqueue(win_obj);
 	write_window(win, title_x, title_y, title);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 	return win;
 }
 
@@ -154,8 +152,9 @@ WINDOW* UI::create_window(std::string title, int title_x, int title_y,
  * UI::create_window_spawn(std::string, int, int, int, int, int)
  * Adds a Curses window with a title to the UI window object list and SPAWNS it.
  * Returns a pointer to the WINDOW object.
- */ 
-WINDOW* UI::create_window_spawn(std::string title, int window_id, int width, int height, int x, int y) {
+ */
+WINDOW* UI::create_window_spawn(
+	std::string title, int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	WINDOW* write_win = newwin(height - 4, width - 3, y + 3, x + 2);
@@ -172,7 +171,7 @@ WINDOW* UI::create_window_spawn(std::string title, int window_id, int width, int
 	win_obj->window_y = y;
 	win_obj->window = write_win;
 
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	window_object->enqueue(win_obj);
 	int offset_x = (width / 2) - (title.length() / 2);
@@ -180,7 +179,7 @@ WINDOW* UI::create_window_spawn(std::string title, int window_id, int width, int
 	wrefresh(win);
 	wrefresh(write_win);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 	return write_win;
 }
 
@@ -188,7 +187,7 @@ WINDOW* UI::create_window_spawn(std::string title, int window_id, int width, int
  * UI::create_window(std::string, int, int, int, int, int)
  * Adds a Curses window with a title to the UI window object list.
  * Returns a pointer to the WINDOW object.
- */ 
+ */
 WINDOW* UI::create_window(std::string title, int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -207,13 +206,13 @@ WINDOW* UI::create_window(std::string title, int window_id, int width, int heigh
 	win_obj->window_y = y;
 	win_obj->window = write_win;
 
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	window_object->enqueue(win_obj);
 	int offset_x = (width / 2) - (title.length() / 2);
 	write_window(win, offset_x, 1, title);
-	
-	master_control_block->ui_semaphore->signal();
+
+	mcb->ui_sema->signal();
 	return write_win;
 }
 
@@ -221,7 +220,7 @@ WINDOW* UI::create_window(std::string title, int window_id, int width, int heigh
  * UI::create_window_spawn(int, int, int, int, int)
  * Adds a Curses window to the UI window object list and SPAWNS it.
  * Returns a pointer to the WINDOW object.
- */ 
+ */
 WINDOW* UI::create_window_spawn(int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -236,12 +235,12 @@ WINDOW* UI::create_window_spawn(int window_id, int width, int height, int x, int
 	win_obj->window_y = y;
 	win_obj->window = win;
 
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	window_object->enqueue(win_obj);
-	wrefresh(win);	
-	
-	master_control_block->ui_semaphore->signal();
+	wrefresh(win);
+
+	mcb->ui_sema->signal();
 	return win;
 }
 
@@ -249,7 +248,7 @@ WINDOW* UI::create_window_spawn(int window_id, int width, int height, int x, int
  * UI::create_window(int, int, int, int, int)
  * Adds a Curses window to the UI window object list.
  * Returns a pointer to the WINDOW object.
- */ 
+ */
 WINDOW* UI::create_window(int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -264,11 +263,11 @@ WINDOW* UI::create_window(int window_id, int width, int height, int x, int y) {
 	win_obj->window_y = y;
 	win_obj->window = win;
 
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	window_object->enqueue(win_obj);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 	return win;
 }
 
@@ -277,9 +276,9 @@ WINDOW* UI::create_window(int window_id, int width, int height, int x, int y) {
  * Adds a Curses window with a title (X, Y) to the UI window object list and SPAWNS it.
  * Locks window within another.
  * Returns a pointer to the WINDOW object.
- */ 
-WINDOW* UI::create_window_lock_spawn(std::string title, int title_x, int title_y,
-	int window_id, int width, int height, int x, int y) {
+ */
+WINDOW* UI::create_window_lock_spawn(
+	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -297,14 +296,14 @@ WINDOW* UI::create_window_lock_spawn(std::string title, int title_x, int title_y
 	win_obj->window_y = y;
 	win_obj->window = write_win;
 
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	window_object->enqueue(win_obj);
 	write_window(win, title_x, title_y, title);
 	wrefresh(win);
 	wrefresh(write_win);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 	return write_win;
 }
 
@@ -313,9 +312,9 @@ WINDOW* UI::create_window_lock_spawn(std::string title, int title_x, int title_y
  * Adds a Curses window with a title (X, Y) to the UI window object list.
  * Locks window within another.
  * Returns a pointer to the WINDOW object.
- */ 
-WINDOW* UI::create_window_lock(std::string title, int title_x, 
-	int title_y, int window_id, int width, int height, int x, int y) {
+ */
+WINDOW* UI::create_window_lock(
+	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -333,123 +332,123 @@ WINDOW* UI::create_window_lock(std::string title, int title_x,
 	win_obj->window_y = y;
 	win_obj->window = write_win;
 
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	window_object->enqueue(win_obj);
-	write_window(win, title_x, title_y, title);	
+	write_window(win, title_x, title_y, title);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 	return write_win;
 }
 
 /*
  * UI::write(int, int, int, std::string, TASK_CONTROL_BLOCK*)
  * Writes a message to a window given ID and (X, Y) and stores TASK ID.
- */ 
+ */
 void UI::write(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	master_control_block->tcb_semaphore->wait(tcb);
+	mcb->tcb_sema->wait(tcb);
 
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, x, y, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	mcb->tcb_sema->signal();
 }
 
 /*
  * UI::write(int, int, int, std::string)
  * Writes a message to a window given ID and (X, Y).
- */ 
+ */
 void UI::write(int window_id, int x, int y, std::string msg) {
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, x, y, msg);
-	
-	master_control_block->ui_semaphore->signal();
+
+	mcb->ui_sema->signal();
 }
 
 /*
  * UI::write(int, std::string, TASK_CONTROL_BLOCK*)
  * Writes a message to a window given ID and stores TASK CONTROL BLOCK.
- */ 
+ */
 void UI::write(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	master_control_block->tcb_semaphore->wait(tcb);
+	mcb->tcb_sema->wait(tcb);
 
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	mcb->tcb_sema->signal();
 }
 
 /*
  * UI::write(int, std::string)
  * Writes a message to a window given ID.
- */ 
+ */
 void UI::write(int window_id, std::string msg) {
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	WINDOW* win = fetch_window(window_id);
 	write_window(win, msg);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 }
 
 /*
  * UI::write(int, int, int, std::string, TASK_CONTROL_BLOCK*)
  * Writes a message to a window given ID and (X, Y) and stores TASK ID.
- */ 
+ */
 void UI::write_refresh(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	master_control_block->tcb_semaphore->wait(tcb);
+	mcb->tcb_sema->wait(tcb);
 
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, x, y, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	mcb->tcb_sema->signal();
 }
 
 /*
  * UI::write(int, int, int, std::string)
  * Writes a message to a window given ID and (X, Y).
- */ 
+ */
 void UI::write_refresh(int window_id, int x, int y, std::string msg) {
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, x, y, msg);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 }
 
 /*
  * UI::write(int, std::string, TASK_CONTROL_BLOCK*)
  * Writes a message to a window given ID and stores TASK CONTROL BLOCK.
- */ 
+ */
 void UI::write_refresh(int window_id, std::string msg, TASK_CONTROL_BLOCK* tcb) {
-	master_control_block->tcb_semaphore->wait(tcb);
-	
+	mcb->tcb_sema->wait(tcb);
+
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, msg);
 
-	master_control_block->tcb_semaphore->signal();
+	mcb->tcb_sema->signal();
 }
 
 /*
  * UI::write(int, std::string)
  * Writes a message to a window given ID.
- */ 
+ */
 void UI::write_refresh(int window_id, std::string msg) {
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 
 	WINDOW* win = fetch_window(window_id);
 	write_window_refresh(win, msg);
 
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 }
 
 /*
  * UI::clear_window(WINDOW*)
  * Clears the window.
- */ 
+ */
 void UI::clear_window(WINDOW* win) {
 	wclear(win);
 	wrefresh(win);
@@ -458,17 +457,17 @@ void UI::clear_window(WINDOW* win) {
 /*
  * UI::clear_window(int)
  * Clears the window.
- */ 
+ */
 void UI::clear_window(int window_id) {
-	master_control_block->ui_semaphore->wait();
+	mcb->ui_sema->wait();
 	Queue<WINDOW_OBJECT*>* win_obj = new Queue<WINDOW_OBJECT*>(*window_object);
-	master_control_block->ui_semaphore->signal();
+	mcb->ui_sema->signal();
 
 	bool success = false;
 	do {
 		WINDOW_OBJECT* tmp;
 
-		master_control_block->ui_semaphore->wait();
+		mcb->ui_sema->wait();
 
 		win_obj->dequeue(tmp);
 		if (tmp->window_id == window_id) {
@@ -477,14 +476,12 @@ void UI::clear_window(int window_id) {
 			success = true;
 		}
 
-		master_control_block->ui_semaphore->signal();
+		mcb->ui_sema->signal();
 	} while (!win_obj->empty() || !success);
-}	
+}
 
 /*
  * UI::get_window_amount()
  * Returns amount of created windows.
- */ 
-int UI::get_window_amount() {
-	return window_object->size();
-}
+ */
+int UI::get_window_amount() { return window_object->size(); }

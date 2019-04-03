@@ -11,14 +11,14 @@ struct MASTER_CONTROL_BLOCK;
 #include "Queue.h"
 #include "Scheduler.h"
 #include "Struct.h"
-#include <ncurses.h>
-#include <unistd.h>
 #include <iostream>
+#include <ncurses.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 
 class UI {
-private:
+	private:
 	struct WINDOW_OBJECT {
 		std::string window_title;
 		int window_id;
@@ -29,7 +29,7 @@ private:
 		WINDOW* window;
 	};
 
-	MASTER_CONTROL_BLOCK* master_control_block;
+	MASTER_CONTROL_BLOCK* mcb;
 	Queue<WINDOW_OBJECT*>* window_object;
 
 	WINDOW* fetch_window(int);
@@ -38,7 +38,7 @@ private:
 	bool write_window_refresh(WINDOW*, std::string);
 	bool write_window_refresh(WINDOW*, int, int, std::string);
 
-public:
+	public:
 	UI(MASTER_CONTROL_BLOCK*);
 	~UI();
 	WINDOW* create_window_spawn(std::string, int, int, int, int, int, int, int);

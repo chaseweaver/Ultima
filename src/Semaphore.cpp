@@ -5,7 +5,7 @@
  * Default constructor.
  */
 Semaphore::Semaphore(MASTER_CONTROL_BLOCK* mcb, std::string name, int val)
-	: master_control_block(mcb), resource_name(name), value(val) {}
+	: mcb(mcb), resource_name(name), value(val) {}
 
 /*
  * Semaphore::~Semaphore()
@@ -19,8 +19,7 @@ Semaphore::~Semaphore() {}
  */
 void Semaphore::wait() {
 	std::unique_lock<std::mutex> lck(mtx);
-  while (value == 0)
-		cv.wait(lck);
+	while (value == 0) cv.wait(lck);
 	--value;
 }
 
@@ -30,16 +29,13 @@ void Semaphore::wait() {
  */
 void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
 	std::unique_lock<std::mutex> lck(mtx);
-	if (value == 0)
-		sema_queue.enqueue(tcb);
-  while (value == 0) {
-		if (tcb->task_state != DEAD)
-			master_control_block->scheduler->set_state(tcb, BLOCKED);
+	if (value == 0) sema_queue.enqueue(tcb);
+	while (value == 0) {
+		if (tcb->task_state != DEAD) mcb->scheduler->set_state(tcb, BLOCKED);
 		cv.wait(lck);
 	}
 
-	if (tcb->task_state != DEAD)
-		master_control_block->scheduler->set_state(tcb, RUNNING);
+	if (tcb->task_state != DEAD) mcb->scheduler->set_state(tcb, RUNNING);
 	--value;
 }
 
@@ -49,10 +45,9 @@ void Semaphore::wait(TASK_CONTROL_BLOCK* tcb) {
  */
 void Semaphore::signal() {
 	std::unique_lock<std::mutex> lck(mtx);
-  ++value;
-	if (!sema_queue.empty())
-		sema_queue.dequeue();
-  cv.notify_one();
+	++value;
+	if (!sema_queue.empty()) sema_queue.dequeue();
+	cv.notify_one();
 }
 
 /*
@@ -77,12 +72,12 @@ std::string Semaphore::fetch_log() {
 		do {
 			TASK_CONTROL_BLOCK* tmp;
 			tcb->dequeue(tmp);
-			sema_list_title += tcb->size() > 0 ? std::to_string(tmp->task_id) + " -> " : std::to_string(tmp->task_id);
+			sema_list_title +=
+				tcb->size() > 0 ? std::to_string(tmp->task_id) + " -> " : std::to_string(tmp->task_id);
 		} while (!tcb->empty());
 	}
 
-	if (sema_list_title.length() == 9)
-		sema_list_title += "There are no tasks in the queue.";
+	if (sema_list_title.length() == 9) sema_list_title += "There are no tasks in the queue.";
 
 	return header + "\n" + sema_title + "\n" + sema_value_title + "\n" + sema_list_title;
 }

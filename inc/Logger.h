@@ -8,29 +8,27 @@
 struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
-#include "Queue.h"
 #include "Pad.h"
-#include <iostream>
+#include "Queue.h"
 #include <chrono>
+#include <iostream>
 
 using namespace std::chrono;
 
 class Logger {
-private:
+	private:
 	struct LOG_DATA {
 		int task_id;
 		int task_state;
 		std::string task_name;
-		const milliseconds ms = duration_cast<milliseconds>(
-			system_clock::now().time_since_epoch()
-		);
+		const milliseconds ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	};
 
-	MASTER_CONTROL_BLOCK* master_control_block;
+	MASTER_CONTROL_BLOCK* mcb;
 	Queue<LOG_DATA*> log_data;
 	int MAX_NUMBER_OF_LOGS_KEPT;
 
-public:
+	public:
 	Logger(int);
 	~Logger();
 	void add_log(int, std::string, int);
