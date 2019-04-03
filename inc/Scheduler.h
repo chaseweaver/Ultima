@@ -23,7 +23,7 @@ struct MASTER_CONTROL_BLOCK;
 
 class Scheduler {
 	private:
-	MASTER_CONTROL_BLOCK*			 mcb;
+	MASTER_CONTROL_BLOCK* mcb;
 	Queue<TASK_CONTROL_BLOCK*> task_list;
 
 	int number_of_workers = 0;
@@ -41,7 +41,7 @@ class Scheduler {
 	void create_new_task(std::string, void*(void*), ARGUMENTS*);
 	void set_state(TASK_CONTROL_BLOCK*, int);
 	void set_state(int, int);
-	int	task_list_size();
+	int task_list_size();
 
 	std::string fetch_log();
 

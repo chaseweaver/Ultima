@@ -2,7 +2,7 @@
 
 WINDOW* UI::fetch_window(int window_id) {
 	WINDOW_OBJECT* win_obj;
-	bool					 success = false;
+	bool success = false;
 
 	while (!success && !window_object->empty()) {
 		window_object->dequeue(win_obj);
@@ -23,7 +23,7 @@ WINDOW* UI::fetch_window(int window_id) {
  * Writes message to window. DOES NOT REFRESH.
  */
 bool UI::write_window(WINDOW* win, std::string msg) {
-	int	len = msg.length();
+	int len = msg.length();
 	char char_array[len + 1];
 	strcpy(char_array, msg.c_str());
 
@@ -36,7 +36,7 @@ bool UI::write_window(WINDOW* win, std::string msg) {
  * Writes message to window at (X, Y). DOES NOT REFRESH.
  */
 bool UI::write_window(WINDOW* win, int x, int y, std::string msg) {
-	int	len = msg.length();
+	int len = msg.length();
 	char char_array[len + 1];
 	strcpy(char_array, msg.c_str());
 
@@ -49,7 +49,7 @@ bool UI::write_window(WINDOW* win, int x, int y, std::string msg) {
  * Writes message to window. REFRESHES
  */
 bool UI::write_window_refresh(WINDOW* win, std::string msg) {
-	int	len = msg.length();
+	int len = msg.length();
 	char char_array[len + 1];
 	strcpy(char_array, msg.c_str());
 
@@ -63,7 +63,7 @@ bool UI::write_window_refresh(WINDOW* win, std::string msg) {
  * Writes message to window at (X, Y). REFRESHES
  */
 bool UI::write_window_refresh(WINDOW* win, int x, int y, std::string msg) {
-	int	len = msg.length();
+	int len = msg.length();
 	char char_array[len + 1];
 	strcpy(char_array, msg.c_str());
 
@@ -85,9 +85,7 @@ UI::UI(MASTER_CONTROL_BLOCK* mcb) : mcb(mcb) {
  * UI::~UI()
  * Default deconstructor.
  */
-UI::~UI() {
-	endwin();
-}
+UI::~UI() { endwin(); }
 
 /*
  * UI::create_window_spawn(std::string, int, int, int, int, int, int, int)
@@ -98,17 +96,17 @@ WINDOW* UI::create_window_spawn(
 	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
-	WINDOW*				 win		 = newwin(height, width, y, x);
+	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, true);
 	scroll(win);
 	box(win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = win;
 
 	mcb->ui_sema->wait();
 
@@ -129,17 +127,17 @@ WINDOW* UI::create_window(
 	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
-	WINDOW*				 win		 = newwin(height, width, y, x);
+	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, true);
 	scroll(win);
 	box(win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = win;
 
 	mcb->ui_sema->wait();
 
@@ -157,21 +155,21 @@ WINDOW* UI::create_window(
  */
 WINDOW* UI::create_window_spawn(
 	std::string title, int window_id, int width, int height, int x, int y) {
-	WINDOW_OBJECT* win_obj	 = new WINDOW_OBJECT;
-	WINDOW*				 win			 = newwin(height, width, y, x);
-	WINDOW*				 write_win = newwin(height - 4, width - 3, y + 3, x + 2);
+	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
+	WINDOW* win = newwin(height, width, y, x);
+	WINDOW* write_win = newwin(height - 4, width - 3, y + 3, x + 2);
 	scrollok(win, true);
 	scroll(win);
 	scrollok(write_win, true);
 	scroll(write_win);
 	box(win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = write_win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = write_win;
 
 	mcb->ui_sema->wait();
 
@@ -191,9 +189,9 @@ WINDOW* UI::create_window_spawn(
  * Returns a pointer to the WINDOW object.
  */
 WINDOW* UI::create_window(std::string title, int window_id, int width, int height, int x, int y) {
-	WINDOW_OBJECT* win_obj	 = new WINDOW_OBJECT;
-	WINDOW*				 win			 = newwin(height, width, y, x);
-	WINDOW*				 write_win = newwin(height - 4, width - 3, y + 3, x + 2);
+	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
+	WINDOW* win = newwin(height, width, y, x);
+	WINDOW* write_win = newwin(height - 4, width - 3, y + 3, x + 2);
 	scrollok(win, true);
 	scroll(win);
 	scrollok(write_win, true);
@@ -201,12 +199,12 @@ WINDOW* UI::create_window(std::string title, int window_id, int width, int heigh
 	box(win, 0, 0);
 	box(write_win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = write_win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = write_win;
 
 	mcb->ui_sema->wait();
 
@@ -225,17 +223,17 @@ WINDOW* UI::create_window(std::string title, int window_id, int width, int heigh
  */
 WINDOW* UI::create_window_spawn(int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
-	WINDOW*				 win		 = newwin(height, width, y, x);
+	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, TRUE);
 	scroll(win);
 	box(win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = win;
 
 	mcb->ui_sema->wait();
 
@@ -253,17 +251,17 @@ WINDOW* UI::create_window_spawn(int window_id, int width, int height, int x, int
  */
 WINDOW* UI::create_window(int window_id, int width, int height, int x, int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
-	WINDOW*				 win		 = newwin(height, width, y, x);
+	WINDOW* win = newwin(height, width, y, x);
 	scrollok(win, TRUE);
 	scroll(win);
 	box(win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = win;
 
 	mcb->ui_sema->wait();
 
@@ -282,21 +280,21 @@ WINDOW* UI::create_window(int window_id, int width, int height, int x, int y) {
 WINDOW* UI::create_window_lock_spawn(
 	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
-	WINDOW_OBJECT* win_obj	 = new WINDOW_OBJECT;
-	WINDOW*				 win			 = newwin(height, width, y, x);
-	WINDOW*				 write_win = newwin(height - 2, width - 2, y + 1, x + 1);
+	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
+	WINDOW* win = newwin(height, width, y, x);
+	WINDOW* write_win = newwin(height - 2, width - 2, y + 1, x + 1);
 	scrollok(win, true);
 	scroll(win);
 	scrollok(write_win, true);
 	scroll(write_win);
 	box(win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = write_win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = write_win;
 
 	mcb->ui_sema->wait();
 
@@ -318,21 +316,21 @@ WINDOW* UI::create_window_lock_spawn(
 WINDOW* UI::create_window_lock(
 	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
 
-	WINDOW_OBJECT* win_obj	 = new WINDOW_OBJECT;
-	WINDOW*				 win			 = newwin(height, width, y, x);
-	WINDOW*				 write_win = newwin(height - 2, width - 2, y + 1, x + 1);
+	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
+	WINDOW* win = newwin(height, width, y, x);
+	WINDOW* write_win = newwin(height - 2, width - 2, y + 1, x + 1);
 	scrollok(win, true);
 	scroll(win);
 	scrollok(write_win, true);
 	scroll(write_win);
 	box(win, 0, 0);
 
-	win_obj->window_id		 = window_id;
-	win_obj->window_width	= width;
+	win_obj->window_id = window_id;
+	win_obj->window_width = width;
 	win_obj->window_height = height;
-	win_obj->window_x			 = x;
-	win_obj->window_y			 = y;
-	win_obj->window				 = write_win;
+	win_obj->window_x = x;
+	win_obj->window_y = y;
+	win_obj->window = write_win;
 
 	mcb->ui_sema->wait();
 
@@ -486,6 +484,4 @@ void UI::clear_window(int window_id) {
  * UI::get_window_amount()
  * Returns amount of created windows.
  */
-int UI::get_window_amount() {
-	return window_object->size();
-}
+int UI::get_window_amount() { return window_object->size(); }

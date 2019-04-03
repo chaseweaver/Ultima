@@ -19,9 +19,9 @@ Logger::~Logger() {}
 void Logger::add_log(int task_id, std::string task_name, int task_state) {
 	if (log_data.size() >= MAX_NUMBER_OF_LOGS_KEPT) log_data.dequeue();
 
-	LOG_DATA* log		= new LOG_DATA;
-	log->task_id		= task_id;
-	log->task_name	= task_name;
+	LOG_DATA* log = new LOG_DATA;
+	log->task_id = task_id;
+	log->task_name = task_name;
 	log->task_state = task_state;
 	log_data.enqueue(log);
 }
@@ -49,9 +49,9 @@ std::string Logger::fetch_log() {
 
 	Queue<LOG_DATA*>* log_data_ = new Queue<LOG_DATA*>(log_data);
 
-	std::string task_id				 = "Task ID";
-	std::string task_name			 = "Task Name";
-	std::string task_state		 = "Task State";
+	std::string task_id = "Task ID";
+	std::string task_name = "Task Name";
+	std::string task_state = "Task State";
 	std::string task_timestamp = "Task Timestamp";
 
 	pad(task_id, 9, ' ');
@@ -65,8 +65,8 @@ std::string Logger::fetch_log() {
 
 		LOG_DATA* tmp;
 		log_data_->dequeue(tmp);
-		std::string task_id_				= "T-ID #" + std::to_string(tmp->task_id);
-		std::string task_name_			= tmp->task_name;
+		std::string task_id_ = "T-ID #" + std::to_string(tmp->task_id);
+		std::string task_name_ = tmp->task_name;
 		std::string task_timestamp_ = std::to_string(tmp->ms.count());
 
 		std::string task_state_;

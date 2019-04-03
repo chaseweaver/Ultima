@@ -1,11 +1,11 @@
 #include "../inc/MasterControlBlock.h"
 
-void	mcb_init();
-void	window_init();
+void mcb_init();
+void window_init();
 void* worker_function(void*);
 
-MASTER_CONTROL_BLOCK* mcb								= new MASTER_CONTROL_BLOCK;
-int										NUMBER_OF_WORKERS = 8;
+MASTER_CONTROL_BLOCK* mcb = new MASTER_CONTROL_BLOCK;
+int NUMBER_OF_WORKERS = 8;
 
 int main() {
 
@@ -34,18 +34,18 @@ int main() {
  * Initializes the MASTER_CONTROL_BLOCK objects.
  */
 void mcb_init() {
-	mcb->ui_sema	= new Semaphore(mcb, "UI Handler", 1);
+	mcb->ui_sema = new Semaphore(mcb, "UI Handler", 1);
 	mcb->sch_sema = new Semaphore(mcb, "Scheduler Handler", 1);
 	mcb->log_sema = new Semaphore(mcb, "Logger Handler", 1);
 	mcb->tcb_sema = new Semaphore(mcb, "TCB Locker", 1);
 	mcb->ipc_sema = new Semaphore(mcb, "IPC Handler", 1);
 
 	mcb->scheduler = new Scheduler(mcb);
-	mcb->ui				 = new UI(mcb);
-	mcb->logger		 = new Logger(32);
-	mcb->ipc			 = new IPC(mcb, NUMBER_OF_WORKERS, 8);
-	mcb->worker		 = new Worker(mcb);
-	mcb->mem_man	 = new MemoryManager(1024, 32, '.');
+	mcb->ui = new UI(mcb);
+	mcb->logger = new Logger(32);
+	mcb->ipc = new IPC(mcb, NUMBER_OF_WORKERS, 8);
+	mcb->worker = new Worker(mcb);
+	mcb->mem_man = new MemoryManager(1024, 32, '.');
 	mcb->menu =
 		new Menu(mcb, mcb->ui->create_window_lock_spawn(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
 }
@@ -77,10 +77,10 @@ void window_init() {
  * It also tells jokes.
  */
 void* worker_function(void* arguments) {
-	ARGUMENTS*					args		= (ARGUMENTS*)arguments;
-	TASK_CONTROL_BLOCK* tcb			= args->task_control_block;
-	int&								counter = args->thread_results;
-	int									tracker;
+	ARGUMENTS* args = (ARGUMENTS*)arguments;
+	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
+	int& counter = args->thread_results;
+	int tracker;
 
 	std::string message_lists[17] = {
 		"Did you hear about the restaurant on the moon? Great food, no atmosphere.",
@@ -121,7 +121,7 @@ void* worker_function(void* arguments) {
 			// For a bonus, they tell jokes.
 			if (counter == num / 2) {
 				int tmp_rand = 1 + rand() % 8;
-				int result	 = mcb->ipc->message_send(mcb->ipc->compose_message(tcb, tmp_rand, msg));
+				int result = mcb->ipc->message_send(mcb->ipc->compose_message(tcb, tmp_rand, msg));
 
 				// Did the message fail to send or not?
 				result == 1

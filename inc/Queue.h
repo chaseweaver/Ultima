@@ -16,40 +16,32 @@
 template <class T>
 class Node {
 	public:
-	T			value;
+	T value;
 	Node* next;
 
 	/*
 	 * Node::get_value(void)
 	 * Returns the value at a node in the queue.
 	 */
-	T get_value(void) {
-		return value;
-	}
+	T get_value(void) { return value; }
 
 	/*
 	 * Node::*get_next(void)
 	 * Next value in line of queue.
 	 */
-	Node* get_next(void) {
-		return next;
-	}
+	Node* get_next(void) { return next; }
 
 	/*
 	 * Node::set_value(T)
 	 * Sets the node value with a template value (any kind).
 	 */
-	void set_value(T item) {
-		value = item;
-	}
+	void set_value(T item) { value = item; }
 
 	/*
 	 * Node::set_next(T)
 	 * Sets the next value in line of queue.
 	 */
-	void set_next(Node<T>* item) {
-		next = item;
-	}
+	void set_next(Node<T>* item) { next = item; }
 };
 
 template <class T>
@@ -57,12 +49,12 @@ class Queue {
 	private:
 	Node<T>* head;
 	Node<T>* tail;
-	int			 count;
+	int count;
 
 	public:
 	Queue(void) {
-		head	= NULL;
-		tail	= NULL;
+		head = NULL;
+		tail = NULL;
 		count = 0;
 	}
 
@@ -71,9 +63,9 @@ class Queue {
 	 * Default copy constructor.
 	 */
 	Queue(const Queue& other) {
-		head			 = NULL;
-		tail			 = NULL;
-		count			 = 0;
+		head = NULL;
+		tail = NULL;
+		count = 0;
 		Node<T>* p = other.head;
 		while (p != NULL) {
 			enqueue(p->get_value());
@@ -115,9 +107,9 @@ class Queue {
 	T dequeue(void) {
 		if (empty()) return 0;
 
-		T				 val = head->get_value();
+		T val = head->get_value();
 		Node<T>* tmp = head;
-		head				 = head->get_next();
+		head = head->get_next();
 		count--;
 
 		delete tmp;
@@ -131,9 +123,9 @@ class Queue {
 	void dequeue(T& item) {
 		if (empty()) return;
 
-		item				 = head->get_value();
+		item = head->get_value();
 		Node<T>* tmp = head;
-		head				 = head->get_next();
+		head = head->get_next();
 		count--;
 
 		delete tmp;
@@ -153,9 +145,7 @@ class Queue {
 	 * Queue::size(void) const
 	 * Returns the size of the queue.
 	 */
-	unsigned size(void) const {
-		return count;
-	}
+	unsigned size(void) const { return count; }
 
 	/*
 	 * Queue::front(void)
@@ -203,9 +193,7 @@ class Queue {
 	 * Queue::empty(void) const
 	 * Checks if the queue is empty.
 	 */
-	bool empty(void) const {
-		return count == 0 ? true : false;
-	}
+	bool empty(void) const { return count == 0 ? true : false; }
 };
 
 #endif

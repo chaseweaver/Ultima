@@ -27,9 +27,9 @@ void* Worker::start_worker_function(void* p) {
  */
 void* Worker::worker_function(void* arguments) {
 
-	ARGUMENTS*					args		= (ARGUMENTS*)arguments;
-	TASK_CONTROL_BLOCK* tcb			= args->task_control_block;
-	int&								counter = args->thread_results;
+	ARGUMENTS* args = (ARGUMENTS*)arguments;
+	TASK_CONTROL_BLOCK* tcb = args->task_control_block;
+	int& counter = args->thread_results;
 
 	std::string message_lists[17] = {
 		"Did you hear about the restaurant on the moon? Great food, no atmosphere.",
@@ -63,7 +63,7 @@ void* Worker::worker_function(void* arguments) {
 			// Just for example, we have the workers let other workers know when they are half done.
 			if (counter == num / 2) {
 				int tmp_rand = 1 + rand() % 8;
-				int result	 = mcb->ipc->message_send(
+				int result = mcb->ipc->message_send(
 					mcb->ipc->compose_message(tcb, tmp_rand, message_lists[rand() % 16]));
 
 				result == 1

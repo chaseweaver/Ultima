@@ -6,20 +6,21 @@
  */
 MemoryManager::MemoryManager(const unsigned int memory_size,
 														 const unsigned int memory_block_size,
-														 char								null_character)
+														 char null_character)
 	: block_size(memory_block_size) {
 	mem_core = new MemoryCore(memory_size, memory_block_size, null_character);
+	mem_sema = new Semaphore(mcb, "Memory Manager", 1);
 
-	memory_handle		 = 0;
+	memory_handle = 0;
 	MEMORY_NODE* mem = new MEMORY_NODE;
-	mem->base				 = 0;
-	mem->limit			 = memory_size;
-	mem->handle			 = -1;
-	mem->status			 = HOLE;
+	mem->base = 0;
+	mem->limit = memory_size;
+	mem->handle = -1;
+	mem->status = HOLE;
 
-	mm_sema->wait();
+	mem_sema->wait();
 	memory_list.enqueue(mem);
-	mm_sema->signal();
+	mem_sema->signal();
 }
 
 /*
@@ -59,19 +60,19 @@ int MemoryManager::allocate(const unsigned int size) {
 
 	MEMORY_NODE* mem = new MEMORY_NODE;
 
-	mem->owner				= pthread_self();
-	mem->limit				= hole->limit;
-	mem->base					= mem->limit - (block_size * blocks_needed);
-	hole->limit				= mem->base - 1;
-	mem->handle				= next_handle();
+	mem->owner = pthread_self();
+	mem->limit = hole->limit;
+	mem->base = mem->limit - (block_size * blocks_needed);
+	hole->limit = mem->base - 1;
+	mem->handle = next_handle();
 	mem->current_read = 0;
 
 	mem->current_write = 0;
-	mem->status				 = PROCESS;
+	mem->status = PROCESS;
 
-	mm_sema->wait();
+	mem_sema->wait();
 	memory_list.enqueue(mem);
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return mem->handle;
 }
@@ -87,7 +88,7 @@ int MemoryManager::read(int memory_handle, char& ch) {
 	if (memory_handle <= -1) return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -99,7 +100,7 @@ int MemoryManager::read(int memory_handle, char& ch) {
 		mem_core->read(tmp_node->base + tmp_node->current_read++, ch);
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return 1;
 }
@@ -116,7 +117,7 @@ int MemoryManager::read(int memory_handle, std::string& str) {
 	if (memory_handle <= -1) return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -129,7 +130,7 @@ int MemoryManager::read(int memory_handle, std::string& str) {
 			mem_core->read(tmp_node->base + tmp_node->current_read++, str[i]);
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return 1;
 }
@@ -144,7 +145,7 @@ int MemoryManager::write(int memory_handle, char ch) {
 	if (memory_handle <= -1) return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -156,7 +157,7 @@ int MemoryManager::write(int memory_handle, char ch) {
 		mem_core->write(tmp_node->base + tmp_node->current_write++, ch);
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return 1;
 }
@@ -171,7 +172,7 @@ int MemoryManager::write(int memory_handle, std::string str) {
 	if (memory_handle <= -1) return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -184,7 +185,7 @@ int MemoryManager::write(int memory_handle, std::string str) {
 			mem_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return 1;
 }
@@ -199,7 +200,7 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, std::string s
 	if (memory_handle <= -1) return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -213,7 +214,7 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, std::string s
 			mem_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return 1;
 }
@@ -228,7 +229,7 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, char ch) {
 	if (memory_handle <= -1) return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -241,7 +242,7 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, char ch) {
 		mem_core->write(tmp_node->base + tmp_node->current_write++, ch);
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return 1;
 }
@@ -259,7 +260,7 @@ int MemoryManager::write(int memory_handle, int begin, int end, std::string str)
 	if (end - begin <= str.length()) return -1;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -274,7 +275,7 @@ int MemoryManager::write(int memory_handle, int begin, int end, std::string str)
 			mem_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	return 1;
 }
@@ -288,7 +289,7 @@ void MemoryManager::free(int memory_handle) {
 	if (memory_handle <= -1) return;
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
-	mm_sema->wait();
+	mem_sema->wait();
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
@@ -301,7 +302,7 @@ void MemoryManager::free(int memory_handle) {
 			mem_core->write_free(tmp_node->base + i, '#');
 
 	} while (!tmp->empty());
-	mm_sema->signal();
+	mem_sema->signal();
 
 	coalesce(memory_handle);
 }
@@ -311,17 +312,17 @@ void MemoryManager::free(int memory_handle) {
  * Combines two or more contiguous blocks of free space.
  */
 void MemoryManager::coalesce(int memory_handle) {
-	Queue<MEMORY_NODE*>* tmp	 = new Queue<MEMORY_NODE*>(memory_list);
+	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 	Queue<MEMORY_NODE*>* tmp_2 = new Queue<MEMORY_NODE*>(memory_list);
 	Queue<MEMORY_NODE*>* tmp_3 = new Queue<MEMORY_NODE*>(memory_list);
 
-	MEMORY_NODE* tmp_node		= nullptr;
+	MEMORY_NODE* tmp_node = nullptr;
 	MEMORY_NODE* tmp_node_2 = nullptr;
 	MEMORY_NODE* tmp_node_3 = nullptr;
 
-	bool node_found					 = false;
-	bool node_found_2				 = false;
-	bool node_found_3				 = false;
+	bool node_found = false;
+	bool node_found_2 = false;
+	bool node_found_3 = false;
 	bool with_original_block = false;
 
 	do {
@@ -357,55 +358,55 @@ void MemoryManager::coalesce(int memory_handle) {
 	if (!node_found) return;
 
 	if (node_found_2 && node_found_3) {
-		tmp_node->base	= tmp_node_2->base;
+		tmp_node->base = tmp_node_2->base;
 		tmp_node->limit = tmp_node_3->limit;
 
-		mm_sema->wait();
+		mem_sema->wait();
 		for (int i = tmp_node->base; i <= tmp_node->limit; i++)
 			mem_core->write(tmp_node->base + i, '.');
-		mm_sema->signal();
+		mem_sema->signal();
 
-		tmp_node->current_read	= 0;
+		tmp_node->current_read = 0;
 		tmp_node->current_write = 0;
 
 		if (with_original_block) tmp_node->handle = -1;
 
-		tmp_node_2->base	= 0;
+		tmp_node_2->base = 0;
 		tmp_node_2->limit = 0;
 
-		tmp_node_3->base	= 0;
+		tmp_node_3->base = 0;
 		tmp_node_3->limit = 0;
 
 	} else if (node_found_2) {
 		tmp_node->base = tmp_node_2->base;
 
-		mm_sema->wait();
+		mem_sema->wait();
 		for (int i = tmp_node->base; i <= tmp_node->limit; i++)
 			mem_core->write(tmp_node->base + i, '.');
-		mm_sema->signal();
+		mem_sema->signal();
 
-		tmp_node->current_read	= 0;
+		tmp_node->current_read = 0;
 		tmp_node->current_write = 0;
 
 		if (with_original_block) tmp_node->handle = -1;
 
-		tmp_node_2->base	= 0;
+		tmp_node_2->base = 0;
 		tmp_node_2->limit = 0;
 
 	} else if (node_found_3) {
 		tmp_node->limit = tmp_node_3->limit;
 
-		mm_sema->wait();
+		mem_sema->wait();
 		for (int i = tmp_node->base; i <= tmp_node->limit; i++)
 			mem_core->write(tmp_node->base + i, '.');
-		mm_sema->signal();
+		mem_sema->signal();
 
-		tmp_node->current_read	= 0;
+		tmp_node->current_read = 0;
 		tmp_node->current_write = 0;
 
 		if (with_original_block) tmp_node->handle = -1;
 
-		tmp_node_3->base	= 0;
+		tmp_node_3->base = 0;
 		tmp_node_3->limit = 0;
 	}
 
@@ -415,10 +416,10 @@ void MemoryManager::coalesce(int memory_handle) {
 void MemoryManager::memory_cleanup() {
 	MEMORY_NODE* tmp_node = nullptr;
 
-	mm_sema->wait();
+	mem_sema->wait();
 
-	Queue<MEMORY_NODE*>* tmp	= new Queue<MEMORY_NODE*>();
-	int									 size = memory_list.size();
+	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>();
+	int size = memory_list.size();
 
 	do {
 		tmp_node = memory_list.dequeue();
@@ -434,7 +435,7 @@ void MemoryManager::memory_cleanup() {
 		memory_list.enqueue(tmp_node);
 	}
 
-	mm_sema->signal();
+	mem_sema->signal();
 }
 
 /*
@@ -465,9 +466,9 @@ int MemoryManager::memory_largest() {
  */
 int MemoryManager::memory_smallest() {
 
-	mm_sema->wait();
+	mem_sema->wait();
 	int smallest_segment = mem_core->memory_size();
-	mm_sema->signal();
+	mem_sema->signal();
 
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 
@@ -519,7 +520,7 @@ std::string MemoryManager::memory_dump(const unsigned int start, const unsigned 
  * Returns the memory contents from valid blocks.
  */
 std::string MemoryManager::memory_dump() {
-	std::string					 str = "";
+	std::string str = "";
 	Queue<MEMORY_NODE*>* tmp = new Queue<MEMORY_NODE*>(memory_list);
 
 	do {

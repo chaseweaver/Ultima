@@ -18,9 +18,7 @@ Scheduler::~Scheduler() {}
  * Scheduler::yield(int, int)
  * Alternative to pthread_yield() since that is not cross-platform.
  */
-void Scheduler::yield(int min, int max) {
-	sleep(min + rand() % max);
-}
+void Scheduler::yield(int min, int max) { sleep(min + rand() % max); }
 
 /*
  * Scheduler::scheduler()
@@ -76,15 +74,15 @@ void Scheduler::scheduler() {
  * Creates a new TASK_CONTROL_BLOCK and spawns a new child function in a new thread.
  */
 void Scheduler::create_new_task(std::string task_name,
-																void*				worker(void*),
-																ARGUMENTS*	task_arguments) {
-	TASK_CONTROL_BLOCK* tcb						 = new TASK_CONTROL_BLOCK;
-	tcb->task_id											 = ++number_of_workers;
-	tcb->task_state										 = task_list.empty() ? RUNNING : READY;
-	tcb->task_name										 = task_name;
-	tcb->task_thread									 = *(new pthread_t);
+																void* worker(void*),
+																ARGUMENTS* task_arguments) {
+	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
+	tcb->task_id = ++number_of_workers;
+	tcb->task_state = task_list.empty() ? RUNNING : READY;
+	tcb->task_name = task_name;
+	tcb->task_thread = *(new pthread_t);
 	task_arguments->task_control_block = tcb;
-	tcb->task_arguments								 = task_arguments;
+	tcb->task_arguments = task_arguments;
 
 	mcb->sch_sema->wait();
 	task_list.enqueue(tcb);
@@ -97,9 +95,7 @@ void Scheduler::create_new_task(std::string task_name,
  * Scheduler::task_list_size()
  * Returns the task_list size.
  */
-int Scheduler::task_list_size() {
-	return task_list.size();
-}
+int Scheduler::task_list_size() { return task_list.size(); }
 
 /*
  * Scheduler::fetch_log()
@@ -108,9 +104,9 @@ int Scheduler::task_list_size() {
 std::string Scheduler::fetch_log() {
 	if (task_list.empty()) return "\n There are no logs available.";
 
-	std::string title			 = "\n Scheduler Log\n ";
-	std::string task_name	= "Task Name";
-	std::string task_id		 = "Task ID";
+	std::string title = "\n Scheduler Log\n ";
+	std::string task_name = "Task Name";
+	std::string task_id = "Task ID";
 	std::string task_state = "Task State";
 
 	pad(task_name, 11, ' ');
@@ -128,7 +124,7 @@ std::string Scheduler::fetch_log() {
 			tmp->dequeue(tcb);
 
 			std::string task_name_ = tcb->task_name;
-			std::string task_id_	 = std::to_string(tcb->task_id);
+			std::string task_id_ = std::to_string(tcb->task_id);
 			std::string task_state_;
 
 			switch (tcb->task_state) {
@@ -233,8 +229,8 @@ void* Scheduler::start_scheduler(void* p) {
  * Creates a new ARGUMENTS struct.
  */
 ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
-	ARGUMENTS* args			 = new ARGUMENTS;
-	args->id						 = id;
+	ARGUMENTS* args = new ARGUMENTS;
+	args->id = id;
 	args->thread_results = thread_results;
 	return args;
 }
@@ -243,12 +239,12 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
  * Scheduler::create_arguments(int, int, TASK_CONTROL_BLOCK*)
  * Creates a new ARGUMENTS struct.
  */
-ARGUMENTS* Scheduler::create_arguments(int								 id,
-																			 int								 thread_results,
+ARGUMENTS* Scheduler::create_arguments(int id,
+																			 int thread_results,
 																			 TASK_CONTROL_BLOCK* task_control_block) {
-	ARGUMENTS* args					 = new ARGUMENTS;
-	args->id								 = id;
-	args->thread_results		 = thread_results;
+	ARGUMENTS* args = new ARGUMENTS;
+	args->id = id;
+	args->thread_results = thread_results;
 	args->task_control_block = task_control_block;
 	return args;
 }

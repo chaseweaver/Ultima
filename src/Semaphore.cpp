@@ -55,10 +55,10 @@ void Semaphore::signal() {
  * Fetches contents of semaphore logs.
  */
 std::string Semaphore::fetch_log() {
-	std::string header					 = "\n Semaphore Log\n";
-	std::string sema_title			 = " Title:";
+	std::string header = "\n Semaphore Log\n";
+	std::string sema_title = " Title:";
 	std::string sema_value_title = " Value:";
-	std::string sema_list_title	= " Queue:";
+	std::string sema_list_title = " Queue:";
 
 	pad(sema_title, 9, ' ');
 	pad(sema_value_title, 9, ' ');

@@ -5,7 +5,6 @@
 #pragma once
 #endif
 
-
 struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
@@ -22,42 +21,46 @@ class MemoryManager {
 	private:
 	struct MEMORY_NODE {
 		pthread_t owner;
-		int				base;
-		int				limit;
-		int				handle;
-		int				status;
-		int				current_read;
-		int				current_write;
+
+		int base;
+		int limit;
+		int handle;
+		int status;
+		int current_read;
+		int current_write;
 	};
 
 	MemoryCore* mem_core;
-	const int		block_size;
-	int					memory_handle;
+	const int block_size;
+	int memory_handle;
 
 	Queue<MEMORY_NODE*> memory_list;
-	int									next_handle();
-	MEMORY_NODE*				find_hole(int);
-	void								memory_cleanup();
+	int next_handle();
+	MEMORY_NODE* find_hole(int);
+	void memory_cleanup();
 
 	MASTER_CONTROL_BLOCK* mcb;
-	Semaphore*						mm_sema = new Semaphore(mcb, "Memory Manager", 1);
+	Semaphore* mem_sema;
 
 	public:
 	MemoryManager(const unsigned int, const unsigned int, char);
 	~MemoryManager();
-	int					allocate(const unsigned int);
-	int					read(int, char&);
-	int					read(int, std::string&);
-	int					write(int, char);
-	int					write(int, int, char);
-	int					write(int, std::string);
-	int					write(int, int, std::string);
-	int					write(int, int, int, std::string);
-	void				free(int);
-	int					memory_left();
-	int					memory_largest();
-	int					memory_smallest();
-	void				coalesce(int);
+
+	int allocate(const unsigned int);
+	int read(int, char&);
+	int read(int, std::string&);
+	int write(int, char);
+	int write(int, int, char);
+	int write(int, std::string);
+	int write(int, int, std::string);
+	int write(int, int, int, std::string);
+	int memory_left();
+	int memory_largest();
+	int memory_smallest();
+
+	void free(int);
+	void coalesce(int);
+
 	std::string memory_dump(const unsigned int, const unsigned int);
 	std::string memory_dump();
 	std::string memory_dump_mem();

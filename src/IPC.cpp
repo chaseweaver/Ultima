@@ -101,11 +101,11 @@ void IPC::delete_all_messages(int task_id) {
 std::string IPC::fetch_message_box_list() {
 	if (message_count() <= 0) return "\n There are currently no messages in any message box.\n";
 
-	std::string timestamp						= "Timestamp";
-	std::string message_size				= "Size";
+	std::string timestamp = "Timestamp";
+	std::string message_size = "Size";
 	std::string destination_task_id = "To";
-	std::string source_task_id			= "From";
-	std::string message							= "Content";
+	std::string source_task_id = "From";
+	std::string message = "Content";
 
 	pad(timestamp, 14, ' ');
 	pad(message_size, 6, ' ');
@@ -117,7 +117,7 @@ std::string IPC::fetch_message_box_list() {
 
 	mcb->ipc_sema->wait();
 
-	std::string																		content = " ";
+	std::string content = " ";
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item;
 	for (item = message_box.begin(); item != message_box.end(); item++) {
 
@@ -127,10 +127,10 @@ std::string IPC::fetch_message_box_list() {
 			while (!tmp->empty()) {
 				MESSAGE_TYPE* tmp_msg = tmp->dequeue();
 
-				std::string timestamp_					 = std::to_string(tmp_msg->ms.count());
-				std::string message_size_				 = std::to_string(tmp_msg->message_size);
+				std::string timestamp_ = std::to_string(tmp_msg->ms.count());
+				std::string message_size_ = std::to_string(tmp_msg->message_size);
 				std::string destination_task_id_ = "T-ID #" + std::to_string(tmp_msg->destination_task_id);
-				std::string source_task_id_			 = "T-ID #" + std::to_string(tmp_msg->source_task_id);
+				std::string source_task_id_ = "T-ID #" + std::to_string(tmp_msg->source_task_id);
 
 				pad(timestamp_, 14, ' ');
 				pad(message_size_, 6, ' ');
@@ -158,10 +158,10 @@ std::string IPC::fetch_message_box_list(int thread_id) {
 		return "\n There are currently no messages in Thread #" + std::to_string(thread_id) +
 					 "'s inbox.\n";
 
-	std::string timestamp			 = "Timestamp";
-	std::string message_size	 = "Size";
+	std::string timestamp = "Timestamp";
+	std::string message_size = "Size";
 	std::string source_task_id = "From";
-	std::string message				 = "Content";
+	std::string message = "Content";
 
 	pad(timestamp, 14, ' ');
 	pad(message_size, 6, ' ');
@@ -172,7 +172,7 @@ std::string IPC::fetch_message_box_list(int thread_id) {
 
 	mcb->ipc_sema->wait();
 
-	std::string																		content = " ";
+	std::string content = " ";
 	std::map<int, Queue<MESSAGE_TYPE*>>::iterator item;
 	for (item = message_box.begin(); item != message_box.end(); item++) {
 
@@ -182,8 +182,8 @@ std::string IPC::fetch_message_box_list(int thread_id) {
 			while (!tmp->empty()) {
 				MESSAGE_TYPE* tmp_msg = tmp->dequeue();
 
-				std::string timestamp_			= std::to_string(tmp_msg->ms.count());
-				std::string message_size_		= std::to_string(tmp_msg->message_size);
+				std::string timestamp_ = std::to_string(tmp_msg->ms.count());
+				std::string message_size_ = std::to_string(tmp_msg->message_size);
 				std::string source_task_id_ = "T-ID #" + std::to_string(tmp_msg->source_task_id);
 
 				pad(timestamp_, 14, ' ');
@@ -212,12 +212,12 @@ std::string IPC::fetch_message_box_list(int thread_id) {
  * Creates and returns a pointer to a new MESSAGE_TYPE.
  */
 IPC::MESSAGE_TYPE* IPC::compose_message(TASK_CONTROL_BLOCK* tcb,
-																				int									destination_task_id,
-																				std::string					message) {
-	MESSAGE_TYPE* message_type				= new MESSAGE_TYPE;
-	message_type->source_task_id			= tcb->task_id;
+																				int destination_task_id,
+																				std::string message) {
+	MESSAGE_TYPE* message_type = new MESSAGE_TYPE;
+	message_type->source_task_id = tcb->task_id;
 	message_type->destination_task_id = destination_task_id;
-	message_type->msg									= message;
-	message_type->message_size				= message.size();
+	message_type->msg = message;
+	message_type->message_size = message.size();
 	return message_type;
 }
