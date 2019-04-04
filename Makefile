@@ -1,23 +1,22 @@
-CXX := g++
-INC := -lncurses -lpthread
-SRCDIR := src
-OUT := ultima.out
-FLAGS := # -Wall -Wextra -Wreorder
+CXX         := g++
+SRC_DIR     := src
+OBJ_DIR     := obj
+BUILD_DIR   := build
+SRC_FILES   := $(wildcard $(SRC_DIR)/*.cpp)
+OBJ_FILES   := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC_FILES))
+INCLUDE     := -lncurses -lpthread
+FLAGS       := -g # -Wall -Wextra -Wreorder
+ENVIRONMENT := $(shell basename $(abspath $(dir $$PWD)))
 
-CPPFILES=$(wildcard $(SRCDIR)/*.cpp)
-OBJFILES=$(CPPFILES:.cpp=.o)
+$(BUILD_DIR)/$(ENVIRONMENT): $(OBJ_FILES)
+	$(CXX) $(INCLUDE) -o $@ $^
 
-all: $(OUT)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(FLAGS) -c -o $@ $<
 
-$(OUT): $(OBJFILES)
-	$(CXX) $(INC) -o $@ $^ -g
-
-%.o: %.cpp
-	$(CXX) $(FLAGS) -c -o $@ $< -g
-
-run: $(OUT)
-	./$(OUT)
+run:
+	./$(BUILD_DIR)/$(ENVIRONMENT)
 
 .PHONY: clean
 clean:
-	rm -rf $(SRCDIR)/*.o *.out
+	rm -rf $(OBJ_DIR)/*.o $(BUILD_DIR)/*
