@@ -12,6 +12,10 @@ Menu::Menu(MASTER_CONTROL_BLOCK* mcb, WINDOW* win) : mcb(mcb), menu_window(win) 
  */
 Menu::~Menu() {}
 
+/*
+ * Menu::Menu()
+ * Seperate-threaded menu handler for input.
+ */
 void Menu::menu() {
 	int input;
 
@@ -84,20 +88,16 @@ void Menu::menu() {
 					if (input >= 49 && input <= 56) {
 						mcb->ui->clear_window(MAILBOX_WINDOW);
 						switch (input - 48) {
-
-							// DUMP MANAGER QUEUE
 							case 1:
 								mcb->ui->write_refresh(MAILBOX_WINDOW, mcb->mem_man->memory_dump());
 								mcb->ui->write_refresh(INPUT_WINDOW, " $ Mem Mgr Dump\n");
 								break;
 
-							// DUMP MAIN MEM
 							case 2:
 								mcb->ui->write_refresh(MAILBOX_WINDOW, mcb->mem_man->memory_dump_mem());
 								mcb->ui->write_refresh(INPUT_WINDOW, " $ Main Mem Dump\n");
 								break;
 
-							// MEMEORY LEFT (NEEDS TO BE MADE)
 							case 3:
 								mcb->ui->write_refresh(MAILBOX_WINDOW,
 																			 "The amount of un-allocated memory is: " +
@@ -105,7 +105,6 @@ void Menu::menu() {
 								mcb->ui->write_refresh(INPUT_WINDOW, " $ MEM LEFT\n");
 								break;
 
-							// LARGEST FREE BLOCK
 							case 4:
 								mcb->ui->write_refresh(MAILBOX_WINDOW,
 																			 "The largest segment is: " +
@@ -113,7 +112,6 @@ void Menu::menu() {
 								mcb->ui->write_refresh(INPUT_WINDOW, " $ Largest\n");
 								break;
 
-							// SMALLEST FREE BLOCK
 							case 5:
 								mcb->ui->write_refresh(MAILBOX_WINDOW,
 																			 "The smallest segment is: " +
@@ -172,6 +170,10 @@ void Menu::print_thread_inbox_menu(int win) {
 	mcb->ui->write_refresh(win, "\n\n ESC: Return");
 }
 
+/*
+ * Menu::print_memory_mgmt_menu(int)
+ * Prints help menu for memory management.
+ */
 void Menu::print_memory_mgmt_menu(int win) {
 	mcb->ui->write_refresh(win, "Select A Function To Run:\n");
 	mcb->ui->write_refresh(win, "\n 1: Dump Manager Queue");
@@ -251,6 +253,10 @@ void Menu::print_message_box_list(int window_id) {
 	mcb->ui->write_refresh(window_id, mcb->ipc->fetch_message_box_list());
 }
 
+/*
+ * Menu::get_thread_message_box(int)
+ * Prints the IPC message box of a requested thread to a specific window given ID.
+ */
 void Menu::get_thread_message_box(int window_id, int thread_id) {
 	mcb->ui->write_refresh(window_id, mcb->ipc->fetch_message_box_list(thread_id));
 }

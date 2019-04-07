@@ -1,7 +1,7 @@
 #include "../inc/MemoryManager.h"
 
 /*
- * MemoryManager::MemoryManager()
+ * MemoryManager::MemoryManager(const unsigned int, const unsigned int, char)
  * Default constructor.
  */
 MemoryManager::MemoryManager(const unsigned int memory_size,
@@ -84,6 +84,7 @@ int MemoryManager::allocate(const unsigned int size) {
  * The char is returned by reference.
  */
 int MemoryManager::read(int memory_handle, char& ch) {
+
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
@@ -111,7 +112,7 @@ int MemoryManager::read(int memory_handle, char& ch) {
  * Returns -1 if a segfault occurs, 1 otherwise.
  * The string is returned by reference.
  */
-int MemoryManager::read(int memory_handle, std::string& str) {
+int MemoryManager::read(int memory_handle, int size, std::string& str) {
 
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
@@ -126,7 +127,7 @@ int MemoryManager::read(int memory_handle, std::string& str) {
 		// Segfault
 		if (tmp_node->base + tmp_node->current_read > tmp_node->limit) return -1;
 
-		for (int i = 0; i < str.size(); i++)
+		for (int i = 0; i < str.size(), i < size; i++)
 			mem_core->read(tmp_node->base + tmp_node->current_read++, str[i]);
 
 	} while (!tmp->empty());
@@ -141,6 +142,7 @@ int MemoryManager::read(int memory_handle, std::string& str) {
  * Returns -1 if a segfault occurs, 1 otherwise.
  */
 int MemoryManager::write(int memory_handle, char ch) {
+
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
@@ -168,6 +170,7 @@ int MemoryManager::write(int memory_handle, char ch) {
  * Returns -1 if a segfault occurs, 1 otherwise.
  */
 int MemoryManager::write(int memory_handle, std::string str) {
+
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
@@ -196,6 +199,7 @@ int MemoryManager::write(int memory_handle, std::string str) {
  * Returns -1 if a segfault occurs, 1 otherwise.
  */
 int MemoryManager::write(int memory_handle, int offset_from_begin, std::string str) {
+
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
@@ -224,7 +228,8 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, std::string s
  * Writes a char to a block given a memory id with an offset.
  * Returns -1 if a segfault occurs, 1 otherwise.
  */
-int MemoryManager::write(int memory_handle, int offset_from_begin, char ch) {
+int MemoryManager::write(int memory_handle, int offset_from_begining, char ch) {
+
 	// Prevent writing to an invalid position
 	if (memory_handle <= -1) return -1;
 
@@ -236,9 +241,9 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, char ch) {
 		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
 
 		// Segfault
-		if (tmp_node->base + offset_from_begin > tmp_node->limit) return -1;
+		if (tmp_node->base + offset_from_begining > tmp_node->limit) return -1;
 
-		tmp_node->current_write = offset_from_begin;
+		tmp_node->current_write = offset_from_begining;
 		mem_core->write(tmp_node->base + tmp_node->current_write++, ch);
 
 	} while (!tmp->empty());
@@ -309,8 +314,9 @@ void MemoryManager::free(int memory_handle) {
 }
 
 /*
- * MemoryManager::coalesce()
- * Combines two or more contiguous blocks of free space.
+ * MemoryManager::coalesce(int)
+ * Combines two or more contiguous blocks of free space
+ * based on the memory_handle.
  */
 void MemoryManager::coalesce(int memory_handle) {
 	Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
@@ -414,6 +420,10 @@ void MemoryManager::coalesce(int memory_handle) {
 	memory_cleanup();
 }
 
+/*
+ * MemoryManager::memory_cleanup()
+ * Reorganizes the memory queue order.
+ */
 void MemoryManager::memory_cleanup() {
 	MEMORY_NODE* tmp_node = nullptr;
 
@@ -497,7 +507,7 @@ int MemoryManager::memory_left() {
 
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
-		if (tmp_node->status == HOLE) mem_left_amnt = +tmp_node->limit - tmp_node->base;
+		if (tmp_node->status == HOLE) mem_left_amnt += tmp_node->limit - tmp_node->base;
 	} while (!tmp->empty());
 	return mem_left_amnt;
 }
@@ -519,6 +529,7 @@ std::string MemoryManager::memory_dump(const unsigned int start, const unsigned 
 /*
  * MemoryManager::memory_dump()
  * Returns the memory contents from valid blocks.
+ * Includes the memory handle as well as allocated space.
  */
 std::string MemoryManager::memory_dump() {
 	std::string str = "";
@@ -535,6 +546,10 @@ std::string MemoryManager::memory_dump() {
 	return str;
 }
 
+/*
+ * MemoryManager::memory_dump_mem()
+ * Returns the memory contents from valid blocks.
+ */
 std::string MemoryManager::memory_dump_mem() {
 	return "Main Memory @ " + std::to_string(mem_core->memory_size()) + " | " +
 		mem_core->memory_dump() + "\n";

@@ -144,7 +144,6 @@ void* worker_function(void* arguments) {
 	} while (counter != num);
 
 	mcb->mem_man->free(tracker);
-	// mcb->mem_man->free_no_coalesce(tracker);
 
 	mcb->ui->write_refresh(args->id, "\n Thread #" + std::to_string(args->id) + "\n has ended.\n");
 	mcb->ui->write_refresh(LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");

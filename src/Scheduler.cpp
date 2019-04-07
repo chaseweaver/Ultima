@@ -33,7 +33,6 @@ void Scheduler::scheduler() {
 
 			switch (tcb->task_state) {
 				case DEAD:
-					// yield(2, 5);
 					mcb->ui->write_refresh(tcb->task_id, " \n Garbage\n Collected.\n");
 					task_list.dequeue();
 					delete (tcb);

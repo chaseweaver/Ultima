@@ -21,7 +21,6 @@ class MemoryManager {
 	private:
 	struct MEMORY_NODE {
 		pthread_t owner;
-
 		int base;
 		int limit;
 		int handle;
@@ -33,7 +32,6 @@ class MemoryManager {
 	MemoryCore* mem_core;
 	const int block_size;
 	int memory_handle;
-	MASTER_CONTROL_BLOCK* master_control_block;
 
 	Queue< MEMORY_NODE* > memory_list;
 	int next_handle();
@@ -49,7 +47,7 @@ class MemoryManager {
 
 	int allocate(const unsigned int);
 	int read(int, char&);
-	int read(int, std::string&);
+	int read(int, int, std::string&);
 	int write(int, char);
 	int write(int, int, char);
 	int write(int, std::string);
