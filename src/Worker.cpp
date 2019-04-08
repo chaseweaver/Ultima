@@ -37,7 +37,7 @@ void* Worker::worker_function(void* arguments) {
 		"How many apples grow on a tree? All of them.",
 		"Want to hear a joke about paper? Nevermind it's tearable.",
 		"Why did the coffee file a police report? It got mugged.",
-		"How does a penguin build it's house? Igloos it together.",
+		"How does a penguin build its house? Igloos it together.",
 		"Dad, did you get a haircut? No I got them all cut.",
 		"Why did the scarecrow win an award? Because he was outstanding in his field.",
 		"What do you call an elephant that doesn't matter? An irrelephant!",
