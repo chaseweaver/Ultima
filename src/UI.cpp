@@ -92,8 +92,14 @@ UI::~UI() { endwin(); }
  * Adds a Curses window with a title (X, Y) to the UI window object list.
  * Returns a pointer to the WINDOW object.
  */
-WINDOW* UI::create_window_spawn(
-	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_spawn(std::string title,
+	int title_x,
+	int title_y,
+	int window_id,
+	int width,
+	int height,
+	int x,
+	int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -123,8 +129,14 @@ WINDOW* UI::create_window_spawn(
  * Adds a Curses window with a title (X, Y) to the UI window object list.
  * Returns a pointer to the WINDOW object.
  */
-WINDOW* UI::create_window(
-	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window(std::string title,
+	int title_x,
+	int title_y,
+	int window_id,
+	int width,
+	int height,
+	int x,
+	int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -153,8 +165,12 @@ WINDOW* UI::create_window(
  * Adds a Curses window with a title to the UI window object list and SPAWNS it.
  * Returns a pointer to the WINDOW object.
  */
-WINDOW* UI::create_window_spawn(
-	std::string title, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_spawn(std::string title,
+	int window_id,
+	int width,
+	int height,
+	int x,
+	int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	WINDOW* write_win = newwin(height - 4, width - 3, y + 3, x + 2);
@@ -188,7 +204,12 @@ WINDOW* UI::create_window_spawn(
  * Adds a Curses window with a title to the UI window object list.
  * Returns a pointer to the WINDOW object.
  */
-WINDOW* UI::create_window(std::string title, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window(std::string title,
+	int window_id,
+	int width,
+	int height,
+	int x,
+	int y) {
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
 	WINDOW* write_win = newwin(height - 4, width - 3, y + 3, x + 2);
@@ -277,8 +298,14 @@ WINDOW* UI::create_window(int window_id, int width, int height, int x, int y) {
  * Locks window within another.
  * Returns a pointer to the WINDOW object.
  */
-WINDOW* UI::create_window_lock_spawn(
-	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_lock_spawn(std::string title,
+	int title_x,
+	int title_y,
+	int window_id,
+	int width,
+	int height,
+	int x,
+	int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -313,8 +340,14 @@ WINDOW* UI::create_window_lock_spawn(
  * Locks window within another.
  * Returns a pointer to the WINDOW object.
  */
-WINDOW* UI::create_window_lock(
-	std::string title, int title_x, int title_y, int window_id, int width, int height, int x, int y) {
+WINDOW* UI::create_window_lock(std::string title,
+	int title_x,
+	int title_y,
+	int window_id,
+	int width,
+	int height,
+	int x,
+	int y) {
 
 	WINDOW_OBJECT* win_obj = new WINDOW_OBJECT;
 	WINDOW* win = newwin(height, width, y, x);
@@ -397,7 +430,11 @@ void UI::write(int window_id, std::string msg) {
  * UI::write(int, int, int, std::string, TASK_CONTROL_BLOCK*)
  * Writes a message to a window given ID and (X, Y) and stores TASK ID.
  */
-void UI::write_refresh(int window_id, int x, int y, std::string msg, TASK_CONTROL_BLOCK* tcb) {
+void UI::write_refresh(int window_id,
+	int x,
+	int y,
+	std::string msg,
+	TASK_CONTROL_BLOCK* tcb) {
 	mcb->tcb_sema->wait(tcb);
 
 	WINDOW* win = fetch_window(window_id);

@@ -21,7 +21,8 @@ class Logger {
 		int task_id;
 		int task_state;
 		std::string task_name;
-		const milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+		const milliseconds ms =
+			duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 	};
 
 	MASTER_CONTROL_BLOCK* mcb;

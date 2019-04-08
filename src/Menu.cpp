@@ -4,7 +4,9 @@
  * Menu::Menu(MASTER_CONTROL_BLOCK*, WINDOW*, int)
  * Default constructor.
  */
-Menu::Menu(MASTER_CONTROL_BLOCK* mcb, WINDOW* win) : mcb(mcb), menu_window(win) { start(); }
+Menu::Menu(MASTER_CONTROL_BLOCK* mcb, WINDOW* win) : mcb(mcb), menu_window(win) {
+	start();
+}
 
 /*
  * Menu::~Menu()
@@ -14,7 +16,7 @@ Menu::~Menu() {}
 
 /*
  * Menu::Menu()
- * Seperate-threaded menu handler for input.
+ * separate-threaded menu handler for input.
  */
 void Menu::menu() {
 	int input;
@@ -100,22 +102,22 @@ void Menu::menu() {
 
 							case 3:
 								mcb->ui->write_refresh(MAILBOX_WINDOW,
-																			 "The amount of un-allocated memory is: " +
-																				 std::to_string(mcb->mem_man->memory_left()));
+									"The amount of un-allocated memory is: " +
+										std::to_string(mcb->mem_man->memory_left()));
 								mcb->ui->write_refresh(INPUT_WINDOW, " $ MEM LEFT\n");
 								break;
 
 							case 4:
 								mcb->ui->write_refresh(MAILBOX_WINDOW,
-																			 "The largest segment is: " +
-																				 std::to_string(mcb->mem_man->memory_largest()));
+									"The largest segment is: " +
+										std::to_string(mcb->mem_man->memory_largest()));
 								mcb->ui->write_refresh(INPUT_WINDOW, " $ Largest\n");
 								break;
 
 							case 5:
 								mcb->ui->write_refresh(MAILBOX_WINDOW,
-																			 "The smallest segment is: " +
-																				 std::to_string(mcb->mem_man->memory_smallest()));
+									"The smallest segment is: " +
+										std::to_string(mcb->mem_man->memory_smallest()));
 								mcb->ui->write_refresh(INPUT_WINDOW, " $ Smallest\n");
 								break;
 						}
@@ -227,7 +229,9 @@ void Menu::wait() { pthread_join(menu_thread, NULL); }
  * Menu::print_log(int)
  * Prints the log to a specific window given ID.
  */
-void Menu::print_log(int window_id) { mcb->ui->write_refresh(window_id, mcb->logger->fetch_log()); }
+void Menu::print_log(int window_id) {
+	mcb->ui->write_refresh(window_id, mcb->logger->fetch_log());
+}
 
 /*
  * Menu::print_scheduler_logs(int)

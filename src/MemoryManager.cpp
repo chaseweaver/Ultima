@@ -5,8 +5,8 @@
  * Default constructor.
  */
 MemoryManager::MemoryManager(const unsigned int memory_size,
-														 const unsigned int memory_block_size,
-														 char null_character)
+	const unsigned int memory_block_size,
+	char null_character)
 	: block_size(memory_block_size) {
 	mem_core = new MemoryCore(memory_size, memory_block_size, null_character);
 	mem_sema = new Semaphore(mcb, "Memory Manager", 1);
@@ -39,7 +39,8 @@ MemoryManager::MEMORY_NODE* MemoryManager::find_hole(int size) {
 	do {
 		MEMORY_NODE* tmp_node = tmp->dequeue();
 
-		if (tmp_node->status == HOLE && tmp_node->limit - tmp_node->base >= size) return tmp_node;
+		if (tmp_node->status == HOLE && tmp_node->limit - tmp_node->base >= size)
+			return tmp_node;
 
 	} while (!tmp->empty());
 	return nullptr;
@@ -182,7 +183,8 @@ int MemoryManager::write(int memory_handle, std::string str) {
 		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
 
 		// Segfault
-		if (tmp_node->base + tmp_node->current_write > tmp_node->limit + str.length()) return -1;
+		if (tmp_node->base + tmp_node->current_write > tmp_node->limit + str.length())
+			return -1;
 
 		for (int i = 0; i < str.size(); i++)
 			mem_core->write(tmp_node->base + tmp_node->current_write++, str[i]);
@@ -272,7 +274,8 @@ int MemoryManager::write(int memory_handle, int begin, int end, std::string str)
 		if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
 
 		// Segfault
-		if (tmp_node->base + begin > tmp_node->limit || tmp_node->base + end > tmp_node->limit)
+		if (tmp_node->base + begin > tmp_node->limit ||
+			tmp_node->base + end > tmp_node->limit)
 			return -1;
 
 		tmp_node->current_write = begin;
@@ -351,7 +354,7 @@ void MemoryManager::coalesce(int memory_handle) {
 
 	} while (!tmp_2->empty() && node_found_2 == false);
 
-	// Find  node that is to the right (in memory) of the current node
+	// Find node that is to the right (in memory) of the current node
 	do {
 		tmp_node_3 = tmp_3->dequeue();
 

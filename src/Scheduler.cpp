@@ -73,8 +73,8 @@ void Scheduler::scheduler() {
  * Creates a new TASK_CONTROL_BLOCK and spawns a new child function in a new thread.
  */
 void Scheduler::create_new_task(std::string task_name,
-																void* worker(void*),
-																ARGUMENTS* task_arguments) {
+	void* worker(void*),
+	ARGUMENTS* task_arguments) {
 	TASK_CONTROL_BLOCK* tcb = new TASK_CONTROL_BLOCK;
 	tcb->task_id = ++number_of_workers;
 	tcb->task_state = task_list.empty() ? RUNNING : READY;
@@ -174,8 +174,7 @@ void Scheduler::set_state(TASK_CONTROL_BLOCK* tcb, int state) {
 	}
 
 	mcb->ui->write_refresh(STATE_WINDOW,
-												 " Thread #" + std::to_string(tcb->task_id) + " " + str_old + " -> " +
-													 str_new + "\n");
+		" Thread #" + std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
 	mcb->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }
 
@@ -209,8 +208,7 @@ void Scheduler::set_state(int task_id, int state) {
 	}
 
 	mcb->ui->write_refresh(STATE_WINDOW,
-												 " Thread #" + std::to_string(tcb->task_id) + " " + str_old + " -> " +
-													 str_new + "\n");
+		" Thread #" + std::to_string(tcb->task_id) + " " + str_old + " -> " + str_new + "\n");
 	mcb->logger->add_log(tcb->task_id, tcb->task_name, tcb->task_state);
 }
 
@@ -239,8 +237,8 @@ ARGUMENTS* Scheduler::create_arguments(int id, int thread_results) {
  * Creates a new ARGUMENTS struct.
  */
 ARGUMENTS* Scheduler::create_arguments(int id,
-																			 int thread_results,
-																			 TASK_CONTROL_BLOCK* task_control_block) {
+	int thread_results,
+	TASK_CONTROL_BLOCK* task_control_block) {
 	ARGUMENTS* args = new ARGUMENTS;
 	args->id = id;
 	args->thread_results = thread_results;

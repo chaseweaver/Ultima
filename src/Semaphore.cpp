@@ -72,12 +72,13 @@ std::string Semaphore::fetch_log() {
 		do {
 			TASK_CONTROL_BLOCK* tmp;
 			tcb->dequeue(tmp);
-			sema_list_title +=
-				tcb->size() > 0 ? std::to_string(tmp->task_id) + " -> " : std::to_string(tmp->task_id);
+			sema_list_title += tcb->size() > 0 ? std::to_string(tmp->task_id) + " -> "
+																				 : std::to_string(tmp->task_id);
 		} while (!tcb->empty());
 	}
 
-	if (sema_list_title.length() == 9) sema_list_title += "There are no tasks in the queue.";
+	if (sema_list_title.length() == 9)
+		sema_list_title += "There are no tasks in the queue.";
 
 	return header + "\n" + sema_title + "\n" + sema_value_title + "\n" + sema_list_title;
 }

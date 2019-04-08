@@ -4,7 +4,8 @@
  * Logger::Logger(int)
  * Default constructor.
  */
-Logger::Logger(int max_number_of_logs_kept) : MAX_NUMBER_OF_LOGS_KEPT(max_number_of_logs_kept) {}
+Logger::Logger(int max_number_of_logs_kept)
+	: MAX_NUMBER_OF_LOGS_KEPT(max_number_of_logs_kept) {}
 
 /*
  * Logger::~Logger()
@@ -82,8 +83,8 @@ std::string Logger::fetch_log() {
 		pad(task_name_, 11, ' ');
 		pad(task_state_, 12, ' ');
 
-		content +=
-			" " + task_id_ + "| " + task_name_ + "| " + task_state_ + "| " + task_timestamp_ + "\n";
+		content += " " + task_id_ + "| " + task_name_ + "| " + task_state_ + "| " +
+			task_timestamp_ + "\n";
 	} while (!log_data_->empty());
 
 	return header + content;

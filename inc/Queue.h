@@ -13,8 +13,7 @@
 #include <mutex>
 #include <queue>
 
-template < class T >
-class Node {
+template < class T > class Node {
 	public:
 	T value;
 	Node* next;
@@ -44,8 +43,7 @@ class Node {
 	void set_next(Node< T >* item) { next = item; }
 };
 
-template < class T >
-class Queue {
+template < class T > class Queue {
 	private:
 	Node< T >* head;
 	Node< T >* tail;
