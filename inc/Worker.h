@@ -14,14 +14,14 @@ struct MASTER_CONTROL_BLOCK;
 #include <iostream>
 
 class Worker {
-	private:
-	void* worker_function(void*);
-	MASTER_CONTROL_BLOCK* mcb;
+  private:
+  void* worker_function(void*);
+  MASTER_CONTROL_BLOCK* mcb;
 
-	public:
-	Worker(MASTER_CONTROL_BLOCK*);
-	~Worker();
-	static void* start_worker_function(void*);
+  public:
+  Worker(MASTER_CONTROL_BLOCK*);
+  ~Worker();
+  static void* start_worker_function(void*);
 };
 
 #endif

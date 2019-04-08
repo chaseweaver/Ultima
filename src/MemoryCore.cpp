@@ -5,12 +5,12 @@
  * Default constructor.
  */
 MemoryCore::MemoryCore(const unsigned int memory_size,
-	const unsigned int memory_block_size,
-	char fill_character)
-	: memory_capacity(memory_size), free_capacity(memory_size),
-		block_size(memory_block_size), null_character(fill_character) {
-	memory = new char[memory_size];
-	std::fill_n(memory, memory_size, fill_character);
+  const unsigned int memory_block_size,
+  char fill_character)
+  : memory_capacity(memory_size), free_capacity(memory_size),
+    block_size(memory_block_size), null_character(fill_character) {
+  memory = new char[memory_size];
+  std::fill_n(memory, memory_size, fill_character);
 }
 
 /*
@@ -19,8 +19,8 @@ MemoryCore::MemoryCore(const unsigned int memory_size,
  * Decrements the current free space.
  */
 void MemoryCore::write(const unsigned int location, char ch) {
-	memory[location] = ch;
-	--free_capacity;
+  memory[location] = ch;
+  --free_capacity;
 }
 
 /*
@@ -29,8 +29,8 @@ void MemoryCore::write(const unsigned int location, char ch) {
  * Increments the current free space.
  */
 void MemoryCore::write_free(const unsigned int location, char ch) {
-	memory[location] = ch;
-	++free_capacity;
+  memory[location] = ch;
+  ++free_capacity;
 }
 
 /*
@@ -44,7 +44,7 @@ void MemoryCore::read(const unsigned int location, char& ch) { ch = memory[locat
  * Returns a string of contents of the memory array from a start and end point.
  */
 std::string MemoryCore::memory_dump(const unsigned int start, const unsigned int end) {
-	return std::string(memory).substr(start, end);
+  return std::string(memory).substr(start, end);
 }
 
 /*

@@ -33,18 +33,18 @@ class MemoryManager;
 #include "Worker.h"
 
 struct MASTER_CONTROL_BLOCK {
-	Scheduler* scheduler;
-	UI* ui;
-	Menu* menu;
-	IPC* ipc;
-	Worker* worker;
-	Logger* logger;
-	MemoryManager* mem_man;
-	Semaphore* ui_sema;
-	Semaphore* sch_sema;
-	Semaphore* log_sema;
-	Semaphore* tcb_sema;
-	Semaphore* ipc_sema;
+  Scheduler* scheduler;
+  UI* ui;
+  Menu* menu;
+  IPC* ipc;
+  Worker* worker;
+  Logger* logger;
+  MemoryManager* mem_man;
+  Semaphore* ui_sema;
+  Semaphore* sch_sema;
+  Semaphore* log_sema;
+  Semaphore* tcb_sema;
+  Semaphore* ipc_sema;
 };
 
 #endif

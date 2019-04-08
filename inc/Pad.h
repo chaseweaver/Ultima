@@ -14,7 +14,7 @@
  */
 template < typename T >
 void pad(std::basic_string< T >& s, typename std::basic_string< T >::size_type n, T c) {
-	if (n > s.length()) s.append(n - s.length(), c);
+  if (n > s.length()) s.append(n - s.length(), c);
 };
 
 #endif
