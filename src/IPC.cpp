@@ -22,24 +22,46 @@ IPC::~IPC() {}
  * Returns -1 if failed, returns 1 if successful.
  */
 int IPC::message_send(MESSAGE_TYPE* message) {
-  int result = 0;
-
   mcb->ipc_sema->wait();
   std::map< int, Queue< MESSAGE_TYPE* > >::iterator item =
     message_box.find(message->destination_task_id);
   if (item != message_box.end()) {
     if (item->second.size() >= message_box_size) {
-      result = -1;
+      mcb->ipc_sema->signal();
+      return -1;
     } else {
       item->second.enqueue(message);
-      result = 1;
+
+      mcb->ipc_sema->signal();
+      return 1;
     }
   } else {
-    result = -1;
+    mcb->ipc_sema->signal();
+    return -1;
   }
+}
 
-  mcb->ipc_sema->signal();
-  return result;
+/*
+ * IPC::message_recieve(int, MESSAGE_TYPE*)
+ * Sets a pointer equal to a message if one exists within the message box.
+ * Returns -1 if failed, returns 1 if successful.
+ */
+int IPC::message_recieve(int task_id, MESSAGE_TYPE* message) {
+  mcb->ipc_sema->wait();
+  std::map< int, Queue< MESSAGE_TYPE* > >::iterator item = message_box.find(task_id);
+  if (item != message_box.end()) {
+    if (item->second.size() >= message_box_size) {
+      mcb->ipc_sema->signal();
+      return -1;
+    } else {
+      message = item->second.dequeue();
+      mcb->ipc_sema->signal();
+      return 1;
+    }
+  } else {
+    mcb->ipc_sema->signal();
+    return -1;
+  }
 }
 
 /*
