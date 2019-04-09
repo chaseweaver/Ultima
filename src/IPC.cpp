@@ -42,11 +42,11 @@ int IPC::message_send(MESSAGE_TYPE* message) {
 }
 
 /*
- * IPC::message_recieve(int, MESSAGE_TYPE*)
+ * IPC::message_receive(int, MESSAGE_TYPE*)
  * Sets a pointer equal to a message if one exists within the message box.
  * Returns -1 if failed, returns 1 if successful.
  */
-int IPC::message_recieve(int task_id, MESSAGE_TYPE* message) {
+int IPC::message_receive(int task_id, MESSAGE_TYPE* message) {
   mcb->ipc_sema->wait();
   std::map< int, Queue< MESSAGE_TYPE* > >::iterator item = message_box.find(task_id);
   if (item != message_box.end()) {
