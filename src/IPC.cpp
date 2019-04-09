@@ -50,7 +50,7 @@ int IPC::message_recieve(int task_id, MESSAGE_TYPE* message) {
   mcb->ipc_sema->wait();
   std::map< int, Queue< MESSAGE_TYPE* > >::iterator item = message_box.find(task_id);
   if (item != message_box.end()) {
-    if (item->second.size() >= message_box_size) {
+    if (item->second.size() <= 0) {
       mcb->ipc_sema->signal();
       return -1;
     } else {
