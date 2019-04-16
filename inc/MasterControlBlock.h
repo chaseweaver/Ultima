@@ -21,6 +21,7 @@ class UI;
 class IPC;
 class Worker;
 class MemoryManager;
+class UFS;
 
 #include "IPC.h"
 #include "Logger.h"
@@ -31,6 +32,7 @@ class MemoryManager;
 #include "Semaphore.h"
 #include "UI.h"
 #include "Worker.h"
+#include "UFS.h"
 
 struct MASTER_CONTROL_BLOCK {
   Scheduler* scheduler;
@@ -45,6 +47,7 @@ struct MASTER_CONTROL_BLOCK {
   Semaphore* log_sema;
   Semaphore* tcb_sema;
   Semaphore* ipc_sema;
+  UFS* ufs;
 };
 
 #endif

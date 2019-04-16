@@ -50,6 +50,7 @@ void mcb_init() {
   mcb->mem_man = new MemoryManager(1024, 32, '.');
   mcb->menu = new Menu(
     mcb, mcb->ui->create_window_lock_spawn(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
+  mcb->ufs = new UFS("root", 16, 128, '^');
 }
 
 /*

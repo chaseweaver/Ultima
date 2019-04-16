@@ -12,11 +12,26 @@ struct MASTER_CONTROL_BLOCK;
 
 class UFS {
   private:
+
+  struct INODE {
+    char filename[8];
+    int owner_task_id;
+    int starting_block;
+    int size;
+    char permission[4];
+    unsigned int blocks[4];
+
+    time_t creation_time;
+    time_t last_modified_time;
+  };
+
   std::string fs_name;
   int fs_block_size;
   int fs_number_of_blocks;
   int next_file_handle;
   char initilization_char;
+
+  char* file_system;
 
   public:
   UFS(std::string, int, int, char);
