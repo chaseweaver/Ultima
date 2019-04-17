@@ -124,6 +124,14 @@ void* worker_function(void* arguments) {
           " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
       }
 
+      if (counter == num / 3) {
+
+        // Fix this
+        int create = mcb->ufs->create_file("Task", 24, "rw--");
+        // int open = mcb->ufs->open(create, "Task", 'w');
+        // int write = mcb->ufs->write_char(open, 'X');
+      }
+
       // Just for example, we have the workers let other workers know when they
       // are half done. For a bonus, they tell jokes.
       if (counter == num / 2) {

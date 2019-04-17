@@ -7,7 +7,7 @@ OBJ_FILES   := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC_FILES))
 INCLUDE     := -lncurses -lpthread
 FLAGS       := -g
 ENVIRONMENT := $(shell basename $(abspath $(dir $$PWD)))
-PRE_RUN     := mkdir -p build obj
+PRE_RUN     := mkdir -p build obj disk
 
 $(BUILD_DIR)/$(ENVIRONMENT): $(OBJ_FILES)
 	$(PRE_RUN)
