@@ -9,7 +9,9 @@ UFS::UFS(std::string filesystem_name, int num_blocks, int size_block, char init_
 			next_file_handle = 0;
 			next_unique_file_handle = 0;
 
-			// format();
+			format();
+
+			init_inodes();
 		}
 
 void UFS::format() {
@@ -37,9 +39,7 @@ int UFS::create_file(char name[8], int file_size, char perm[4]) {
 		// Double check
 		for (int i = 0; i < 4; i++)
 			if (node->blocks[i] != 0)
-				sleep(100);
-
-		sleep(100);
+				continue;
 
 		// Fix at later
 		for (int i = 0; i < 8; i++)
@@ -91,39 +91,51 @@ UFS::INODE* UFS::return_inode(int unique_file_handle) {
 }
 
 int UFS::write_char(int file_handle, char ch) {
-
 	INODE* node = return_inode(file_handle);
 	if (node == nullptr)
 		return -1;
 
-	std::string name(node->filename);
-
-	std::fstream disk("./disk/" + name, std::ios::out);
-	disk.seekp(node->starting_block * fs_block_size + node->current_write++, std::ios::beg);
+	std::fstream disk("/disk/disk.txt", std::ios::in | std::ios::out);
+	disk.seekp(node->starting_block + node->current_write++, std::ios::beg);
 	disk.put(ch);
 
-	disk.close();
+	disk.flush();
 
-	return node->current_write;
+	// disk.close();
+
+	return 1;
 }
 
-int UFS::read_char(int file_handle, char* ch) {
+// int UFS::write_char(int file_handle, std::string) {
+// 	INODE* node = return_inode(file_handle);
+// 	if (node == nullptr)
+// 		return -1;
 
+// 	std::fstream disk("./disk/disk.txt", std::ios::out);
+// 	disk.seekp(node->starting_block + node->current_write++, std::ios::beg);
+// 	disk.put(ch);
+
+// 	disk.close();
+
+// 	return 1;
+// }
+
+int UFS::read_char(int file_handle, char* ch) {
 	INODE* node = return_inode(file_handle);
 	if (node == nullptr)
 		return -1;
 
 	std::string name(node->filename);
 
-	std::fstream disk("./disk/" + name, std::ios::out);
+	std::fstream disk("./disk/disk.txt", std::ios::out);
 	disk.seekg(node->starting_block * fs_block_size + node->current_read++, std::ios::beg);
 	char c;
 	disk.get(c);
 	ch = &c;
 
-	disk.close();
+	// disk.close();
 
-	return node->current_read;
+	return 1;
 }
 
 int UFS::next_handle() {
