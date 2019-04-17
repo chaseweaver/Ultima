@@ -9,16 +9,15 @@ struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
 #include "Queue.h"
-#include <iostream>
-#include <fstream>
 #include <chrono>
+#include <fstream>
+#include <iostream>
 #include <pthread.h>
 
 using namespace std::chrono;
 
 class UFS {
   private:
-
   struct INODE {
     char filename[8];
     pthread_t owner;
@@ -43,7 +42,7 @@ class UFS {
   int next_unique_file_handle;
   char initilization_char;
 
-  Queue<INODE*> nodes; 
+  Queue< INODE* > nodes;
   char* file_system;
 
   public:

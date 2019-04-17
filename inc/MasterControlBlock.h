@@ -30,9 +30,9 @@ class UFS;
 #include "Queue.h"
 #include "Scheduler.h"
 #include "Semaphore.h"
+#include "UFS.h"
 #include "UI.h"
 #include "Worker.h"
-#include "UFS.h"
 
 struct MASTER_CONTROL_BLOCK {
   Scheduler* scheduler;
