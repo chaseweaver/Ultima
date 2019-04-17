@@ -10,7 +10,6 @@ UFS::UFS(std::string filesystem_name, int num_blocks, int size_block, char init_
   next_unique_file_handle = 0;
 
   format();
-
   init_inodes();
 }
 
@@ -91,14 +90,27 @@ int UFS::write_char(int file_handle, char ch) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
 
-  std::fstream disk("/disk/disk.txt", std::ios::in | std::ios::out);
-  disk.seekp(node->starting_block + node->current_write++, std::ios::beg);
+  std::fstream disk("./disk/disk.txt", std::ios::out);
+  disk.seekp(node->starting_block + node->current_write++);
   disk.put(ch);
 
-  disk.flush();
+  disk.close();
 
-  // disk.close();
+  return 1;
+}
 
+int UFS::write_char(int file_handle, std::string str) {
+  INODE* node = return_inode(file_handle);
+  if (node == nullptr) return -1;
+
+  char ch[str.length()];
+  for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
+
+  std::fstream disk("./disk/disk.txt", std::ios::out);
+  disk.seekp(node->starting_block + node->current_write++);
+  disk.write(ch, strlen(ch));
+
+  disk.close();
   return 1;
 }
 

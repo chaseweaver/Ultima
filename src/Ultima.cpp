@@ -129,7 +129,7 @@ void* worker_function(void* arguments) {
         // Fix this
         int create = mcb->ufs->create_file("Task", 24, "rw--");
         int open = mcb->ufs->open(create, "Task", 'w');
-        int write = mcb->ufs->write_char(open, char(args->id + 64));
+        int write = mcb->ufs->write_char(open, "Hello this is a test.");
       }
 
       // Just for example, we have the workers let other workers know when they
