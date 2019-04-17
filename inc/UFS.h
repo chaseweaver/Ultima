@@ -53,7 +53,7 @@ class UFS {
   int close(int, int);
   int read_char(int, char*);
   int write_char(int, char);
-  int write_char(int, std::string);
+  int write_string(int, std::string);
   int next_handle();
   int next_unique_handle();
 
