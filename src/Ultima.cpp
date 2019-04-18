@@ -1,5 +1,7 @@
 #include "../inc/MasterControlBlock.h"
 
+#include <sstream>
+
 void mcb_init();
 void window_init();
 void* worker_function(void*);
@@ -127,10 +129,39 @@ void* worker_function(void* arguments) {
       if (counter == num / 3) {
 
         // Fix this
-        int create = mcb->ufs->create_file("Task", 24, "rw--");
+        std::string s = tcb->task_name;
+        char name[8];
+        strcpy(name, s.c_str());
+
+        int create = mcb->ufs->create_file(name, 24, "rw--");
+        
+        //THIS SECTION IS JUST FOR TESTING CRAP, REMOVE AT END
+        std::string out_string1;
+        std::stringstream s1;
+        s1 << create;
+        out_string1 = s1.str();
+        mcb->ui->write_refresh(MAILBOX_WINDOW, out_string1 + "\n");
+
         int open = mcb->ufs->open(create, "Task", 'w');
+
+        //THIS SECTION IS JUST FOR TESTING CRAP, REMOVE AT END
+        std::string out_string2;
+        std::stringstream s2;
+        s2 << open;
+        out_string2 = s2.str();
+        mcb->ui->write_refresh(MAILBOX_WINDOW, out_string2 + "\n");
+
         int write = mcb->ufs->write_string(open, "Hello this is a test.");
+        
+        //THIS SECTION IS JUST FOR TESTING CRAP, REMOVE AT END
+        std::string out_string3;
+        std::stringstream s3;
+        s3 << write;
+        out_string3 = s3.str();
+        mcb->ui->write_refresh(MAILBOX_WINDOW, out_string3 + "\n");
+        
         int write2 = mcb->ufs->write_string(open, "TESTING a different write.");
+        
       }
 
       // Just for example, we have the workers let other workers know when they

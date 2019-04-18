@@ -9,7 +9,14 @@ UFS::UFS(std::string filesystem_name, int num_blocks, int size_block, char init_
   next_file_handle = 0;
   next_unique_file_handle = 0;
 
-  format();
+  std::fstream disk("./disk/disk.txt", std::ios::in);
+    if(disk.fail()){
+        //the file didnt already exist, so format a new disk
+        format();
+    }
+  disk.close();
+
+  //format();
   init_inodes();
 }
 
@@ -51,7 +58,8 @@ int UFS::create_file(char name[8], int file_size, char perm[4]) {
     for (int i = 0; i < blocks_needed; i++)
       node->blocks[(node->starting_block / fs_block_size) - 1] = 0xFF;
 
-    return next_handle();
+    node->unique_file_handle = next_handle();
+    return node->unique_file_handle;
   } while (--size != 0);
   return -1;
 }
@@ -67,20 +75,20 @@ int UFS::open(int file_handle, char name[8], char mode) {
     if (node->owner == pthread_self() ||
       strcmp(node->filename, name) &&
         (node->permission[2] == mode || node->permission[3] == mode))
-      return (node->unique_file_handle = next_unique_handle());
+      return (node->unique_file_handle = file_handle);
 
   } while (--size != 0);
 
   return -1;
 }
 
-UFS::INODE* UFS::return_inode(int unique_file_handle) {
+UFS::INODE* UFS::return_inode(int file_handle) {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
   int size = tmp->size();
 
   do {
     INODE* node = tmp->dequeue();
-    if (node->unique_file_handle == unique_file_handle) return node;
+    if (node->unique_file_handle == file_handle) return node;
   } while (--size != 0);
 
   return nullptr;
@@ -91,7 +99,7 @@ int UFS::write_char(int file_handle, char ch) {
   if (node == nullptr) return -1;
 
   std::fstream disk("./disk/disk.txt", std::ios::out);
-  disk.seekp(node->starting_block + node->current_write++);
+  disk.seekp(node->starting_block * fs_block_size + node->current_write++);
   disk.put(ch);
 
   disk.close();
@@ -103,30 +111,35 @@ int UFS::write_string(int file_handle, std::string str) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
 
-  char ch[str.length()];
-  for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
+  //char ch[str.length()];
+  //for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
 
-  std::fstream disk("./disk/disk.txt", std::ios::in);
+  std::ofstream disk("./disk/disk.txt", std::ios::in);
   disk.close();
+  disk.clear();
   disk.open("./disk/disk.txt", std::ios::out | std::ios::in);
-    
-  int loc = node->starting_block + node->current_write;
+  
+
+  int loc = node->starting_block * fs_block_size + node->current_write;
   int len = str.length();
   char thisMsg[len + 1];
 
-  disk.seekp(loc, std::ios::beg);
+  disk.seekp(loc);
 
   strcpy(thisMsg, str.c_str());
 
-  disk.write(thisMsg, len);
+  //disk << str;
 
+  disk.write(thisMsg, len);
   node->current_write+=len;
 
   disk.close();
   //disk.seekp(node->starting_block + node->current_write++);
   //disk.write(ch, strlen(ch));
 
-  return 1;
+  //TESING
+  return node->current_write;
+  //return 1;
 }
 
 // int UFS::write_char(int file_handle, std::string) {
@@ -162,7 +175,7 @@ int UFS::read_char(int file_handle, char* ch) {
 
 int UFS::next_handle() { return ++next_file_handle; }
 
-int UFS::next_unique_handle() { return ++next_unique_file_handle; }
+//int UFS::next_unique_handle() { return ++next_unique_file_handle; }
 
 void UFS::init_inodes() {
   for (int i = 0; i < fs_number_of_blocks; i++) {
@@ -173,7 +186,7 @@ void UFS::init_inodes() {
     for (int j = 0; j < 4; j++) node->blocks[j] = 0;
 
     // node->owner_task_id = -1;
-    node->starting_block = i * fs_block_size;
+    node->starting_block = i;
     node->size = fs_block_size;
 
     // Fix this later

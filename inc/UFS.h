@@ -55,7 +55,7 @@ class UFS {
   int write_char(int, char);
   int write_string(int, std::string);
   int next_handle();
-  int next_unique_handle();
+  //int next_unique_handle();
 
   int create_file(char[8], int, char[4]);
   int delete_file(int, std::string);
