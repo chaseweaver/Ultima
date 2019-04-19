@@ -9,6 +9,7 @@ struct MASTER_CONTROL_BLOCK;
 #include "MasterControlBlock.h"
 
 #include "Queue.h"
+#include <bitset>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -21,18 +22,17 @@ class UFS {
   struct INODE {
     char filename[8];
     pthread_t owner;
-    int starting_block;
+    int block_id;
     int size;
     char permission[4];
     unsigned int blocks[4];
 
     int current_read;
     int current_write;
+    int id;
 
     milliseconds creation_time;
     milliseconds last_modified_time;
-
-    int unique_file_handle;
   };
 
   std::string fs_name;
@@ -55,7 +55,8 @@ class UFS {
   int write_char(int, char);
   int write_string(int, std::string);
   int next_handle();
-  //int next_unique_handle();
+  int amount_of_inodes();
+  int next_unique_handle();
 
   int create_file(char[8], int, char[4]);
   int delete_file(int, std::string);
@@ -65,6 +66,9 @@ class UFS {
   void dump();
 
   void init_inodes();
+  void write_inodes();
+  std::string construct_inode(INODE*);
+  std::string read_inodes();
   INODE* return_inode(int);
 };
 
