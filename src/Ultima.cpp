@@ -129,9 +129,7 @@ void* worker_function(void* arguments) {
       if (counter == num / 3) {
         int create = mcb->ufs->create_file("Test #1", 32, "----");
         int write = mcb->ufs->write_string(create, "THREAD #" + std::to_string(args->id));
-        mcb->ui->write_refresh(HEADING_WINDOW, std::to_string(write) + " ");
         mcb->ufs->write_inodes();
-        // sleep(100);
       }
 
       // Just for example, we have the workers let other workers know when they

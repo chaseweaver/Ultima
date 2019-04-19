@@ -5,15 +5,13 @@
 #pragma once
 #endif
 
-struct MASTER_CONTROL_BLOCK;
-#include "MasterControlBlock.h"
-
 #include "Queue.h"
 #include <bitset>
 #include <chrono>
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
+#include <string.h>
 
 using namespace std::chrono;
 
@@ -25,7 +23,7 @@ class UFS {
     int block_id;
     int size;
     char permission[4];
-    unsigned int blocks[4];
+    bool active;
 
     int current_read;
     int current_write;
@@ -38,6 +36,7 @@ class UFS {
   std::string fs_name;
   int fs_block_size;
   int fs_number_of_blocks;
+
   int next_file_handle;
   int next_unique_file_handle;
   char initilization_char;

@@ -9,13 +9,6 @@ UFS::UFS(std::string filesystem_name, int num_blocks, int size_block, char init_
   next_file_handle = 0;
   next_unique_file_handle = 0;
 
-  // std::fstream disk("./disk/disk.txt", std::ios::in);
-  // if (disk.fail()) {
-  //   // the file didnt already exist, so format a new disk
-  //   format();
-  // }
-  // disk.close();
-
   format();
   init_inodes();
 }
@@ -31,37 +24,25 @@ void UFS::format() {
 }
 
 int UFS::create_file(char name[8], int file_size, char perm[4]) {
-
   if (file_size > 4 * fs_block_size) return -1;
 
   int blocks_needed = file_size / fs_block_size + (file_size % fs_block_size != 0);
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
-  int size = tmp->size();
 
   do {
     INODE* node = tmp->dequeue();
+    if (node->active) continue;
 
-    // Double check
-    for (int i = 0; i < 4; i++)
-      if (node->blocks[i] != 0) continue;
-
-    // Fix at later
     for (int i = 0; i < 8; i++) node->filename[i] = name[i];
+    for (int i = 0; i < 4; i++) node->permission[i] = perm[i];
 
     node->owner = pthread_self();
     node->size = file_size;
-
-    // Fix this later
-    for (int i = 0; i < 4; i++) node->permission[i] = perm[i];
-
-    // Probably fix later
-    for (int i = 0; i < blocks_needed; i++)
-      node->blocks[(node->block_id / fs_block_size) - 1] = 0xFF;
-
     node->id = next_handle();
+    node->active = true;
 
     return node->id;
-  } while (--size != 0);
+  } while (!tmp->empty());
   return -1;
 }
 
@@ -79,7 +60,6 @@ int UFS::open(int file_handle, char name[8], char mode) {
       return (node->id = file_handle);
 
   } while (--size != 0);
-
   return -1;
 }
 
@@ -109,8 +89,6 @@ int UFS::write_char(int file_handle, char ch) {
 int UFS::write_string(int file_handle, std::string str) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
-
-  return node->block_id;
 
   char ch[str.length() + 1];
   for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
@@ -157,7 +135,7 @@ void UFS::init_inodes() {
     node->size = fs_block_size;
 
     for (int j = 0; j < 4; j++) node->permission[j] = '-';
-    for (int j = 0; j < 4; j++) node->blocks[j] = 0;
+    node->active = false;
 
     node->current_read = 0;
     node->current_write = 0;
@@ -195,8 +173,7 @@ std::string UFS::construct_inode(INODE* node) {
   str += std::bitset< 8 >(node->size).to_string();
   for (int i = 0; i < 4; i++)
     str += std::bitset< 4 >(node->permission[i] * sizeof(char)).to_string();
-  for (int i = 0; i < 4; i++)
-    str += std::bitset< 8 >(node->blocks[i] * sizeof(int)).to_string();
+  str += std::bitset< 1 >(node->active).to_string();
   str += std::bitset< 8 >(node->current_read).to_string();
   str += std::bitset< 8 >(node->current_write).to_string();
   str += std::bitset< 8 >(node->id).to_string();
