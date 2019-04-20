@@ -51,8 +51,8 @@ void Menu::menu() {
         break;
 
       case '4':
-        mcb->ui->clear_window(MAILBOX_WINDOW);
-        print_message_box_list(MAILBOX_WINDOW);
+        mcb->ui->clear_window(OUTPUT_WINDOW);
+        print_message_box_list(OUTPUT_WINDOW);
         mcb->ui->write_refresh(INPUT_WINDOW, " $ Mailbox List\n");
         break;
 
@@ -65,8 +65,8 @@ void Menu::menu() {
 
         do {
           if (input >= 49 && input <= 56) {
-            mcb->ui->clear_window(MAILBOX_WINDOW);
-            get_thread_message_box(MAILBOX_WINDOW, input - 48);
+            mcb->ui->clear_window(OUTPUT_WINDOW);
+            get_thread_message_box(OUTPUT_WINDOW, input - 48);
           }
 
           input = wgetch(menu_window);
@@ -88,39 +88,68 @@ void Menu::menu() {
         do {
 
           if (input >= 49 && input <= 56) {
-            mcb->ui->clear_window(MAILBOX_WINDOW);
+            mcb->ui->clear_window(OUTPUT_WINDOW);
             switch (input - 48) {
               case 1:
-                mcb->ui->write_refresh(MAILBOX_WINDOW, mcb->mem_man->memory_dump());
+                mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->mem_man->memory_dump());
                 mcb->ui->write_refresh(INPUT_WINDOW, " $ Mem Mgr Dump\n");
                 break;
 
               case 2:
-                mcb->ui->write_refresh(MAILBOX_WINDOW, mcb->mem_man->memory_dump_mem());
+                mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->mem_man->memory_dump_mem());
                 mcb->ui->write_refresh(INPUT_WINDOW, " $ Main Mem Dump\n");
                 break;
 
               case 3:
-                mcb->ui->write_refresh(MAILBOX_WINDOW,
-                  "The amount of un-allocated memory is: " +
+                mcb->ui->write_refresh(OUTPUT_WINDOW,
+                  "\n The amount of un-allocated memory is: " +
                     std::to_string(mcb->mem_man->memory_left()));
                 mcb->ui->write_refresh(INPUT_WINDOW, " $ MEM LEFT\n");
                 break;
 
               case 4:
-                mcb->ui->write_refresh(MAILBOX_WINDOW,
-                  "The largest segment is: " +
+                mcb->ui->write_refresh(OUTPUT_WINDOW,
+                  "\n The largest segment is: " +
                     std::to_string(mcb->mem_man->memory_largest()));
                 mcb->ui->write_refresh(INPUT_WINDOW, " $ Largest\n");
                 break;
 
               case 5:
-                mcb->ui->write_refresh(MAILBOX_WINDOW,
-                  "The smallest segment is: " +
+                mcb->ui->write_refresh(OUTPUT_WINDOW,
+                  "\n The smallest segment is: " +
                     std::to_string(mcb->mem_man->memory_smallest()));
                 mcb->ui->write_refresh(INPUT_WINDOW, " $ Smallest\n");
                 break;
             }
+          }
+
+          input = wgetch(menu_window);
+          usleep(10000);
+        } while (input != 27);
+
+        mcb->ui->write_refresh(INPUT_WINDOW, " $ Return\n");
+        mcb->ui->clear_window(MENU_WINDOW);
+        print_menu(MENU_WINDOW);
+        break;
+
+      case '7':
+        mcb->ui->clear_window(MENU_WINDOW);
+        print_ufs_menu(MENU_WINDOW);
+        mcb->ui->write_refresh(INPUT_WINDOW, " $ File System\n");
+
+        input = wgetch(menu_window);
+
+        do {
+          if (input == 49) {
+            mcb->ui->clear_window(OUTPUT_WINDOW);
+            mcb->ui->write_refresh(INPUT_WINDOW, " $ Disk Contents\n");
+            mcb->ui->write_refresh(OUTPUT_WINDOW, "\n" + mcb->ufs->disk_contents());
+          }
+
+          if (input == 50) {
+            mcb->ui->clear_window(OUTPUT_WINDOW);
+            mcb->ui->write_refresh(INPUT_WINDOW, " $ INODE Contents\n");
+            mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->ufs->dir());
           }
 
           input = wgetch(menu_window);
@@ -173,11 +202,22 @@ void Menu::print_thread_inbox_menu(int win) {
 }
 
 /*
+ * Menu::print_ufs_menu(int)
+ * Prints help menu for UFS.
+ */
+void Menu::print_ufs_menu(int win) {
+  mcb->ui->write_refresh(win, "\n Select an option:\n");
+  mcb->ui->write_refresh(win, "\n 1: List Disk Contents");
+  mcb->ui->write_refresh(win, "\n 2: List INODE Contents");
+  mcb->ui->write_refresh(win, "\n\n ESC: Return");
+}
+
+/*
  * Menu::print_memory_mgmt_menu(int)
  * Prints help menu for memory management.
  */
 void Menu::print_memory_mgmt_menu(int win) {
-  mcb->ui->write_refresh(win, "Select A Function To Run:\n");
+  mcb->ui->write_refresh(win, "Select a function to run:\n");
   mcb->ui->write_refresh(win, "\n 1: Dump Manager Queue");
   mcb->ui->write_refresh(win, "\n 2: Dump Main Memory");
   mcb->ui->write_refresh(win, "\n 3: Show Memory Left Free");
@@ -194,7 +234,7 @@ void Menu::print_menu(int win) {
   mcb->ui->write_refresh(win, 2, 1, "Choose an option");
   mcb->ui->write_refresh(win, 2, 3, "1: System Logs   \t5: Check Thread Inbox");
   mcb->ui->write_refresh(win, 2, 4, "2: Scheduler Logs\t6: Memory Options");
-  mcb->ui->write_refresh(win, 2, 5, "3: Semaphore Logs");
+  mcb->ui->write_refresh(win, 2, 5, "3: Semaphore Logs\t7: File System");
   mcb->ui->write_refresh(win, 2, 6, "4: Mailbox List");
   mcb->ui->write_refresh(win, 2, 7, "0: Exit Program");
 }

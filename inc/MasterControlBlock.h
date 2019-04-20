@@ -10,8 +10,7 @@
 #define STATE_WINDOW -3
 #define MENU_WINDOW -4
 #define OUTPUT_WINDOW -5
-#define MAILBOX_WINDOW -6
-#define INPUT_WINDOW -7
+#define INPUT_WINDOW -6
 
 class Menu;
 class Scheduler;

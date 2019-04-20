@@ -28,7 +28,6 @@ int main() {
       mcb->scheduler->create_arguments(i, 0));
   }
 
-  // Wait for Menu thread to finish
   mcb->menu->wait();
   return 0;
 }
@@ -43,7 +42,6 @@ void mcb_init() {
   mcb->log_sema = new Semaphore(mcb, "Logger Handler", 1);
   mcb->tcb_sema = new Semaphore(mcb, "TCB Locker", 1);
   mcb->ipc_sema = new Semaphore(mcb, "IPC Handler", 1);
-
   mcb->scheduler = new Scheduler(mcb);
   mcb->ui = new UI(mcb);
   mcb->logger = new Logger(32);
@@ -52,7 +50,7 @@ void mcb_init() {
   mcb->mem_man = new MemoryManager(1024, 32, '.');
   mcb->menu = new Menu(
     mcb, mcb->ui->create_window_lock_spawn(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
-  mcb->ufs = new UFS("root", 16, 128, '^');
+  mcb->ufs = new UFS(mcb, "root", 16, 128, '_');
 }
 
 /*
@@ -68,10 +66,9 @@ void window_init() {
 
   mcb->ui->create_window_lock_spawn(" Log ", 2, 0, LOG_WINDOW, 39, 12, 3, 34);
   mcb->ui->create_window_lock_spawn(" State ", 2, 0, STATE_WINDOW, 39, 12, 43, 34);
-  mcb->ui->create_window_lock_spawn(" Output ", 2, 0, OUTPUT_WINDOW, 80, 12, 83, 2);
   mcb->ui->create_window_lock_spawn(
-    " Mailbox / Memory Core ", 2, 0, MAILBOX_WINDOW, 80, 20, 83, 14);
-  mcb->ui->create_window_lock_spawn(" Input ", 2, 0, INPUT_WINDOW, 21, 12, 142, 34);
+    " Output / Mailbox / Memory Core / File System ", 2, 0, OUTPUT_WINDOW, 94, 32, 83, 2);
+  mcb->ui->create_window_lock_spawn(" Input ", 2, 0, INPUT_WINDOW, 35, 12, 142, 34);
   mcb->ui->write(INPUT_WINDOW, "\n");
   mcb->menu->print_menu(MENU_WINDOW);
 }
@@ -127,9 +124,12 @@ void* worker_function(void* arguments) {
       }
 
       if (counter == num / 3) {
-        int create = mcb->ufs->create_file("Test #1", 32, "----");
-        int write = mcb->ufs->write_string(create, "THREAD #" + std::to_string(args->id));
-        mcb->ufs->write_inodes();
+        std::string name = "Thread #" + std::to_string(args->id);
+        char cstr[name.size() + 1];
+        strcpy(cstr, name.c_str());
+
+        int create = mcb->ufs->create_file(cstr, msg.length() + 1, "rw--");
+        int write = mcb->ufs->write_string(create, msg);
       }
 
       // Just for example, we have the workers let other workers know when they

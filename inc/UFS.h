@@ -5,9 +5,14 @@
 #pragma once
 #endif
 
+struct MASTER_CONTROL_BLOCK;
+#include "MasterControlBlock.h"
+
+#include "Pad.h"
 #include "Queue.h"
 #include <bitset>
 #include <chrono>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
@@ -18,7 +23,7 @@ using namespace std::chrono;
 class UFS {
   private:
   struct INODE {
-    char filename[8];
+    std::string filename;
     pthread_t owner;
     int block_id;
     int size;
@@ -33,6 +38,8 @@ class UFS {
     milliseconds last_modified_time;
   };
 
+  MASTER_CONTROL_BLOCK* mcb;
+
   std::string fs_name;
   int fs_block_size;
   int fs_number_of_blocks;
@@ -45,10 +52,10 @@ class UFS {
   char* file_system;
 
   public:
-  UFS(std::string, int, int, char);
+  UFS(MASTER_CONTROL_BLOCK*, std::string, int, int, char);
   void format();
 
-  int open(int, char[8], char);
+  int open(int, std::string, char);
   int close(int, int);
   int read_char(int, char*);
   int write_char(int, char);
@@ -57,18 +64,19 @@ class UFS {
   int amount_of_inodes();
   int next_unique_handle();
 
-  int create_file(char[8], int, char[4]);
+  int create_file(const std::string, int, char[4]);
   int delete_file(int, std::string);
   int change_permission(int, std::string, char);
-  void dir();
-  void dir(int);
-  void dump();
 
   void init_inodes();
   void write_inodes();
-  std::string construct_inode(INODE*);
+  std::string deconstruct_inode(INODE*);
   std::string read_inodes();
+  std::string char_to_binary(unsigned char);
+  std::string dir();
+  std::string disk_contents();
   INODE* return_inode(int);
+  INODE* construct_inode(std::string);
 };
 
 #endif
