@@ -53,6 +53,7 @@ class UFS {
 
   public:
   UFS(MASTER_CONTROL_BLOCK*, std::string, int, int, char);
+  ~UFS();
   void format();
 
   int open(int, std::string, char);

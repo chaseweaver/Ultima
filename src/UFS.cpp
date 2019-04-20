@@ -1,5 +1,9 @@
 #include "../inc/UFS.h"
 
+/*
+ * UFS::UFS(MASTER_CONTROL_BLOCK*)
+ * Default constructor.
+ */
 UFS::UFS(MASTER_CONTROL_BLOCK* mcb,
   std::string filesystem_name,
   int num_blocks,
@@ -16,6 +20,16 @@ UFS::UFS(MASTER_CONTROL_BLOCK* mcb,
   init_inodes();
 }
 
+/*
+ * UFS::~UFS()
+ * Default deconstructor.
+ */
+UFS::~UFS() {}
+
+/*
+ * UFS::format()
+ *
+ */
 void UFS::format() {
   std::fstream disk("./disk/disk.txt", std::ios::out);
   for (int i = 0; i < fs_block_size * fs_number_of_blocks; i++) {
@@ -26,6 +40,10 @@ void UFS::format() {
   disk.close();
 }
 
+/*
+ * UFS::create_file(std::string, int, char[4])
+ *
+ */
 int UFS::create_file(std::string name, int file_size, char perm[4]) {
   if (file_size > 4 * fs_block_size) return -1;
 
@@ -53,6 +71,11 @@ int UFS::create_file(std::string name, int file_size, char perm[4]) {
 }
 
 // TF is this even supposed to do?
+
+/*
+ * UFS::open(int, std::string, char)
+ *
+ */
 int UFS::open(int file_handle, std::string name, char mode) {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
   int size = tmp->size();
@@ -70,6 +93,10 @@ int UFS::open(int file_handle, std::string name, char mode) {
   return -1;
 }
 
+/*
+ * UFS::return_inode(int)
+ * Returns the INODE at the requested position.
+ */
 UFS::INODE* UFS::return_inode(int file_handle) {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
 
@@ -81,6 +108,11 @@ UFS::INODE* UFS::return_inode(int file_handle) {
   return nullptr;
 }
 
+/*
+ * UFS::write_string(int, char)
+ * Writes a char to a file at the current write position.
+ * Returns -1 if an error occurs, 1 otherwise.
+ */
 int UFS::write_char(int file_handle, char ch) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
@@ -98,6 +130,11 @@ int UFS::write_char(int file_handle, char ch) {
   return 1;
 }
 
+/*
+ * UFS::write_string(int, std::string)
+ * Writes a string to a file at the current write position.
+ * Returns -1 if an error occurs, 1 otherwise.
+ */
 int UFS::write_string(int file_handle, std::string str) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
@@ -122,6 +159,13 @@ int UFS::write_string(int file_handle, std::string str) {
 }
 
 // Check
+
+/*
+ * UFS::read_char(int, char*)
+ * Seeks and sets a char pointer equal to the current read character
+ * in a file.
+ * Returns -1 if an error occurs, 1 otherwise.
+ */
 int UFS::read_char(int file_handle, char* ch) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
@@ -139,10 +183,22 @@ int UFS::read_char(int file_handle, char* ch) {
   return 1;
 }
 
+/*
+ * UFS::next_handle()
+ * Increments and returns a file handle.
+ */
 int UFS::next_handle() { return ++next_file_handle; }
 
+/*
+ * UFS::next_unique_handle()
+ * Increments and returns a unique file handle.
+ */
 int UFS::next_unique_handle() { return ++next_unique_file_handle; }
 
+/*
+ * UFS::init_inodes()
+ * Initializes INODE structures with default values.
+ */
 void UFS::init_inodes() {
   for (int i = 0; i < fs_number_of_blocks; i++) {
     INODE* node = new INODE;
@@ -161,6 +217,10 @@ void UFS::init_inodes() {
   }
 }
 
+/*
+ * UFS::write_inodes()
+ * Writes INODE structures to a disk.
+ */
 void UFS::write_inodes() {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
   int size = tmp->size();
@@ -181,8 +241,16 @@ void UFS::write_inodes() {
   disk.close();
 }
 
+/*
+ * UFS::amount_of_inodes()
+ * Returns the amout of INODEs on a disk.
+ */
 int UFS::amount_of_inodes() { return nodes.size(); }
 
+/*
+ * UFS::deconstruct_inode(INODE*)
+ * Converts an INODE structure into a binary string.
+ */
 std::string UFS::deconstruct_inode(INODE* node) {
   std::string str = "";
 
@@ -208,6 +276,11 @@ std::string UFS::deconstruct_inode(INODE* node) {
 }
 
 // This does not work
+
+/*
+ * UFS::construct_inode(std::string)
+ * Converts a binary string back into an INODE structure.
+ */
 UFS::INODE* UFS::construct_inode(std::string bin) {
   int filename_size = 128;
   int owner_size = 32;
@@ -235,6 +308,10 @@ UFS::INODE* UFS::construct_inode(std::string bin) {
   return nullptr;
 }
 
+/*
+ * UFS::read_inodes()
+ * Reads INODEs from a disk.
+ */
 std::string UFS::read_inodes() {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
   int size = tmp->size();
@@ -253,6 +330,10 @@ std::string UFS::read_inodes() {
   return "";
 }
 
+/*
+ * UFS::char_to_binary(unsigned char)
+ * Converts a char to a binary string.
+ */
 std::string UFS::char_to_binary(unsigned char value) {
   char theResult[128];
   unsigned char mask = 0x80;
@@ -270,6 +351,10 @@ std::string UFS::char_to_binary(unsigned char value) {
   return (result);
 }
 
+/*
+ * UFS::dir()
+ * Lists the contents of ACTIVE INODE structures.
+ */
 std::string UFS::dir() {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
 
