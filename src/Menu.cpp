@@ -144,9 +144,7 @@ void Menu::menu() {
             mcb->ui->clear_window(OUTPUT_WINDOW);
             mcb->ui->write_refresh(INPUT_WINDOW, " $ Disk Contents\n");
             mcb->ui->write_refresh(OUTPUT_WINDOW, "\n" + mcb->ufs->disk_contents());
-          }
-
-          if (input == 50) {
+          } else if (input == 50) {
             mcb->ui->clear_window(OUTPUT_WINDOW);
             mcb->ui->write_refresh(INPUT_WINDOW, " $ INODE Contents\n");
             mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->ufs->dir());

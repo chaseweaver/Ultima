@@ -123,17 +123,25 @@ void* worker_function(void* arguments) {
           " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
       }
 
+      int create, write;
       if (counter == num / 3) {
         std::string name = "Thread #" + std::to_string(args->id);
         char cstr[name.size() + 1];
         strcpy(cstr, name.c_str());
 
-        msg = "00000000000000000000000000000000000000000000000000000000000000000000000000"
-              "0000000000000000000000000000000000000000000000000000000";
+        msg = "Thread #" + std::to_string(args->id) + " " + msg;
 
-        int create = mcb->ufs->create_file(cstr, msg.length() + 1, "rw--");
-        if (mcb->ufs->open(create, "Thread #" + std::to_string(args->id), 'w') == 1)
-          int write = mcb->ufs->write_string(create, msg);
+        mcb->ui->write_refresh(
+          args->id, " Creating file for Thread #" + std::to_string(LOG_WINDOW) + "\n");
+        create = mcb->ufs->create_file(cstr, msg.length() + 1, "rw--");
+
+        if (mcb->ufs->open(create, "Thread #" + std::to_string(args->id), 'w') == 1) {
+          mcb->ui->write_refresh(
+            args->id, " Opening file for Thread #" + std::to_string(LOG_WINDOW) + "\n");
+          write = mcb->ufs->write_string(create, msg);
+        } else {
+          mcb->ui->write_refresh(args->id, " Failed to\n create file\n");
+        }
       }
 
       // Just for example, we have the workers let other workers know when they
@@ -169,6 +177,10 @@ void* worker_function(void* arguments) {
     args->id, "\n Thread #" + std::to_string(args->id) + "\n has ended.\n");
   mcb->ui->write_refresh(
     LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
+
+  sleep(1);
+  mcb->ufs->delete_file(counter, "Thread #" + std::to_string(args->id));
+  sleep(1);
 
   mcb->scheduler->set_state(tcb, DEAD);
   return NULL;

@@ -10,6 +10,7 @@ struct MASTER_CONTROL_BLOCK;
 
 #include "Pad.h"
 #include "Queue.h"
+#include "Semaphore.h"
 #include <bitset>
 #include <chrono>
 #include <cstdlib>
@@ -39,6 +40,7 @@ class UFS {
   };
 
   MASTER_CONTROL_BLOCK* mcb;
+  Semaphore* ufs_sema;
 
   std::string fs_name;
   int fs_block_size;
@@ -70,7 +72,7 @@ class UFS {
 
   int create_file(const std::string, int, char[4]);
   int delete_file(int, std::string);
-  int change_permission(int, std::string, char);
+  int change_permission(int, std::string, char[4]);
 
   void init_inodes();
   void write_inodes();
