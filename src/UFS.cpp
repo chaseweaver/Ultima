@@ -90,6 +90,8 @@ int UFS::create_file(std::string name, int file_size, char perm[4]) {
 
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
   do {
+    if (blocks_remaining == 0) break;
+
     INODE* node = tmp->dequeue();
     if (node->active) continue;
 
@@ -102,8 +104,10 @@ int UFS::create_file(std::string name, int file_size, char perm[4]) {
     node->creation_time = t;
     node->last_modified_time = t;
 
+    --blocks_remaining;
     write_inodes();
-  } while (!tmp->empty() && --blocks_remaining != 0);
+
+  } while (!tmp->empty());
   return handle;
 }
 
@@ -155,7 +159,7 @@ int UFS::write_char(int file_handle, char ch) {
   if (node == nullptr) return -1;
 
   std::ofstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
-  disk.seekp(node->block_id * node->size + node->current_write++);
+  disk.seekp(node->block_id * fs_block_size + node->current_write++);
   disk.put(ch);
 
   node->last_modified_time = node->last_modified_time =
@@ -190,29 +194,24 @@ bool UFS::enough_registered_inodes(int num_of_nodes) {
  * Returns -1 if an error occurs, 1 otherwise.
  */
 int UFS::write_string(int file_handle, std::string str) {
-  int inodes_needed = str.length() / fs_block_size + (str.length() % fs_block_size != 0);
-  if (!enough_registered_inodes(inodes_needed)) return -1;
+  INODE* node = return_inode(file_handle);
+  if (node == nullptr) return -1;
+
+  char ch[str.length() + 1];
+  for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
 
   std::fstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
-  std::chrono::milliseconds t =
-    duration_cast< milliseconds >(system_clock::now().time_since_epoch());
-
-  for (int i = 0; i < inodes_needed; i++) {
-    INODE* node = return_inode(file_handle);
-
-    // char ch[str.length() / fs_block_size + 1];
-    // for (int j = 0; j < sizeof(ch); j++) ch[j] = str[j * i];
-
-    int offset = node->block_id * fs_block_size;
-    for (int j = 0; j < str.length() / fs_block_size + 1; j++) {
-      disk.seekp(offset + node->current_write++, std::ios::beg);
-      disk.put(str[j * i]);
-    }
-
-    node->last_modified_time = t;
+  int offset = node->block_id * fs_block_size;
+  for (int i = 0; i < strlen(ch); i++) {
+    disk.seekp(offset + node->current_write++, std::ios::beg);
+    disk.put(ch[i]);
   }
 
+  node->last_modified_time = node->last_modified_time =
+    duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+
   write_inodes();
+
   disk.close();
   return 1;
 }
