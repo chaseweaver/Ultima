@@ -32,7 +32,7 @@ class UFS {
 
     int current_read;
     int current_write;
-    int id;
+    int file_id;
 
     milliseconds creation_time;
     milliseconds last_modified_time;
@@ -64,6 +64,8 @@ class UFS {
   int next_handle();
   int amount_of_inodes();
   int next_unique_handle();
+
+  bool enough_inodes_available(int);
 
   int create_file(const std::string, int, char[4]);
   int delete_file(int, std::string);

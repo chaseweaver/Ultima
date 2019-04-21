@@ -128,8 +128,14 @@ void* worker_function(void* arguments) {
         char cstr[name.size() + 1];
         strcpy(cstr, name.c_str());
 
+        std::string test =
+          "000000000000000000000000000000000000000000000000000000000000000000000000000000"
+          "0000000000000000000000000000000000000000000000000000000000";
+
         int create = mcb->ufs->create_file(cstr, msg.length() + 1, "rw--");
-        int write = mcb->ufs->write_string(create, msg);
+
+        // args->id == 1 ? mcb->ufs->write_string(create, test)
+        mcb->ufs->write_string(create, msg);
       }
 
       // Just for example, we have the workers let other workers know when they

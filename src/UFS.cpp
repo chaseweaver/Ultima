@@ -41,6 +41,25 @@ void UFS::format() {
 }
 
 /*
+ * UFS::enough_inodes_available(int)
+ * Returns true if enough empty blocks are available, false otherwise.
+ */
+bool UFS::enough_inodes_available(int num_of_blocks) {
+  Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
+  int count = 0;
+
+  do {
+    INODE* node = tmp->dequeue();
+    tmp_node_id = node->block_id;
+
+    if (!node->active) ++count;
+    if (count == num_of_blocks) return true;
+  } while (!tmp->empty());
+
+  return count == num_of_blocks;
+}
+
+/*
  * UFS::create_file(std::string, int, char[4])
  *
  */
@@ -48,8 +67,15 @@ int UFS::create_file(std::string name, int file_size, char perm[4]) {
   if (file_size > 4 * fs_block_size) return -1;
 
   int blocks_needed = file_size / fs_block_size + (file_size % fs_block_size != 0);
-  Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
+  int blocks_remaining = blocks_needed;
 
+  if (!enough_inodes_available(blocks_needed)) return -1;
+
+  std::chrono::milliseconds t =
+    duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+  int handle = next_handle();
+
+  Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
   do {
     INODE* node = tmp->dequeue();
     if (node->active) continue;
@@ -58,16 +84,14 @@ int UFS::create_file(std::string name, int file_size, char perm[4]) {
     for (int i = 0; i < 4; i++) node->permission[i] = perm[i];
 
     node->owner = pthread_self();
-    node->size = file_size;
-    node->id = next_handle();
+    node->file_id = handle;
     node->active = true;
-    node->creation_time = node->last_modified_time =
-      duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+    node->creation_time = t;
+    node->last_modified_time = t;
 
     write_inodes();
-    return node->id;
-  } while (!tmp->empty());
-  return -1;
+  } while (!tmp->empty() && --blocks_remaining != 0);
+  return handle;
 }
 
 // TF is this even supposed to do?
@@ -87,7 +111,7 @@ int UFS::open(int file_handle, std::string name, char mode) {
     if (node->owner == pthread_self() ||
       (node->filename == name) &&
         (node->permission[2] == mode || node->permission[3] == mode))
-      return (node->id = file_handle);
+      return (node->file_id = file_handle);
 
   } while (--size != 0);
   return -1;
@@ -102,7 +126,7 @@ UFS::INODE* UFS::return_inode(int file_handle) {
 
   do {
     INODE* node = tmp->dequeue();
-    if (node->id == file_handle) return node;
+    if (node->file_id == file_handle) return node;
   } while (!tmp->empty());
 
   return nullptr;
@@ -143,7 +167,7 @@ int UFS::write_string(int file_handle, std::string str) {
   for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
 
   std::fstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
-  int offset = node->block_id * node->size;
+  int offset = node->block_id * fs_block_size;
   for (int i = 0; i < strlen(ch); i++) {
     disk.seekp(offset + node->current_write++, std::ios::beg);
     disk.put(ch[i]);
@@ -268,7 +292,7 @@ std::string UFS::deconstruct_inode(INODE* node) {
   str += std::bitset< 1 >(node->active).to_string() + ' ';
   str += std::bitset< 8 >(node->current_read).to_string() + ' ';
   str += std::bitset< 8 >(node->current_write).to_string() + ' ';
-  str += std::bitset< 8 >(node->id).to_string() + ' ';
+  str += std::bitset< 8 >(node->file_id).to_string() + ' ';
   str += std::bitset< 32 >(node->creation_time.count()).to_string() + ' ';
   str += std::bitset< 32 >(node->last_modified_time.count()).to_string();
   str += '\n';
