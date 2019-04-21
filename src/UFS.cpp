@@ -54,7 +54,7 @@ bool UFS::enough_inodes_available(int num_of_blocks) {
   do {
     while (!node->active && !tmp->empty()) node = tmp->dequeue();
 
-    blocks_needed--;
+    --blocks_needed;
     int current_id = node->block_id;
 
     while (blocks_needed > 0) {
@@ -64,11 +64,11 @@ bool UFS::enough_inodes_available(int num_of_blocks) {
         break;
       }
       current_id = node->block_id;
-      blocks_needed--;
+      --blocks_needed;
     }
   } while (!tmp->empty() && blocks_needed > 0);
 
-  if (blocks_needed > 0) { return false; }
+  if (blocks_needed > 0) return false;
   return true;
 }
 
