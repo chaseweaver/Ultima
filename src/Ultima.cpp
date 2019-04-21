@@ -128,6 +128,9 @@ void* worker_function(void* arguments) {
         char cstr[name.size() + 1];
         strcpy(cstr, name.c_str());
 
+        msg = "00000000000000000000000000000000000000000000000000000000000000000000000000"
+              "0000000000000000000000000000000000000000000000000000000";
+
         int create = mcb->ufs->create_file(cstr, msg.length() + 1, "rw--");
         if (mcb->ufs->open(create, "Thread #" + std::to_string(args->id), 'w') == 1)
           int write = mcb->ufs->write_string(create, msg);

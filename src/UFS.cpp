@@ -59,10 +59,12 @@ bool UFS::enough_inodes_available(int num_of_blocks) {
 
     while (blocks_needed > 0) {
       node = tmp->dequeue();
+
       if (node->active || node->block_id != current_id + 1) {
         blocks_needed = num_of_blocks;
         break;
       }
+
       current_id = node->block_id;
       --blocks_needed;
     }
@@ -128,7 +130,7 @@ int UFS::open(int file_handle, std::string name, char mode) {
     if (node->owner == pthread_self() ||
       (node->filename == name) &&
         (node->permission[2] == mode || node->permission[3] == mode))
-      return (node->file_id = file_handle);
+      return (node->file_id == file_handle);
 
   } while (--size != 0);
   return -1;
