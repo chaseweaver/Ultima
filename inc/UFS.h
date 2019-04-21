@@ -66,6 +66,7 @@ class UFS {
   int next_unique_handle();
 
   bool enough_inodes_available(int);
+  bool enough_registered_inodes(int);
 
   int create_file(const std::string, int, char[4]);
   int delete_file(int, std::string);

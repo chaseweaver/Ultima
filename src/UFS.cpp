@@ -46,17 +46,30 @@ void UFS::format() {
  */
 bool UFS::enough_inodes_available(int num_of_blocks) {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
-  int count = 0;
+  int blocks_needed = num_of_blocks;
+  if (tmp->empty()) return false;
+
+  INODE* node = tmp->dequeue();
 
   do {
-    INODE* node = tmp->dequeue();
-    tmp_node_id = node->block_id;
+    while (!node->active && !tmp->empty()) node = tmp->dequeue();
 
-    if (!node->active) ++count;
-    if (count == num_of_blocks) return true;
-  } while (!tmp->empty());
+    blocks_needed--;
+    int current_id = node->block_id;
 
-  return count == num_of_blocks;
+    while (blocks_needed > 0) {
+      node = tmp->dequeue();
+      if (node->active || node->block_id != current_id + 1) {
+        blocks_needed = num_of_blocks;
+        break;
+      }
+      current_id = node->block_id;
+      blocks_needed--;
+    }
+  } while (!tmp->empty() && blocks_needed > 0);
+
+  if (blocks_needed > 0) { return false; }
+  return true;
 }
 
 /*
@@ -133,7 +146,7 @@ UFS::INODE* UFS::return_inode(int file_handle) {
 }
 
 /*
- * UFS::write_string(int, char)
+ * UFS::write_char(int, char)
  * Writes a char to a file at the current write position.
  * Returns -1 if an error occurs, 1 otherwise.
  */
@@ -149,9 +162,26 @@ int UFS::write_char(int file_handle, char ch) {
     duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 
   write_inodes();
-
   disk.close();
   return 1;
+}
+
+/*
+ * UFS::enough_registered_inodes(int)
+ * Valiation check to ensure enough INODEs with registered IDs are available.
+ */
+bool UFS::enough_registered_inodes(int num_of_nodes) {
+  Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
+  int count = 0;
+
+  do {
+    INODE* node = tmp->dequeue();
+
+    if (!node->active) ++count;
+    if (count == num_of_nodes) return true;
+  } while (!tmp->empty());
+
+  return count == num_of_nodes;
 }
 
 /*
@@ -160,24 +190,29 @@ int UFS::write_char(int file_handle, char ch) {
  * Returns -1 if an error occurs, 1 otherwise.
  */
 int UFS::write_string(int file_handle, std::string str) {
-  INODE* node = return_inode(file_handle);
-  if (node == nullptr) return -1;
-
-  char ch[str.length() + 1];
-  for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
+  int inodes_needed = str.length() / fs_block_size + (str.length() % fs_block_size != 0);
+  if (!enough_registered_inodes(inodes_needed)) return -1;
 
   std::fstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
-  int offset = node->block_id * fs_block_size;
-  for (int i = 0; i < strlen(ch); i++) {
-    disk.seekp(offset + node->current_write++, std::ios::beg);
-    disk.put(ch[i]);
-  }
-
-  node->last_modified_time = node->last_modified_time =
+  std::chrono::milliseconds t =
     duration_cast< milliseconds >(system_clock::now().time_since_epoch());
 
-  write_inodes();
+  for (int i = 0; i < inodes_needed; i++) {
+    INODE* node = return_inode(file_handle);
 
+    // char ch[str.length() / fs_block_size + 1];
+    // for (int j = 0; j < sizeof(ch); j++) ch[j] = str[j * i];
+
+    int offset = node->block_id * fs_block_size;
+    for (int j = 0; j < str.length() / fs_block_size + 1; j++) {
+      disk.seekp(offset + node->current_write++, std::ios::beg);
+      disk.put(str[j * i]);
+    }
+
+    node->last_modified_time = t;
+  }
+
+  write_inodes();
   disk.close();
   return 1;
 }
@@ -364,10 +399,7 @@ std::string UFS::char_to_binary(unsigned char value) {
   int i;
 
   for (i = 0; i < sizeof(value) * 8; i++) {
-    if ((value & mask) == 0)
-      theResult[i] = '0';
-    else
-      theResult[i] = '1';
+    ((value & mask) == 0) ? theResult[i] = '0' : theResult[i] = '1';
     mask >>= 1;
   }
   theResult[i] = '\0';
