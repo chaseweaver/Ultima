@@ -46,7 +46,6 @@ void mcb_init() {
   mcb->ui = new UI(mcb);
   mcb->logger = new Logger(32);
   mcb->ipc = new IPC(mcb, NUMBER_OF_WORKERS, 8);
-  mcb->worker = new Worker(mcb);
   mcb->mem_man = new MemoryManager(1024, 32, '.');
   mcb->menu = new Menu(
     mcb, mcb->ui->create_window_lock_spawn(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
