@@ -71,19 +71,17 @@ class UFS {
   bool enough_inodes_available(int);
   bool enough_registered_inodes(int);
 
-  int create_file(const std::string, int, char[4]);
+  int create_file(const std::string, int, const char[4]);
   int delete_file(int, std::string);
   int change_permission(int, std::string, char[4]);
 
   void init_inodes();
   void write_inodes();
-  std::string deconstruct_inode(INODE*);
+  std::string build_inode(INODE*);
   std::string read_inodes();
-  std::string char_to_binary(unsigned char);
   std::string dir();
   std::string disk_contents();
   INODE* return_inode(int);
-  INODE* construct_inode(std::string);
 };
 
 #endif

@@ -34,12 +34,13 @@ void Scheduler::scheduler() {
       switch (tcb->task_state) {
         case DEAD:
           mcb->ui->write_refresh(tcb->task_id, " \n Garbage\n Collected.\n");
+          mcb->ui->write_refresh(LOG_WINDOW,
+            " Garbage Collected: Thread #" + std::to_string(tcb->task_id) + "\n");
           task_list.dequeue();
           delete (tcb);
           --number_of_workers;
           break;
 
-        // Unused state, potentially for the future.
         case IDLE:
           yield(2, 5);
           set_state(tcb, READY);
