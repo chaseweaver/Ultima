@@ -59,13 +59,14 @@ class UFS {
   void format();
 
   int open(int, std::string, char);
-  int close(int, int);
+  int close(int);
   int read_char(int, char*);
   int write_char(int, char);
   int write_string(int, std::string);
   int next_handle();
   int amount_of_inodes();
-  int next_unique_handle();
+
+  int next_unique_f_handle();
 
   bool enough_inodes_available(int);
   bool enough_registered_inodes(int);

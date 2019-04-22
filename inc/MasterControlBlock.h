@@ -11,6 +11,7 @@
 #define MENU_WINDOW -4
 #define OUTPUT_WINDOW -5
 #define INPUT_WINDOW -6
+#define TESTING_WINDOW -7
 
 class Menu;
 class Scheduler;

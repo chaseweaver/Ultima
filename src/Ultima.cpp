@@ -69,6 +69,7 @@ void window_init() {
   mcb->ui->create_window_lock_spawn(
     " Output / Mailbox / Memory Core / File System ", 2, 0, OUTPUT_WINDOW, 94, 32, 83, 2);
   mcb->ui->create_window_lock_spawn(" Input ", 2, 0, INPUT_WINDOW, 35, 12, 142, 34);
+  mcb->ui->create_window_lock_spawn(" Testing ", 2, 0, TESTING_WINDOW, 60, 16, 3, 46);
   mcb->ui->write(INPUT_WINDOW, "\n");
   mcb->menu->print_menu(MENU_WINDOW);
 }
@@ -83,6 +84,8 @@ void* worker_function(void* arguments) {
   TASK_CONTROL_BLOCK* tcb = args->task_control_block;
   int& counter = args->thread_results;
   int tracker;
+  //for ufs operations
+  int create, open, write;
 
   std::string message_lists[17] = {
     "Did you hear about the restaurant on the moon? Great food, no atmosphere.",
@@ -123,7 +126,7 @@ void* worker_function(void* arguments) {
           " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
       }
 
-      int create, write;
+      
       if (counter == num / 3) {
         std::string name = "Thread #" + std::to_string(args->id);
         char cstr[name.size() + 1];
@@ -134,8 +137,8 @@ void* worker_function(void* arguments) {
         mcb->ui->write_refresh(
           args->id, " Creating file for Thread #" + std::to_string(LOG_WINDOW) + "\n");
         create = mcb->ufs->create_file(cstr, msg.length() + 1, "rw--");
-
-        if (mcb->ufs->open(create, "Thread #" + std::to_string(args->id), 'w') == 1) {
+        open = mcb->ufs->open(create, "Thread #" + std::to_string(args->id), 'w');
+        if (open != -1) {
           mcb->ui->write_refresh(
             args->id, " Opening file for Thread #" + std::to_string(LOG_WINDOW) + "\n");
           write = mcb->ufs->write_string(create, msg);
@@ -178,9 +181,9 @@ void* worker_function(void* arguments) {
   mcb->ui->write_refresh(
     LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
 
-  sleep(1);
-  mcb->ufs->delete_file(counter, "Thread #" + std::to_string(args->id));
-  sleep(1);
+  //sleep(1);
+  mcb->ufs->delete_file(open, "Thread #" + std::to_string(args->id));
+  //sleep(1);
 
   mcb->scheduler->set_state(tcb, DEAD);
   return NULL;
