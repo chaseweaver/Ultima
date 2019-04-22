@@ -126,17 +126,15 @@ void* worker_function(void* arguments) {
       }
 
       if (counter == num / 3) {
-        std::string name = "Thread #" + std::to_string(args->id);
-        char cstr[name.size() + 1];
-        strcpy(cstr, name.c_str());
+        std::string name = "Thread #" + std::to_string(args->id) + ".txt";
 
         msg = "Thread #" + std::to_string(args->id) + " " + msg;
         mcb->ui->write_refresh(
           LOG_WINDOW, " Creating file for Thread #" + std::to_string(args->id) + "\n");
 
         char const* perm = "rw--";
-        create = mcb->ufs->create_file(cstr, msg.length() + 1, perm);
-        open = mcb->ufs->open(create, "Thread #" + std::to_string(args->id), 'w');
+        create = mcb->ufs->create_file(name, msg.length() * 2 + 1, perm);
+        open = mcb->ufs->open(create, name, 'w');
         if (open != -1) {
           mcb->ui->write_refresh(
             LOG_WINDOW, " Opening file for Thread #" + std::to_string(args->id) + "\n");
@@ -147,14 +145,11 @@ void* worker_function(void* arguments) {
         }
       }
 
-      // Just for example, we have the workers let other workers know when they
-      // are half done. For a bonus, they tell jokes.
       if (counter == num / 2) {
         int tmp_rand = 1 + rand() % 8;
         int result =
           mcb->ipc->message_send(mcb->ipc->compose_message(tcb, tmp_rand, msg));
 
-        // Did the message fail to send or not?
         result == 1 ? mcb->ui->write_refresh(LOG_WINDOW,
                         " Msg sent: Thread #" + std::to_string(args->id) +
                           " -> Thread #" + std::to_string(tmp_rand) + "\n")

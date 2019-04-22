@@ -82,6 +82,7 @@ class UFS {
   std::string dir();
   std::string disk_contents();
   INODE* return_inode(int);
+  INODE* return_nonactive_inode(int);
 };
 
 #endif
