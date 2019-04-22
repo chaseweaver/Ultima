@@ -128,21 +128,33 @@ void* worker_function(void* arguments) {
       if (counter == num / 3) {
         std::string name = "Thread #" + std::to_string(args->id) + ".txt";
 
-        msg = "Thread #" + std::to_string(args->id) + " " + msg;
+        if (args->id == 1) {
+          msg = "000000000000000000000000000000000000000000000000000000000000000000000000"
+                "00000000000000000000000000000000000000000000000000000000000";
+        }
+
         mcb->ui->write_refresh(
           LOG_WINDOW, " Creating file for Thread #" + std::to_string(args->id) + "\n");
 
         char const* perm = "rw--";
-        create = mcb->ufs->create_file(name, msg.length() * 2 + 1, perm);
+        create = mcb->ufs->create_file(name, msg.length() + 1, perm);
         open = mcb->ufs->open(create, name, 'w');
         if (open != -1) {
           mcb->ui->write_refresh(
             LOG_WINDOW, " Opening file for Thread #" + std::to_string(args->id) + "\n");
-          write = mcb->ufs->write_string(create, msg + msg);
+          write = mcb->ufs->write_string(create, msg);
         } else {
           mcb->ui->write_refresh(
             LOG_WINDOW, " Failed to create file for Thread #" + std::to_string(args->id));
         }
+      }
+
+      if (counter == num - 20) {
+        char const* perm = "rwrw";
+        mcb->ufs->change_permission(
+          open, "Thread #" + std::to_string(args->id) + ".txt", perm);
+        mcb->ui->write_refresh(
+          LOG_WINDOW, " Changing perms. for Thread #" + std::to_string(args->id) + "\n");
       }
 
       if (counter == num / 2) {
@@ -173,9 +185,7 @@ void* worker_function(void* arguments) {
   mcb->ui->write_refresh(
     LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
 
-
   mcb->ufs->delete_file(open, "Thread #" + std::to_string(args->id));
-
   mcb->scheduler->set_state(tcb, DEAD);
   return NULL;
 }

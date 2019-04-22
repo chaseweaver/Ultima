@@ -30,6 +30,7 @@ class UFS {
     int size;
     char permission[4];
     bool active;
+    std::string status;
 
     int current_read;
     int current_write;
@@ -59,7 +60,10 @@ class UFS {
   void format();
 
   int open(int, std::string, char);
+  int set_status(int, std::string);
   int close(int);
+  int set_read(int);
+  int set_write(int);
   int read_char(int, char*);
   int write_char(int, char);
   int write_string(int, std::string);
@@ -73,12 +77,11 @@ class UFS {
 
   int create_file(const std::string, int, const char[4]);
   int delete_file(int, std::string);
-  int change_permission(int, std::string, char[4]);
+  int change_permission(int, std::string, const char[4]);
 
   void init_inodes();
   void write_inodes();
   std::string build_inode(INODE*);
-  std::string read_inodes();
   std::string dir();
   std::string disk_contents();
   INODE* return_inode(int);

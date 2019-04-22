@@ -29,7 +29,7 @@ UFS::~UFS() {}
 
 /*
  * UFS::format()
- *
+ * Formats the disk contents with the initialization char.
  */
 void UFS::format() {
   std::fstream disk("./disk/disk.txt", std::ios::out);
@@ -46,15 +46,22 @@ void UFS::format() {
  * Returns true if enough empty blocks are available, false otherwise.
  */
 bool UFS::enough_inodes_available(int num_of_blocks) {
-  return true;
-  // Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
+  Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
+  int counter = 0;
+  do {
+    INODE* node = tmp->dequeue();
+    if (!node->active) ++counter;
+    if (counter == num_of_blocks) return true;
+  } while (!tmp->empty());
+
+  return false;
 }
 
 /*
  * UFS::change_permission(int, std::string, int, char[4])
  * Changes the permission of a file if file OWNER.
  */
-int UFS::change_permission(int file_handle, std::string name, char perm[4]) {
+int UFS::change_permission(int file_handle, std::string name, const char perm[4]) {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
   bool success = false;
 
@@ -97,12 +104,14 @@ int UFS::delete_file(int file_handle, std::string name) {
         " Del. file handle #" + std::to_string(node->file_id) + " @ location " +
           std::to_string(node->block_id * fs_block_size) + "\n");
 
-      node->filename = "--------";
+      node->filename = "----------------";
       node->active = false;
       node->current_write = 0;
       node->current_read = 0;
       node->file_id = 0;
       node->size = 0;
+      node->owner = 0;
+      node->status = "EMPTY";
       node->creation_time = std::chrono::milliseconds::zero();
       node->last_modified_time = std::chrono::milliseconds::zero();
       for (int i = 0; i < 4; i++) node->permission[i] = '-';
@@ -121,14 +130,14 @@ int UFS::delete_file(int file_handle, std::string name) {
 }
 
 /*
- * UFS::create_file(std::string, int, char[4])
- *
+ * UFS::create_file(std::string, int, const char[4])
+ * Initializes an INODE struct (>= 1 && <= 4) with default properties.
+ * On success, returns a unique file handle, -1 otherwise.
  */
 int UFS::create_file(std::string name, int file_size, const char perm[4]) {
   if (file_size > 4 * fs_block_size) return -1;
 
   int blocks_needed = file_size / fs_block_size + (file_size % fs_block_size != 0);
-  int blocks_remaining = blocks_needed;
 
   if (!enough_inodes_available(blocks_needed)) return -1;
 
@@ -136,8 +145,9 @@ int UFS::create_file(std::string name, int file_size, const char perm[4]) {
     duration_cast< milliseconds >(system_clock::now().time_since_epoch());
   int handle = next_handle();
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
+
   do {
-    if (blocks_remaining == 0) break;
+    if (blocks_needed == 0) break;
 
     INODE* node = tmp->dequeue();
     if (node->active) continue;
@@ -150,8 +160,10 @@ int UFS::create_file(std::string name, int file_size, const char perm[4]) {
     node->active = true;
     node->creation_time = t;
     node->last_modified_time = t;
+    node->current_read = 0;
+    node->current_write = 0;
 
-    --blocks_remaining;
+    --blocks_needed;
     write_inodes();
 
   } while (!tmp->empty());
@@ -204,7 +216,6 @@ UFS::INODE* UFS::return_nonactive_inode(int file_handle) {
     INODE* node = tmp->dequeue();
     if (node->file_id == file_handle && node->current_write == 0) return node;
   } while (!tmp->empty());
-
   return nullptr;
 }
 
@@ -218,6 +229,7 @@ int UFS::write_char(int file_handle, char ch) {
   if (node == nullptr) return -1;
 
   std::ofstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
+  set_write(file_handle);
   disk.seekp(node->block_id * fs_block_size + node->current_write++);
   disk.put(ch);
   ++node->size;
@@ -257,7 +269,7 @@ int UFS::write_string(int file_handle, std::string str) {
   ufs_sema->wait();
 
   if (str.length() < 128) {
-    char ch[str.length() + 1];
+    char ch[str.length()];
 
     INODE* node = return_nonactive_inode(file_handle);
     if (node == nullptr) return -1;
@@ -266,7 +278,8 @@ int UFS::write_string(int file_handle, std::string str) {
 
     int offset = node->block_id * fs_block_size;
     std::fstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
-    for (int i = 0; i < strlen(ch) && i < fs_block_size; i++) {
+    set_write(file_handle);
+    for (int i = 0; i < strlen(ch) && i < str.length(); i++) {
       disk.seekp(offset + node->current_write++, std::ios::beg);
       disk.put(ch[i]);
       ++node->size;
@@ -277,9 +290,10 @@ int UFS::write_string(int file_handle, std::string str) {
 
     write_inodes();
     disk.close();
-  } else {
+    ufs_sema->signal();
 
-    char ch[128];
+  } else {
+    char ch[fs_block_size];
 
     INODE* node = return_nonactive_inode(file_handle);
     if (node == nullptr) return -1;
@@ -288,11 +302,14 @@ int UFS::write_string(int file_handle, std::string str) {
 
     int offset = node->block_id * fs_block_size;
     std::fstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
-    for (int i = 0; i < strlen(ch) && i < fs_block_size; i++) {
+    set_write(file_handle);
+
+    for (int i = 0; i < strlen(ch) - 1 && i < str.length(); i++) {
       disk.seekp(offset + node->current_write++, std::ios::beg);
       disk.put(ch[i]);
       ++node->size;
     }
+
 
     node->last_modified_time = node->last_modified_time =
       duration_cast< milliseconds >(system_clock::now().time_since_epoch());
@@ -303,10 +320,11 @@ int UFS::write_string(int file_handle, std::string str) {
     ufs_sema->signal();
 
     if (str.length() > fs_block_size)
-      write_string(file_handle, str.substr(str.length() - fs_block_size, str.length()));
+      write_string(file_handle,
+        str.substr(str.length() / fs_block_size +
+            (str.length() % fs_block_size != 0) * fs_block_size - 1,
+          str.length()));
   }
-
-  ufs_sema->signal();
   return 1;
 }
 
@@ -320,13 +338,19 @@ int UFS::read_char(int file_handle, char* ch) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
 
+  ufs_sema->wait();
+
   std::ifstream disk("./disk/disk.txt", std::ios::in);
+  set_read(file_handle);
+
   disk.seekg(node->block_id * fs_block_size + node->current_read++, std::ios::beg);
   char c;
   disk.get(c);
   ch = &c;
 
   disk.close();
+
+  ufs_sema->signal();
   return 1;
 }
 
@@ -337,7 +361,7 @@ int UFS::read_char(int file_handle, char* ch) {
 int UFS::next_handle() { return ++next_file_handle; }
 
 /*
- * UFS::next_unique_handle()
+ * UFS::next_unique_f_handle()
  * Increments and returns a unique file handle.
  */
 int UFS::next_unique_f_handle() { return ++next_unique_file_handle; }
@@ -350,11 +374,12 @@ void UFS::init_inodes() {
   for (int i = 0; i < fs_number_of_blocks; i++) {
     INODE* node = new INODE;
 
-    node->filename = "--------";
-    node->owner = pthread_self();
+    node->filename = "----------------";
+    node->owner = 0;
     node->block_id = i;
     node->size = 0;
     node->file_id = 0;
+    node->status = "EMPTY";
 
     for (int j = 0; j < 4; j++) node->permission[j] = '-';
     node->active = false;
@@ -401,43 +426,21 @@ int UFS::amount_of_inodes() { return nodes.size(); }
 std::string UFS::build_inode(INODE* node) {
   std::string str = "";
 
-  str += node->filename + ' ';
-  str += std::to_string((unsigned long int)node->owner) + ' ';
-  str += std::to_string(node->block_id) + ' ';
-  str += std::to_string(node->size) + ' ';
+  str += node->filename + "\t";
+  str += std::to_string((unsigned long int)node->owner) + "\t";
+  str += std::to_string(node->block_id) + "\t";
+  str += std::to_string(node->size) + "\t";
 
   for (int i = 0; i < 4; i++) str += node->permission[i] * sizeof(char);
 
-  str += ' ';
-  str += std::to_string(node->active) + ' ';
-  str += std::to_string(node->current_read) + ' ';
-  str += std::to_string(node->current_write) + ' ';
-  str += std::to_string(node->file_id) + ' ';
-  str += std::to_string(node->creation_time.count()) + ' ';
+  str += "\t";
+  str += std::to_string(node->active) + "\t";
+  str += std::to_string(node->current_read) + "\t";
+  str += std::to_string(node->current_write) + "\t";
+  str += std::to_string(node->file_id) + "\t";
+  str += std::to_string(node->creation_time.count()) + "\t";
   str += std::to_string(node->last_modified_time.count()) + '\n';
   return str;
-}
-
-/*
- * UFS::read_inodes()
- * Reads INODEs from a disk.
- */
-std::string UFS::read_inodes() {
-  Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
-  int size = tmp->size();
-  std::string str = "";
-
-  // do { str += deconstruct_inode(tmp->dequeue()); } while (--size != 0);
-  // char ch[str.length() + 1];
-  // for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
-
-  // std::fstream disk("./disk/inode_fs.txt", std::ios::out);
-  // disk.seekp(std::ios::beg);
-  // disk.write(ch, strlen(ch));
-
-  // disk.close();
-
-  return "";
 }
 
 /*
@@ -454,49 +457,49 @@ std::string UFS::dir() {
   std::string name_title = "Filename";
   std::string perm_title = "Perms";
   std::string size_title = "Size";
+  std::string status_tile = "Status";
   std::string owner_title = "Owner";
   std::string created_time_tile = "Time Created";
   std::string last_mod_tile = "Last Modified";
   std::string pbreak = " ";
-  pad(pbreak, 77, '-');
+  pad(pbreak, 91, '-');
 
-  pad(name_title, 9, ' ');
-  pad(perm_title, 5, ' ');
-  pad(size_title, 5, ' ');
+  pad(name_title, 16, ' ');
+  pad(perm_title, 4, ' ');
+  pad(size_title, 4, ' ');
+  pad(status_tile, 3, ' ');
   pad(owner_title, 15, ' ');
-  pad(created_time_tile, 14, ' ');
-  pad(last_mod_tile, 13, ' ');
+  pad(created_time_tile, 13, ' ');
+  pad(last_mod_tile, 12, ' ');
 
-  str += name_title + " | " + perm_title + " | " + size_title + " | " + owner_title +
-    " | " + created_time_tile + " | " + last_mod_tile + "\n" + pbreak + "\n";
+  str += name_title + " | " + perm_title + " | " + size_title + " | " + status_tile +
+    " | " + owner_title + " | " + created_time_tile + " | " + last_mod_tile + "\n" +
+    pbreak + "\n";
 
   do {
     INODE* node = tmp->dequeue();
 
-    std::string name = "";
+    std::string name = node->filename;
     std::string perm = "";
-    std::string size = "";
-    std::string owner = "";
-    std::string created = "";
-    std::string mod = "";
-
-    name = node->filename;
     for (int i = 0; i < 4; i++) perm += node->permission[i] * sizeof(char);
-    size = std::to_string(node->size);
+    std::string size = std::to_string(node->size);
 
-    owner = node->active ? std::to_string((unsigned long int)node->owner) : "0";
-    created = std::to_string(node->creation_time.count());
-    mod = std::to_string(node->last_modified_time.count());
+    std::string owner =
+      node->active ? std::to_string((unsigned long int)node->owner) : "0";
+    std::string created = std::to_string(node->creation_time.count());
+    std::string mod = std::to_string(node->last_modified_time.count());
+    std::string status = node->status;
 
-    pad(name, 9, ' ');
+    pad(name, 16, ' ');
     pad(perm, 5, ' ');
-    pad(size, 5, ' ');
+    pad(size, 4, ' ');
+    pad(status, 6, ' ');
     pad(owner, 15, ' ');
-    pad(created, 14, ' ');
-    pad(mod, 13, ' ');
+    pad(created, 13, ' ');
+    pad(mod, 12, ' ');
 
-    str += " " + name + " | " + perm + " | " + size + " | " + owner + " | " + created +
-      " | " + mod + "\n";
+    str += " " + name + " | " + perm + " | " + size + " | " + status + " | " + owner +
+      " | " + created + " | " + mod + "\n";
     ++ctr;
 
   } while (!tmp->empty());
@@ -505,6 +508,10 @@ std::string UFS::dir() {
   return str;
 }
 
+/*
+ * UFS::disk_contents()
+ * Lists the contents of the disk.
+ */
 std::string UFS::disk_contents() {
   std::string str = "";
   std::fstream disk("./disk/disk.txt", std::ios::in);
@@ -516,9 +523,45 @@ std::string UFS::disk_contents() {
     (std::istreambuf_iterator< char >(disk)), std::istreambuf_iterator< char >());
 
   disk.close();
-
   return str;
 }
 
-// WRITE LATER
-int UFS::close(int file_id) { return 0; }
+/*
+ * UFS::set_status(int, std::string)
+ * Sets the INODE status to a string.
+ * Returns 1 if successful, -1 otherwise.
+ */
+int UFS::set_status(int file_id, std::string status) {
+  Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
+  bool success = false;
+
+  do {
+    INODE* node = tmp->dequeue();
+    if (node->file_id == file_id) {
+      node->status = status;
+      success = true;
+    }
+  } while (!tmp->empty());
+  return success;
+}
+
+/*
+ * UFS::close(int)
+ * Sets the INODE status to CLOSE.
+ * Returns 1 if successful, -1 otherwise.
+ */
+int UFS::close(int file_id) { return set_status(file_id, "CLOSE"); }
+
+/*
+ * UFS::set_read(int)
+ * Sets the INODE status to READ.
+ * Returns 1 if successful, -1 otherwise.
+ */
+int UFS::set_read(int file_id) { return set_status(file_id, "READ"); }
+
+/*
+ * UFS::set_write(int)
+ * Sets the INODE status to WRITE.
+ * Returns 1 if successful, -1 otherwise.
+ */
+int UFS::set_write(int file_id) { return set_status(file_id, "WRITE"); }
