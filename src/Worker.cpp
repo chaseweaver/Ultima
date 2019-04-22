@@ -30,8 +30,11 @@ void* Worker::worker_function(void* arguments) {
   TASK_CONTROL_BLOCK* tcb = args->task_control_block;
   int& counter = args->thread_results;
   int tracker;
+  int create, open, write, close;
 
-  std::string message_lists[17] = {
+  std::string message_lists[18] = {
+    "Whenever the cashier at the grocery store asks my dad if he would like the milk in "
+    "a bag he replies, 'No, just leave it in the carton!'",
     "Did you hear about the restaurant on the moon? Great food, no atmosphere.",
     "What do you call a fake noodle? An Impasta.",
     "How many apples grow on a tree? All of them.",
@@ -61,34 +64,56 @@ void* Worker::worker_function(void* arguments) {
     while (tcb->task_state == RUNNING) {
       if (counter == num) break;
 
-      std::string msg = message_lists[rand() % 16];
+      std::string msg = message_lists[rand() % 18];
 
       if (counter == num / 4) {
         tracker = mcb->mem_man->allocate(msg.length());
         mcb->mem_man->write(tracker, msg);
-        mcb->ui->write_refresh(LOG_WINDOW,
-          " Allocating memory for Thread #" + std::to_string(args->id) + "\n");
+        mcb->ui->write_refresh(
+          LOG_WINDOW, " Alloc. memory for Thread #" + std::to_string(args->id) + "\n");
       }
 
-      // Just for example, we have the workers let other workers know when they
-      // are half done. For a bonus, they tell jokes.
+      if (counter == num / 3) {
+        std::string name = "Thread #" + std::to_string(args->id) + ".txt";
+
+        mcb->ui->write_refresh(
+          LOG_WINDOW, " Creating file for Thread #" + std::to_string(args->id) + "\n");
+
+        char const* perm = "rw--";
+        create = mcb->ufs->create_file(name, msg.length() + 1, perm);
+        open = mcb->ufs->open(create, name, 'w');
+        if (open != -1) {
+          mcb->ui->write_refresh(
+            LOG_WINDOW, " Opening file for Thread #" + std::to_string(args->id) + "\n");
+          write = mcb->ufs->write_string(create, msg);
+          close = mcb->ufs->close(open);
+        } else {
+          mcb->ui->write_refresh(
+            LOG_WINDOW, " Failed to create file for Thread #" + std::to_string(args->id));
+        }
+      }
+
+      if (counter == num - 20) {
+        char const* perm = "rwrw";
+        mcb->ufs->change_permission(
+          open, "Thread #" + std::to_string(args->id) + ".txt", perm);
+        mcb->ui->write_refresh(
+          LOG_WINDOW, " Changing perms. for Thread #" + std::to_string(args->id) + "\n");
+      }
+
       if (counter == num / 2) {
         int tmp_rand = 1 + rand() % 8;
         int result =
           mcb->ipc->message_send(mcb->ipc->compose_message(tcb, tmp_rand, msg));
 
-        // Did the message fail to send or not?
-        result == 1
-          ? mcb->ui->write_refresh(args->id,
-              "\n Message sent\n to Thread #" + std::to_string(tmp_rand) + "\n\n")
-          : mcb->ui->write_refresh(args->id, "\n Message failed\n to send.\n\n");
+        result == 1 ? mcb->ui->write_refresh(LOG_WINDOW,
+                        " Msg sent: Thread #" + std::to_string(args->id) +
+                          " -> Thread #" + std::to_string(tmp_rand) + "\n")
+                    : mcb->ui->write_refresh(LOG_WINDOW,
+                        " Msg failed to send: Thread #" + std::to_string(args->id) +
+                          " -> Thread #" + std::to_string(tmp_rand) + "\n");
       }
-
       mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
-      mcb->ui->write_refresh(LOG_WINDOW,
-        " Thread #" + std::to_string(args->id) + " is running #" +
-          std::to_string(counter) + "\n");
-
       usleep(100000);
     }
 
@@ -104,6 +129,7 @@ void* Worker::worker_function(void* arguments) {
   mcb->ui->write_refresh(
     LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
 
+  mcb->ufs->delete_file(open, "Thread #" + std::to_string(args->id));
   mcb->scheduler->set_state(tcb, DEAD);
   return NULL;
 }

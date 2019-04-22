@@ -83,10 +83,16 @@ void* worker_function(void* arguments) {
   TASK_CONTROL_BLOCK* tcb = args->task_control_block;
   int& counter = args->thread_results;
   int tracker;
-  // for ufs operations
-  int create, open, write;
+  int create, open, write, close;
 
-  std::string message_lists[17] = {
+  std::string message_lists[20] = {
+    "A woman gets on a bus with her baby. The bus driver says: 'Ugh, that's the ugliest "
+    "baby I've ever seen!' The woman walks to the rear of the bus and sits down, fuming. "
+    "She says to a man next to her: 'The driver just insulted me!' The man says: 'You go "
+    "up there and tell him off. Go on, I'll hold your monkey for you.'",
+    "What does Pac-Man eat with his chips? Guacawakamole!",
+    "Whenever the cashier at the grocery store asks my dad if he would like the milk in "
+    "a bag he replies, 'No, just leave it in the carton!'",
     "Did you hear about the restaurant on the moon? Great food, no atmosphere.",
     "What do you call a fake noodle? An Impasta.",
     "How many apples grow on a tree? All of them.",
@@ -116,7 +122,7 @@ void* worker_function(void* arguments) {
     while (tcb->task_state == RUNNING) {
       if (counter == num) break;
 
-      std::string msg = message_lists[rand() % 16];
+      std::string msg = message_lists[rand() % 20];
 
       if (counter == num / 4) {
         tracker = mcb->mem_man->allocate(msg.length());
@@ -127,11 +133,6 @@ void* worker_function(void* arguments) {
 
       if (counter == num / 3) {
         std::string name = "Thread #" + std::to_string(args->id) + ".txt";
-
-        if (args->id == 1) {
-          msg = "000000000000000000000000000000000000000000000000000000000000000000000000"
-                "00000000000000000000000000000000000000000000000000000000000";
-        }
 
         mcb->ui->write_refresh(
           LOG_WINDOW, " Creating file for Thread #" + std::to_string(args->id) + "\n");
@@ -147,6 +148,12 @@ void* worker_function(void* arguments) {
           mcb->ui->write_refresh(
             LOG_WINDOW, " Failed to create file for Thread #" + std::to_string(args->id));
         }
+      }
+
+      if (counter == (num / 3) + 5) {
+        mcb->ui->write_refresh(
+          LOG_WINDOW, " Closing file for Thread #" + std::to_string(args->id) + "\n");
+        close = mcb->ufs->close(open);
       }
 
       if (counter == num - 20) {

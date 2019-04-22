@@ -146,8 +146,17 @@ void Menu::menu() {
             mcb->ui->write_refresh(OUTPUT_WINDOW, "\n" + mcb->ufs->disk_contents());
           } else if (input == 50) {
             mcb->ui->clear_window(OUTPUT_WINDOW);
-            mcb->ui->write_refresh(INPUT_WINDOW, " $ INODE Contents\n");
+            mcb->ui->write_refresh(INPUT_WINDOW, " $ INODE Structure\n");
             mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->ufs->dir());
+          } else if (input == 51) {
+            mcb->ui->clear_window(OUTPUT_WINDOW);
+            mcb->ui->write_refresh(INPUT_WINDOW, " $ INODE Contents\n");
+            mcb->ui->write_refresh(OUTPUT_WINDOW, "\n" + mcb->ufs->inode_contents());
+          } else if (input == 52) {
+            mcb->ui->clear_window(OUTPUT_WINDOW);
+            mcb->ufs->format();
+            mcb->ui->write_refresh(INPUT_WINDOW, " $ Format Disk\n");
+            mcb->ui->write_refresh(OUTPUT_WINDOW, "\n" + mcb->ufs->disk_contents());
           }
 
           input = wgetch(menu_window);
@@ -206,7 +215,9 @@ void Menu::print_thread_inbox_menu(int win) {
 void Menu::print_ufs_menu(int win) {
   mcb->ui->write_refresh(win, "\n Select an option:\n");
   mcb->ui->write_refresh(win, "\n 1: List Disk Contents");
-  mcb->ui->write_refresh(win, "\n 2: List INODE Contents");
+  mcb->ui->write_refresh(win, "\n 2: List INODE Structure");
+  mcb->ui->write_refresh(win, "\n 3: List INODE Contents");
+  mcb->ui->write_refresh(win, "\n 4: Format Disk Contents");
   mcb->ui->write_refresh(win, "\n\n ESC: Return");
 }
 
