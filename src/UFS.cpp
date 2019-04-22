@@ -86,23 +86,27 @@ int UFS::delete_file(int file_handle, std::string name) {
     INODE* node = tmp->dequeue();
     if (node->owner == pthread_self() &&
       (node->file_id == file_handle || node->filename == name)) {
-     
-      mcb->ui->write_refresh(TESTING_WINDOW, "Inside sema delete: handle #" + std::to_string(node->file_id) + "\n");
+
+      mcb->ui->write_refresh(TESTING_WINDOW,
+        "Inside sema delete: handle #" + std::to_string(node->file_id) + "\n");
 
       std::fstream disk("./disk/disk.txt", std::ios::in | std::ios::out);
-      for (int i = node->block_id * fs_block_size; i < node->block_id * fs_block_size + fs_block_size; i++) {
+      for (int i = node->block_id * fs_block_size;
+           i < node->block_id * fs_block_size + fs_block_size;
+           i++) {
         disk.seekp(i, std::ios::beg);
         disk.put('$');
       }
-      
-      
-      
-      //disk.seekp(node->block_id * fs_block_size, std::ios::beg);
-      //disk.seekg(std::ios::beg);
-      mcb->ui->write_refresh(TESTING_WINDOW, "Deleting file handle #" + std::to_string(node->file_id) + " @ location" + std::to_string(node->block_id * fs_block_size) + "\n");
-      //for (int i = node->block_id * fs_block_size; i < fs_block_size; i++) {
-        //disk.seekg(i);
-        //disk.put('$');
+
+
+      // disk.seekp(node->block_id * fs_block_size, std::ios::beg);
+      // disk.seekg(std::ios::beg);
+      mcb->ui->write_refresh(TESTING_WINDOW,
+        "Deleting file handle #" + std::to_string(node->file_id) + " @ location" +
+          std::to_string(node->block_id * fs_block_size) + "\n");
+      // for (int i = node->block_id * fs_block_size; i < fs_block_size; i++) {
+      // disk.seekg(i);
+      // disk.put('$');
       //}
 
       node->filename = "--------";
@@ -125,7 +129,7 @@ int UFS::delete_file(int file_handle, std::string name) {
   mcb->ui->write_refresh(TESTING_WINDOW, "Leaving sema delete\n");
 
   ufs_sema->signal();
-  
+
   write_inodes();
   return success;
 }
@@ -183,12 +187,15 @@ int UFS::open(int file_handle, std::string name, char mode) {
     INODE* node = tmp->dequeue();
 
     // SUPER FIX THIS
-    if (node->owner == pthread_self() || (node->filename == name) && (node->permission[2] == mode || node->permission[3] == mode)){
+    if (node->owner == pthread_self() ||
+      (node->filename == name) &&
+        (node->permission[2] == mode || node->permission[3] == mode)) {
       node->file_id == file_handle;
-      mcb->ui->write_refresh(TESTING_WINDOW, "Opening file handle #" + std::to_string(file_handle)+"\n");
+      mcb->ui->write_refresh(
+        TESTING_WINDOW, "Opening file handle #" + std::to_string(file_handle) + "\n");
       return next_unique_f_handle();
     }
-      
+
 
   } while (--size != 0);
 
@@ -259,8 +266,8 @@ bool UFS::enough_registered_inodes(int num_of_nodes) {
 int UFS::write_string(int file_handle, std::string str) {
   INODE* node = return_inode(file_handle);
   if (node == nullptr) return -1;
-  
-  //ufs_sema->wait();
+
+  // ufs_sema->wait();
 
   char ch[str.length() + 1];
   for (int i = 0; i < sizeof(ch); i++) ch[i] = str[i];
@@ -279,7 +286,7 @@ int UFS::write_string(int file_handle, std::string str) {
   write_inodes();
   disk.close();
 
-  //ufs_sema->signal();
+  // ufs_sema->signal();
   return 1;
 }
 
@@ -380,7 +387,7 @@ std::string UFS::deconstruct_inode(INODE* node) {
   for (int i = 0; i < 16; i++)
     str += std::bitset< 8 >(node->filename[i] * sizeof(char)).to_string();
 
-  //str += std::bitset< 32 >(node->owner).to_string() + ' ';
+  // str += std::bitset< 32 >(node->owner).to_string() + ' ';
   str += std::bitset< 8 >(node->block_id).to_string() + ' ';
   str += std::bitset< 8 >(node->size).to_string() + ' ';
 
@@ -511,7 +518,7 @@ std::string UFS::dir() {
     name = node->filename;
     for (int i = 0; i < 4; i++) perm += node->permission[i] * sizeof(char);
     size = std::to_string(node->size);
-    //owner = std::to_string(node->owner);
+    // owner = std::to_string(node->owner);
 
     if (node->active) {
       created = std::to_string(node->creation_time.count());
@@ -560,10 +567,7 @@ std::string UFS::disk_contents() {
   return str;
 
   disk.close();
-
 }
 
-//WRITE LATER
-int UFS::close(int file_id){
-
-}
+// WRITE LATER
+int UFS::close(int file_id) {}
