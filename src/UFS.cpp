@@ -182,6 +182,10 @@ int UFS::open(int file_handle, std::string name, char mode) {
     if (node->owner == pthread_self() ||
       (node->filename == name) &&
         (node->permission[2] == mode || node->permission[3] == mode)) {
+      if (mode == 'R')
+        node->status = "READ";
+      else if (mode == 'W')
+        node->status = "WRITE";
       node->file_id == file_handle;
       return next_unique_f_handle();
     }
@@ -421,7 +425,7 @@ void UFS::write_inodes() {
 
 /*
  * UFS::amount_of_inodes()
- * Returns the amout of INODEs on a disk.
+ * Returns the amount of INODEs on a disk.
  */
 int UFS::amount_of_inodes() { return nodes.size(); }
 
