@@ -433,8 +433,8 @@ void* unit_test_ipc(void* arguments) {
       if (counter == tracker / 4) {
         int thread = 1 + rand() % 8;
 
-        std::string wrk_suc = " > Msg sent: Thread #" + std::to_string(args->id) +
-          "\n -> Thread #" + std::to_string(thread) + "\n\n";
+        std::string wrk_suc = " > Msg sent:\n Thread #" + std::to_string(args->id) +
+          "\n ->\n Thread #" + std::to_string(thread) + "\n\n";
         std::string log_suc = " > Msg sent: Thread #" + std::to_string(args->id) +
           " -> Thread #" + std::to_string(thread) + "\n";
 
@@ -460,7 +460,7 @@ void* unit_test_ipc(void* arguments) {
         } else {
           mcb->ui->write_refresh(LOG_WINDOW,
             " > Failed recieved msg. from Thread #" + std::to_string(args->id));
-          mcb->ui->write_refresh(args->id, " Failed recieved msg.\n\n");
+          mcb->ui->write_refresh(args->id, " Failed\n recieved msg.\n\n");
         }
       }
 
