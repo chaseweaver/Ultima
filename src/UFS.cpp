@@ -248,7 +248,7 @@ int UFS::write_char(int file_handle, char ch) {
 
 /*
  * UFS::enough_registered_inodes(int)
- * Valiation check to ensure enough INODEs with registered IDs are available.
+ * Validation check to ensure enough INODEs with registered IDs are available.
  */
 bool UFS::enough_registered_inodes(int num_of_nodes) {
   Queue< INODE* >* tmp = new Queue< INODE* >(nodes);
