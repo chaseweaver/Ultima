@@ -1,31 +1,51 @@
 #include "../inc/MasterControlBlock.h"
 
-#include <sstream>
-
 void mcb_init();
 void window_init();
+
+// Unit testing functions
+void* unit_test_memory_manager(void*);
+void* unit_test_ufs(void*);
+void* unit_test_ipc(void*);
 void* worker_function(void*);
 
 MASTER_CONTROL_BLOCK* mcb = new MASTER_CONTROL_BLOCK;
-int NUMBER_OF_WORKERS = 8;
 
-int main() {
+int main(int argc, char** argv) {
 
   mcb_init();
   window_init();
 
   // Spawn child workers
-  for (int i = 1; i <= NUMBER_OF_WORKERS; i++) {
-    i <= 4
-      ? mcb->ui->create_window_lock_spawn(
-          " Worker #" + std::to_string(i) + ' ', 4, 0, i, 19, 10, 3 + ((i - 1) * 20), 14)
-      : mcb->ui->create_window_lock_spawn(
-          " Worker #" + std::to_string(i) + ' ', 4, 0, i, 19, 10, 3 + ((i - 5) * 20), 24);
+  for (int i = 1; i <= 8; i++) {
+    mcb->ui->create_window_lock_spawn(" Worker #" + std::to_string(i) + ' ',
+      4,
+      0,
+      i,
+      19,
+      10,
+      3 + ((i - (i <= 4 ? 1 : 5)) * 20),
+      (i <= 4 ? 14 : 24));
 
-    // In the future, separate worker functions into their own classes.
-    mcb->scheduler->create_new_task("Worker #" + std::to_string(i),
-      worker_function,
-      mcb->scheduler->create_arguments(i, 0));
+    if (argc > 1 && std::string(argv[1]) == "test") {
+      if (i >= 1 && i <= 2) {
+        mcb->scheduler->create_new_task("Memory Manager Unit Test #" + std::to_string(i),
+          unit_test_memory_manager,
+          mcb->scheduler->create_arguments(i, 0));
+      } else if (i >= 3 && i <= 5) {
+        mcb->scheduler->create_new_task("UFS Unit Test #" + std::to_string(i),
+          unit_test_ufs,
+          mcb->scheduler->create_arguments(i, 0));
+      } else {
+        mcb->scheduler->create_new_task("IPC Unit Test #" + std::to_string(i),
+          unit_test_ipc,
+          mcb->scheduler->create_arguments(i, 0));
+      }
+    } else {
+      mcb->scheduler->create_new_task("Worker #" + std::to_string(i),
+        worker_function,
+        mcb->scheduler->create_arguments(i, 0));
+    }
   }
 
   mcb->menu->wait();
@@ -44,9 +64,9 @@ void mcb_init() {
   mcb->ipc_sema = new Semaphore(mcb, "IPC Handler", 1);
   mcb->scheduler = new Scheduler(mcb);
   mcb->ui = new UI(mcb);
-  mcb->logger = new Logger(32);
-  mcb->ipc = new IPC(mcb, NUMBER_OF_WORKERS, 8);
   mcb->mem_man = new MemoryManager(1024, 32, '.');
+  mcb->logger = new Logger(32);
+  mcb->ipc = new IPC(mcb, 8, 8);
   mcb->menu = new Menu(
     mcb, mcb->ui->create_window_lock_spawn(" Menu ", 2, 0, MENU_WINDOW, 58, 12, 83, 34));
   mcb->ufs = new UFS(mcb, "root", 16, 128, '_');
@@ -84,35 +104,11 @@ void* worker_function(void* arguments) {
   int tracker;
   int create, open, write, close;
 
-  std::string message_lists[20] = {
-    "A woman gets on a bus with her baby. The bus driver says: 'Ugh, that's the ugliest "
-    "baby I've ever seen!' The woman walks to the rear of the bus and sits down, fuming. "
-    "She says to a man next to her: 'The driver just insulted me!' The man says: 'You go "
-    "up there and tell him off. Go on, I'll hold your monkey for you.'",
-    "What does Pac-Man eat with his chips? Guacawakamole!",
-    "Whenever the cashier at the grocery store asks my dad if he would like the milk in "
-    "a bag he replies, 'No, just leave it in the carton!'",
-    "Did you hear about the restaurant on the moon? Great food, no atmosphere.",
-    "What do you call a fake noodle? An Impasta.",
-    "How many apples grow on a tree? All of them.",
-    "Want to hear a joke about paper? Nevermind it's tearable.",
-    "Why did the coffee file a police report? It got mugged.",
-    "How does a penguin build its house? Igloos it together.",
-    "Dad, did you get a haircut? No I got them all cut.",
-    "Why did the scarecrow win an award? Because he was outstanding in his "
-    "field.",
-    "What do you call an elephant that doesn't matter? An irrelephant!",
-    "What do you call cheese that isn't yours? Nacho Cheese.",
-    "What did the grape do when he got stepped on? He let out a little wine.",
-    "I would avoid the sushi if I was you. It's a little fishy.",
-    "What's brown and sticky? A stick.",
-    "I thought about going on an all-almond diet. But that's just nuts.",
-    "People don't like having to bend over to get their drinks. We really need "
-    "to raise the bar.",
-    "I don't play soccer because I enjoy the sport. I'm just doing it for "
-    "kicks.",
-    "Why do you never see elephants hiding in trees? Because they're so good "
-    "at it."};
+  MESSAGE_LIST* message_list = new MESSAGE_LIST;
+  int r = 10 + rand() % 20;
+
+  // Generate a random message
+  std::string msg = message_list->message_lists[rand() % 20];
 
   int num = 1 + rand() % 100;
   do {
@@ -120,8 +116,6 @@ void* worker_function(void* arguments) {
 
     while (tcb->task_state == RUNNING) {
       if (counter == num) break;
-
-      std::string msg = message_lists[rand() % 20];
 
       if (counter == num / 4) {
         tracker = mcb->mem_man->allocate(msg.length());
@@ -192,6 +186,189 @@ void* worker_function(void* arguments) {
     LOG_WINDOW, " Thread #" + std::to_string(args->id) + " has ended.\n");
 
   mcb->ufs->delete_file(open, "Thread #" + std::to_string(args->id));
+  mcb->scheduler->set_state(tcb, DEAD);
+  return NULL;
+}
+
+void* unit_test_ufs(void* arguments) {
+  ARGUMENTS* args = (ARGUMENTS*)arguments;
+  TASK_CONTROL_BLOCK* tcb = args->task_control_block;
+  int& counter = args->thread_results;
+  int success = 0;
+  std::string id = std::to_string(args->id);
+  MESSAGE_LIST* message_list = new MESSAGE_LIST;
+
+  // Generate a random message
+  std::string msg = message_list->message_lists[rand() % 20];
+
+  // Information log strings
+  std::string log_alloc = " > Creating file for Thread #" + id + "\n";
+  std::string log_suc = " > Suc. opened file for Thread #" + id + "\n";
+  std::string log_fail = " > Failed to create\n file for Thread #" + id + "\n";
+  std::string log_suc_del = " > Suc. del. file for Thread #" + id + "\n";
+  std::string log_fail_del = " > Failed del. file for Thread #" + id + "\n";
+  std::string log_perm_suc = " > Suc. chng. perms. for Thread #" + id + "\n";
+  std::string log_perm_fail = " > Fail chng. perms. misc file\n";
+
+  std::string wrk_alloc = " Alloc. mem\n Thread #" + id + "\n\n";
+  std::string wrk_suc = " Success opened\n file Thread #" + id + "\n\n";
+  std::string wrk_fail = " Failed to create\n file Thread #" + id + "\n\n";
+  std::string wrk_suc_del = " Suc. del. file\n for Thread #" + id + "\n\n";
+  std::string wrk_fail_del = " Failed del. file\n for Thread #" + id + "\n\n";
+  std::string wrk_perm_suc = " Suc. chng.\n perms.\n for Thread #" + id + "\n\n";
+  std::string wrk_perm_fail = " Fail chng. perms.\n misc file\n\n";
+
+  // File name
+  std::string name = "Thread #" + id + ".txt";
+
+  // Number to itterate to
+  int tracker = 40 + rand() % 121;
+
+  // File handle tracker
+  int file_handle;
+
+  do {
+    mcb->tcb_sema->wait(tcb);
+    while (tcb->task_state == RUNNING) {
+      if (counter == tracker) break;
+
+      // Create file in Ultima File System
+      if (counter == tracker / 4) {
+        mcb->ui->write_refresh(LOG_WINDOW, log_alloc);
+        mcb->ui->write_refresh(args->id, wrk_alloc);
+
+        char const* perm = "rw--";
+        file_handle = mcb->ufs->create_file(name, msg.length() + 1, perm);
+        file_handle = mcb->ufs->open(file_handle, name, 'w');
+
+        if (file_handle != -1) {
+          mcb->ui->write_refresh(LOG_WINDOW, log_suc);
+          mcb->ui->write_refresh(args->id, wrk_suc);
+          file_handle = mcb->ufs->write_string(file_handle, msg);
+        } else {
+          mcb->ui->write_refresh(LOG_WINDOW, log_fail);
+          mcb->ui->write_refresh(args->id, wrk_fail);
+        }
+      }
+
+      // Try to change file permissions for other file
+      if (counter == tracker / 3) {
+        char const* perm = "rwrw";
+        file_handle = mcb->ufs->change_permission(
+          file_handle, "Thread #" + std::to_string(args->id + 1) + ".txt", perm);
+        if (file_handle != -1) {
+          mcb->ui->write_refresh(LOG_WINDOW, log_perm_suc);
+          mcb->ui->write_refresh(args->id, wrk_perm_suc);
+        } else {
+          mcb->ui->write_refresh(LOG_WINDOW, log_perm_fail);
+          mcb->ui->write_refresh(args->id, wrk_perm_fail);
+        }
+      }
+
+      // Change file permissions
+      if (counter == tracker / 2) {
+        char const* perm = "rwrw";
+        mcb->ufs->change_permission(file_handle, "Thread #" + id + ".txt", perm);
+        mcb->ui->write_refresh(LOG_WINDOW, log_perm_suc);
+        mcb->ui->write_refresh(args->id, wrk_perm_suc);
+      }
+
+      // Write to the task's window its current itteration
+      mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
+      usleep(150000);
+    }
+
+    // Release semaphore lock
+    mcb->tcb_sema->signal();
+    usleep(150000);
+  } while (counter != tracker);
+
+  // Signal end of thread
+  mcb->ui->write_refresh(args->id, "\n Thread #" + id + "\n has ended.\n\n");
+  mcb->ui->write_refresh(LOG_WINDOW, " Thread #" + id + " has ended.\n");
+
+  // Delete thread file, if applicable
+  file_handle =
+    mcb->ufs->delete_file(file_handle, "Thread #" + std::to_string(args->id) + ".txt");
+  if (file_handle == 1) {
+    mcb->ui->write_refresh(LOG_WINDOW, log_suc_del);
+    mcb->ui->write_refresh(args->id, wrk_suc_del);
+  } else {
+    mcb->ui->write_refresh(LOG_WINDOW, log_fail_del);
+    mcb->ui->write_refresh(args->id, wrk_fail_del);
+  }
+
+  // Set thread's state to DEAD
+  mcb->scheduler->set_state(tcb, DEAD);
+  return NULL;
+}
+
+void* unit_test_memory_manager(void* arguments) {
+  ARGUMENTS* args = (ARGUMENTS*)arguments;
+  TASK_CONTROL_BLOCK* tcb = args->task_control_block;
+  int& counter = args->thread_results;
+  int success = 0;
+  std::string id = std::to_string(args->id);
+  MESSAGE_LIST* message_list = new MESSAGE_LIST;
+
+  // Generate a random message
+  std::string msg = message_list->message_lists[rand() % 20];
+
+  // Information strings
+  std::string log_alloc = " > Alloc. mem. for Thread #" + id + "\n";
+  std::string log_suc = " > Suc. filled memory for Thread #" + id + "\n";
+  std::string log_fail = " > Failed to fill memory for Thread #" + id + "\n";
+
+  std::string wrk_alloc = " Alloc. mem\n Thread #" + id + "\n\n";
+  std::string wrk_suc = " Success filled\n memory Thread #" + id + "\n\n";
+  std::string wrk_fail = " Failed to fill\n memory Thread #" + id + "\n\n";
+
+  // Number to itterate to
+  int tracker = 40 + rand() % 121;
+
+  do {
+    mcb->tcb_sema->wait(tcb);
+    while (tcb->task_state == RUNNING) {
+      if (counter == tracker) break;
+
+      // Allocate and write a message to memory
+      if (counter == tracker / 2) {
+
+        // Write thread information
+        mcb->ui->write_refresh(LOG_WINDOW, log_alloc);
+        mcb->ui->write_refresh(args->id, wrk_alloc);
+
+        // Allocate memory
+        success = mcb->mem_man->allocate(msg.length());
+
+        if (success) {
+          mcb->ui->write_refresh(LOG_WINDOW, log_suc);
+          mcb->ui->write_refresh(args->id, wrk_suc);
+          mcb->mem_man->write(success, msg);
+        } else {
+          mcb->ui->write_refresh(LOG_WINDOW, log_fail);
+          mcb->ui->write_refresh(args->id, wrk_fail);
+        }
+      }
+
+      // Write to the task's window its current itteration
+      mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
+      usleep(150000);
+    }
+
+    // Release semaphore lock
+    mcb->tcb_sema->signal();
+    usleep(150000);
+  } while (counter != tracker);
+
+  // Release memory
+  mcb->mem_man->free(success);
+
+  // Signal end of thread
+  mcb->ui->write_refresh(args->id, "\n Thread #" + id + "\n has ended.\n");
+  mcb->ui->write_refresh(LOG_WINDOW, " Thread #" + id + " has ended.\n");
+
+  // Set thread's state to DEAD
   mcb->scheduler->set_state(tcb, DEAD);
   return NULL;
 }

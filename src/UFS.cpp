@@ -73,7 +73,8 @@ int UFS::change_permission(int file_handle, std::string name, const char perm[4]
     for (int i = 0; i < 4; i++) node->permission[i] = perm[i];
     success = true;
   } while (!tmp->empty());
-  return success;
+
+  return success == true ? 1 : -1;
 }
 
 /*
@@ -125,7 +126,7 @@ int UFS::delete_file(int file_handle, std::string name) {
   ufs_sema->signal();
 
   write_inodes();
-  return success;
+  return success == true ? 1 : -1;
 }
 
 /*
@@ -572,7 +573,7 @@ int UFS::set_status(int file_id, std::string status) {
       success = true;
     }
   } while (!tmp->empty());
-  return success;
+  return success == true ? 1 : -1;
 }
 
 /*

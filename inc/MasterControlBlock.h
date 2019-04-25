@@ -31,6 +31,8 @@ class UFS;
 #include "UFS.h"
 #include "UI.h"
 
+#include <sstream>
+
 struct MASTER_CONTROL_BLOCK {
   Scheduler* scheduler;
   UI* ui;

@@ -34,25 +34,25 @@ void Menu::menu() {
 
       case '1':
         mcb->ui->clear_window(OUTPUT_WINDOW);
-        print_log(OUTPUT_WINDOW);
+        mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->logger->fetch_log());
         mcb->ui->write_refresh(INPUT_WINDOW, " $ System Logs\n");
         break;
 
       case '2':
         mcb->ui->clear_window(OUTPUT_WINDOW);
-        print_scheduler_logs(OUTPUT_WINDOW);
+        mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->scheduler->fetch_log());
         mcb->ui->write_refresh(INPUT_WINDOW, " $ Scheduler Logs\n");
         break;
 
       case '3':
         mcb->ui->clear_window(OUTPUT_WINDOW);
-        print_tcb_sema(OUTPUT_WINDOW);
+        mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->tcb_sema->fetch_log());
         mcb->ui->write_refresh(INPUT_WINDOW, " $ Semaphore Logs\n");
         break;
 
       case '4':
         mcb->ui->clear_window(OUTPUT_WINDOW);
-        print_message_box_list(OUTPUT_WINDOW);
+        mcb->ui->write_refresh(OUTPUT_WINDOW, mcb->ipc->fetch_message_box_list());
         mcb->ui->write_refresh(INPUT_WINDOW, " $ Mailbox List\n");
         break;
 
@@ -66,7 +66,8 @@ void Menu::menu() {
         do {
           if (input >= 49 && input <= 56) {
             mcb->ui->clear_window(OUTPUT_WINDOW);
-            get_thread_message_box(OUTPUT_WINDOW, input - 48);
+            mcb->ui->write_refresh(
+              OUTPUT_WINDOW, mcb->ipc->fetch_message_box_list(OUTPUT_WINDOW - 48));
           }
 
           input = wgetch(menu_window);
@@ -273,43 +274,3 @@ void Menu::stop() {
  * Waits for the menu thread to finish.
  */
 void Menu::wait() { pthread_join(menu_thread, NULL); }
-
-/*
- * Menu::print_log(int)
- * Prints the log to a specific window given ID.
- */
-void Menu::print_log(int window_id) {
-  mcb->ui->write_refresh(window_id, mcb->logger->fetch_log());
-}
-
-/*
- * Menu::print_scheduler_logs(int)
- * Prints the log to a specific window given ID.
- */
-void Menu::print_scheduler_logs(int window_id) {
-  mcb->ui->write_refresh(window_id, mcb->scheduler->fetch_log());
-}
-
-/*
- * Menu::print_tcb_sema(int)
- * Prints the TCB log to a specific window given ID.
- */
-void Menu::print_tcb_sema(int window_id) {
-  mcb->ui->write_refresh(window_id, mcb->tcb_sema->fetch_log());
-}
-
-/*
- * Menu::print_message_box_list(int)
- * Prints the IPC message box list to a specific window given ID.
- */
-void Menu::print_message_box_list(int window_id) {
-  mcb->ui->write_refresh(window_id, mcb->ipc->fetch_message_box_list());
-}
-
-/*
- * Menu::get_thread_message_box(int)
- * Prints the IPC message box of a requested thread to a specific window given ID.
- */
-void Menu::get_thread_message_box(int window_id, int thread_id) {
-  mcb->ui->write_refresh(window_id, mcb->ipc->fetch_message_box_list(thread_id));
-}

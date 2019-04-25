@@ -297,8 +297,8 @@ void MemoryManager::free(int memory_handle) {
   // Prevent writing to an invalid position
   if (memory_handle <= -1) return;
 
-  Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
   mem_sema->wait();
+  Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
 
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();

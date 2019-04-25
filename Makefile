@@ -20,6 +20,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 run:
 	./$(BUILD_DIR)/$(ENVIRONMENT)
 
+test:
+	./$(BUILD_DIR)/$(ENVIRONMENT) "test"
+
 .PHONY: clean
 clean:
 	rm -rf $(OBJ_DIR)/*.o $(BUILD_DIR)/* $(DISK_DIR)/*
