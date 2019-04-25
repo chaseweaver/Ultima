@@ -20,6 +20,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 run:
 	./$(BUILD_DIR)/$(ENVIRONMENT)
 
+build:
+	$(PRE_RUN)
+
 test:
 	./$(BUILD_DIR)/$(ENVIRONMENT) "test"
 
