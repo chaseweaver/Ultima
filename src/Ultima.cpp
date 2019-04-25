@@ -29,15 +29,39 @@ int main(int argc, char** argv) {
 
     if (argc > 1 && std::string(argv[1]) == "test") {
       if (i >= 1 && i <= 2) {
-        mcb->scheduler->create_new_task("Memory Manager Unit Test #" + std::to_string(i),
+        mcb->ui->create_window_lock_spawn(" Mem. Man. #" + std::to_string(i) + ' ',
+          2,
+          0,
+          i,
+          19,
+          10,
+          3 + ((i - (i <= 4 ? 1 : 5)) * 20),
+          (i <= 4 ? 14 : 24));
+        mcb->scheduler->create_new_task("Mem. Man. #" + std::to_string(i),
           unit_test_memory_manager,
           mcb->scheduler->create_arguments(i, 0));
       } else if (i >= 3 && i <= 5) {
-        mcb->scheduler->create_new_task("UFS Unit Test #" + std::to_string(i),
+        mcb->ui->create_window_lock_spawn(" UFS Man. #" + std::to_string(i) + ' ',
+          2,
+          0,
+          i,
+          19,
+          10,
+          3 + ((i - (i <= 4 ? 1 : 5)) * 20),
+          (i <= 4 ? 14 : 24));
+        mcb->scheduler->create_new_task("UFS Man. #" + std::to_string(i),
           unit_test_ufs,
           mcb->scheduler->create_arguments(i, 0));
       } else {
-        mcb->scheduler->create_new_task("IPC Unit Test #" + std::to_string(i),
+        mcb->ui->create_window_lock_spawn(" IPC Man. #" + std::to_string(i) + ' ',
+          2,
+          0,
+          i,
+          19,
+          10,
+          3 + ((i - (i <= 4 ? 1 : 5)) * 20),
+          (i <= 4 ? 14 : 24));
+        mcb->scheduler->create_new_task("IPC Man. #" + std::to_string(i),
           unit_test_ipc,
           mcb->scheduler->create_arguments(i, 0));
       }
@@ -190,6 +214,10 @@ void* worker_function(void* arguments) {
   return NULL;
 }
 
+/*
+ * Ultima::unit_test_ufs(void*)
+ * Test function for UFS.
+ */
 void* unit_test_ufs(void* arguments) {
   ARGUMENTS* args = (ARGUMENTS*)arguments;
   TASK_CONTROL_BLOCK* tcb = args->task_control_block;
@@ -303,6 +331,10 @@ void* unit_test_ufs(void* arguments) {
   return NULL;
 }
 
+/*
+ * Ultima::unit_test_memory_manager(void*)
+ * Test function for memory manager.
+ */
 void* unit_test_memory_manager(void* arguments) {
   ARGUMENTS* args = (ARGUMENTS*)arguments;
   TASK_CONTROL_BLOCK* tcb = args->task_control_block;
@@ -350,6 +382,77 @@ void* unit_test_memory_manager(void* arguments) {
           mcb->ui->write_refresh(args->id, wrk_fail);
         }
       }
+
+      // Write to the task's window its current itteration
+      mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
+      usleep(150000);
+    }
+
+    // Release semaphore lock
+    mcb->tcb_sema->signal();
+    usleep(150000);
+  } while (counter != tracker);
+
+  // Release memory
+  mcb->mem_man->free(success);
+
+  // Signal end of thread
+  mcb->ui->write_refresh(args->id, "\n Thread #" + id + "\n has ended.\n");
+  mcb->ui->write_refresh(LOG_WINDOW, " Thread #" + id + " has ended.\n");
+
+  // Set thread's state to DEAD
+  mcb->scheduler->set_state(tcb, DEAD);
+  return NULL;
+}
+
+/*
+ * Ultima::unit_test_ipc(void*)
+ * Test function for IPC.
+ */
+void* unit_test_ipc(void* arguments) {
+  ARGUMENTS* args = (ARGUMENTS*)arguments;
+  TASK_CONTROL_BLOCK* tcb = args->task_control_block;
+  int& counter = args->thread_results;
+  int success = 0;
+  std::string id = std::to_string(args->id);
+  MESSAGE_LIST* message_list = new MESSAGE_LIST;
+
+  // Generate a random message
+  std::string msg = message_list->message_lists[rand() % 20];
+
+  // Information strings
+  std::string log_fail = " > Failed to send message  Thread #" + id + "\n";
+  std::string wrk_fail = " Failed to\n send message\n\n";
+
+  // Number to itterate to
+  int tracker = 40 + rand() % 121;
+
+  do {
+    mcb->tcb_sema->wait(tcb);
+    while (tcb->task_state == RUNNING) {
+      if (counter == tracker) break;
+
+      // Send a message to another thread
+      if (counter == tracker / 2) {
+        int thread = 1 + rand() % 8;
+
+        std::string wrk_suc = " > Msg sent: Thread #" + std::to_string(args->id) +
+          "\n -> Thread #" + std::to_string(thread) + "\n\n";
+        std::string log_suc = " > Msg sent: Thread #" + std::to_string(args->id) +
+          " -> Thread #" + std::to_string(thread) + "\n";
+
+        int success = mcb->ipc->message_send(mcb->ipc->compose_message(tcb, thread, msg));
+        if (success == 1) {
+          mcb->ui->write_refresh(LOG_WINDOW, log_suc);
+          mcb->ui->write_refresh(args->id, wrk_suc);
+        } else {
+          mcb->ui->write_refresh(LOG_WINDOW, log_fail);
+          mcb->ui->write_refresh(args->id, wrk_fail);
+        }
+      }
+
+      // Check for new messages
+      // int success = mcb->ipc->
 
       // Write to the task's window its current itteration
       mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");

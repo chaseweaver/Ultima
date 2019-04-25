@@ -51,16 +51,18 @@ std::string Logger::fetch_log() {
   Queue< LOG_DATA* >* log_data_ = new Queue< LOG_DATA* >(log_data);
 
   std::string task_id = "Task ID";
+  std::string pbreak = " ";
   std::string task_name = "Task Name";
   std::string task_state = "Task State";
   std::string task_timestamp = "Task Timestamp";
 
   pad(task_id, 9, ' ');
-  pad(task_name, 11, ' ');
+  pad(pbreak, 55, '-');
+  pad(task_name, 13, ' ');
   pad(task_state, 12, ' ');
 
-  std::string header =
-    "\n " + task_id + "| " + task_name + "| " + task_state + "| " + task_timestamp + "\n";
+  std::string header = "\n " + task_id + "| " + task_name + "| " + task_state + "| " +
+    task_timestamp + "\n" + pbreak + "\n";
   std::string content = "";
   do {
 
@@ -80,7 +82,7 @@ std::string Logger::fetch_log() {
     }
 
     pad(task_id_, 9, ' ');
-    pad(task_name_, 11, ' ');
+    pad(task_name_, 13, ' ');
     pad(task_state_, 12, ' ');
 
     content += " " + task_id_ + "| " + task_name_ + "| " + task_state_ + "| " +

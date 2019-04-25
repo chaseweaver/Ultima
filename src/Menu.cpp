@@ -67,7 +67,7 @@ void Menu::menu() {
           if (input >= 49 && input <= 56) {
             mcb->ui->clear_window(OUTPUT_WINDOW);
             mcb->ui->write_refresh(
-              OUTPUT_WINDOW, mcb->ipc->fetch_message_box_list(OUTPUT_WINDOW - 48));
+              OUTPUT_WINDOW, mcb->ipc->fetch_message_box_list(input - 48));
           }
 
           input = wgetch(menu_window);

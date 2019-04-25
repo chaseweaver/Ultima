@@ -104,16 +104,19 @@ int Scheduler::task_list_size() { return task_list.size(); }
 std::string Scheduler::fetch_log() {
   if (task_list.empty()) return "\n There are no logs available.";
 
-  std::string title = "\n Scheduler Log\n ";
-  std::string task_name = "Task Name";
-  std::string task_id = "Task ID";
-  std::string task_state = "Task State";
+  std::string title = "\n Scheduler Log\n\n ";
+  std::string pbreak = " ";
+  std::string task_name = "Thread Name";
+  std::string task_id = "Thread ID";
+  std::string task_state = "Thread State";
 
-  pad(task_name, 11, ' ');
-  pad(task_id, 9, ' ');
+  pad(task_name, 15, ' ');
+  pad(pbreak, 44, '-');
+  pad(task_id, 12, ' ');
   pad(task_state, 13, ' ');
 
-  std::string header = title + task_name + "| " + task_id + "| " + task_state + "\n";
+  std::string header =
+    title + task_name + "| " + task_id + "| " + task_state + "\n" + pbreak + "\n";
   mcb->sch_sema->wait();
 
   std::string content = "";
@@ -124,7 +127,7 @@ std::string Scheduler::fetch_log() {
       tmp->dequeue(tcb);
 
       std::string task_name_ = tcb->task_name;
-      std::string task_id_ = std::to_string(tcb->task_id);
+      std::string task_id_ = "Thread #" + std::to_string(tcb->task_id);
       std::string task_state_;
 
       switch (tcb->task_state) {
@@ -135,10 +138,10 @@ std::string Scheduler::fetch_log() {
         case RUNNING: task_state_ = "RUNNING"; break;
       }
 
-      pad(task_name_, 15, ' ');
-      pad(task_id_, 10, ' ');
+      pad(task_name_, 14, ' ');
+      pad(task_id_, 11, ' ');
 
-      content += " " + task_name_ + task_id_ + task_state_ + "\n";
+      content += " " + task_name_ + " | " + task_id_ + " | " + task_state_ + "\n";
 
     } while (!tmp->empty());
   }
