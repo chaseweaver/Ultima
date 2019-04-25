@@ -95,12 +95,9 @@ int MemoryManager::read(int memory_handle, char& ch) {
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
     if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
-
-    // Segfault
     if (tmp_node->base + tmp_node->current_read > tmp_node->limit) return -1;
 
     mem_core->read(tmp_node->base + tmp_node->current_read++, ch);
-
   } while (!tmp->empty());
   mem_sema->signal();
 
@@ -124,8 +121,6 @@ int MemoryManager::read(int memory_handle, int size, std::string& str) {
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
     if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
-
-    // Segfault
     if (tmp_node->base + tmp_node->current_read > tmp_node->limit) return -1;
 
     for (int i = 0; i < str.size(), i < size; i++)
@@ -153,12 +148,9 @@ int MemoryManager::write(int memory_handle, char ch) {
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
     if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
-
-    // Segfault
     if (tmp_node->base + tmp_node->current_write > tmp_node->limit) return -1;
 
     mem_core->write(tmp_node->base + tmp_node->current_write++, ch);
-
   } while (!tmp->empty());
   mem_sema->signal();
 
@@ -181,8 +173,6 @@ int MemoryManager::write(int memory_handle, std::string str) {
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
     if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
-
-    // Segfault
     if (tmp_node->base + tmp_node->current_write > tmp_node->limit + str.length())
       return -1;
 
@@ -211,8 +201,6 @@ int MemoryManager::write(int memory_handle, int offset_from_begin, std::string s
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
     if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
-
-    // Segfault
     if (tmp_node->base + offset_from_begin > tmp_node->limit) return -1;
 
     tmp_node->current_write = offset_from_begin;
@@ -241,8 +229,6 @@ int MemoryManager::write(int memory_handle, int offset_from_begining, char ch) {
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
     if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
-
-    // Segfault
     if (tmp_node->base + offset_from_begining > tmp_node->limit) return -1;
 
     tmp_node->current_write = offset_from_begining;
@@ -260,6 +246,7 @@ int MemoryManager::write(int memory_handle, int offset_from_begining, char ch) {
  * Returns -1 if a segfault occurs, 1 otherwise.
  */
 int MemoryManager::write(int memory_handle, int begin, int end, std::string str) {
+
   // Prevent writing to an invalid position
   if (memory_handle <= -1) return -1;
 
@@ -272,8 +259,6 @@ int MemoryManager::write(int memory_handle, int begin, int end, std::string str)
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
     if (tmp_node->handle != memory_handle || tmp_node->owner != pthread_self()) continue;
-
-    // Segfault
     if (tmp_node->base + begin > tmp_node->limit ||
       tmp_node->base + end > tmp_node->limit)
       return -1;
@@ -488,9 +473,7 @@ int MemoryManager::memory_smallest() {
 
   do {
     MEMORY_NODE* tmp_node = tmp->dequeue();
-
     if (tmp_node->status == HOLE)
-      // Finds the smallest block size available
       if (smallest_segment >= tmp_node->limit - tmp_node->base)
         smallest_segment = tmp_node->limit - tmp_node->base;
 
@@ -505,7 +488,6 @@ int MemoryManager::memory_smallest() {
  */
 int MemoryManager::memory_left() {
   Queue< MEMORY_NODE* >* tmp = new Queue< MEMORY_NODE* >(memory_list);
-
   int mem_left_amnt = 0;
 
   do {

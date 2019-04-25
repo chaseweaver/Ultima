@@ -36,7 +36,7 @@ class IPC {
   IPC(MASTER_CONTROL_BLOCK*, int, int);
   ~IPC();
   int message_send(MESSAGE_TYPE*);
-  int message_receive(int, MESSAGE_TYPE*);
+  int message_receive(int, std::string&);
   int message_box_count();
   int message_count();
   int message_count(int);

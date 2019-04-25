@@ -18,9 +18,10 @@ int main(int argc, char** argv) {
 
   // Spawn child workers
   for (int i = 1; i <= 8; i++) {
+    std::string id = std::to_string(i);
     if (argc > 1 && std::string(argv[1]) == "test") {
       if (i >= 1 && i <= 2) {
-        mcb->ui->create_window_lock_spawn(" Mem. Man. #" + std::to_string(i) + ' ',
+        mcb->ui->create_window_lock_spawn(" Mem. Man. #" + id + ' ',
           2,
           0,
           i,
@@ -28,11 +29,11 @@ int main(int argc, char** argv) {
           10,
           3 + ((i - (i <= 4 ? 1 : 5)) * 20),
           (i <= 4 ? 14 : 24));
-        mcb->scheduler->create_new_task("Mem. Man. #" + std::to_string(i),
+        mcb->scheduler->create_new_task("Mem. Man. #" + id,
           unit_test_memory_manager,
           mcb->scheduler->create_arguments(i, 0));
       } else if (i >= 3 && i <= 5) {
-        mcb->ui->create_window_lock_spawn(" UFS Man. #" + std::to_string(i) + ' ',
+        mcb->ui->create_window_lock_spawn(" UFS Man. #" + id + ' ',
           2,
           0,
           i,
@@ -40,11 +41,10 @@ int main(int argc, char** argv) {
           10,
           3 + ((i - (i <= 4 ? 1 : 5)) * 20),
           (i <= 4 ? 14 : 24));
-        mcb->scheduler->create_new_task("UFS Man. #" + std::to_string(i),
-          unit_test_ufs,
-          mcb->scheduler->create_arguments(i, 0));
+        mcb->scheduler->create_new_task(
+          "UFS Man. #" + id, unit_test_ufs, mcb->scheduler->create_arguments(i, 0));
       } else {
-        mcb->ui->create_window_lock_spawn(" IPC Man. #" + std::to_string(i) + ' ',
+        mcb->ui->create_window_lock_spawn(" IPC Man. #" + id + ' ',
           2,
           0,
           i,
@@ -52,12 +52,11 @@ int main(int argc, char** argv) {
           10,
           3 + ((i - (i <= 4 ? 1 : 5)) * 20),
           (i <= 4 ? 14 : 24));
-        mcb->scheduler->create_new_task("IPC Man. #" + std::to_string(i),
-          unit_test_ipc,
-          mcb->scheduler->create_arguments(i, 0));
+        mcb->scheduler->create_new_task(
+          "IPC Man. #" + id, unit_test_ipc, mcb->scheduler->create_arguments(i, 0));
       }
     } else {
-      mcb->ui->create_window_lock_spawn(" Worker #" + std::to_string(i) + ' ',
+      mcb->ui->create_window_lock_spawn(" Worker #" + id + ' ',
         4,
         0,
         i,
@@ -65,9 +64,8 @@ int main(int argc, char** argv) {
         10,
         3 + ((i - (i <= 4 ? 1 : 5)) * 20),
         (i <= 4 ? 14 : 24));
-      mcb->scheduler->create_new_task("Worker #" + std::to_string(i),
-        worker_function,
-        mcb->scheduler->create_arguments(i, 0));
+      mcb->scheduler->create_new_task(
+        "Worker #" + id, worker_function, mcb->scheduler->create_arguments(i, 0));
     }
   }
 
@@ -432,7 +430,7 @@ void* unit_test_ipc(void* arguments) {
       if (counter == tracker) break;
 
       // Send a message to another thread
-      if (counter == tracker / 2) {
+      if (counter == tracker / 4) {
         int thread = 1 + rand() % 8;
 
         std::string wrk_suc = " > Msg sent: Thread #" + std::to_string(args->id) +
@@ -451,7 +449,20 @@ void* unit_test_ipc(void* arguments) {
       }
 
       // Check for new messages
-      // int success = mcb->ipc->
+      if (counter == tracker / 2) {
+        std::string message = "";
+        int success = mcb->ipc->message_receive(args->id, message);
+        if (success == 1) {
+          mcb->ui->write_refresh(LOG_WINDOW,
+            " > Success recieved msg. from Thread #" + std::to_string(args->id));
+          mcb->ui->write_refresh(args->id, " Success recieved msg.\n\n");
+          mcb->ui->write_refresh(args->id, " " + message + "\n\n");
+        } else {
+          mcb->ui->write_refresh(LOG_WINDOW,
+            " > Failed recieved msg. from Thread #" + std::to_string(args->id));
+          mcb->ui->write_refresh(args->id, " Failed recieved msg.\n\n");
+        }
+      }
 
       // Write to the task's window its current itteration
       mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");

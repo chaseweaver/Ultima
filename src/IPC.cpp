@@ -42,11 +42,11 @@ int IPC::message_send(MESSAGE_TYPE* message) {
 }
 
 /*
- * IPC::message_receive(int, MESSAGE_TYPE*)
+ * IPC::message_receive(int, std::string&)
  * Sets a pointer equal to a message if one exists within the message box.
  * Returns -1 if failed, returns 1 if successful.
  */
-int IPC::message_receive(int task_id, MESSAGE_TYPE* message) {
+int IPC::message_receive(int task_id, std::string& message) {
   mcb->ipc_sema->wait();
   std::map< int, Queue< MESSAGE_TYPE* > >::iterator item = message_box.find(task_id);
   if (item != message_box.end()) {
@@ -54,7 +54,7 @@ int IPC::message_receive(int task_id, MESSAGE_TYPE* message) {
       mcb->ipc_sema->signal();
       return -1;
     } else {
-      message = item->second.dequeue();
+      message = item->second.dequeue()->msg;
       mcb->ipc_sema->signal();
       return 1;
     }
@@ -164,8 +164,6 @@ std::string IPC::fetch_message_box_list() {
         pad(destination_task_id_, 8, ' ');
         pad(source_task_id_, 8, ' ');
 
-        // while (tmp_msg_.length() % 32 >= 32)
-
         content += timestamp_ + "| " + message_size_ + "| " + destination_task_id_ +
           "| " + source_task_id_ + "| " + tmp_msg->msg + "\n";
       }
@@ -216,8 +214,6 @@ std::string IPC::fetch_message_box_list(int thread_id) {
         pad(timestamp_, 14, ' ');
         pad(message_size_, 6, ' ');
         pad(source_task_id_, 8, ' ');
-
-        // while (tmp_msg_.length() % 32 >= 32)
 
         content += timestamp_ + "| " + message_size_ + "| " + source_task_id_ + "| " +
           tmp_msg->msg + "\n";

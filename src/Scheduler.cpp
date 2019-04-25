@@ -142,7 +142,6 @@ std::string Scheduler::fetch_log() {
       pad(task_id_, 11, ' ');
 
       content += " " + task_name_ + " | " + task_id_ + " | " + task_state_ + "\n";
-
     } while (!tmp->empty());
   }
 
@@ -260,10 +259,7 @@ TASK_CONTROL_BLOCK* Scheduler::get_task_control_block(int tid) {
   do {
     TASK_CONTROL_BLOCK* tcb;
     tmp->dequeue(tcb);
-
     if (tcb->task_id == tid) return tcb;
-
   } while (!tmp->empty());
-
   return NULL;
 }
