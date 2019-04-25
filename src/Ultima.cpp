@@ -18,15 +18,6 @@ int main(int argc, char** argv) {
 
   // Spawn child workers
   for (int i = 1; i <= 8; i++) {
-    mcb->ui->create_window_lock_spawn(" Worker #" + std::to_string(i) + ' ',
-      4,
-      0,
-      i,
-      19,
-      10,
-      3 + ((i - (i <= 4 ? 1 : 5)) * 20),
-      (i <= 4 ? 14 : 24));
-
     if (argc > 1 && std::string(argv[1]) == "test") {
       if (i >= 1 && i <= 2) {
         mcb->ui->create_window_lock_spawn(" Mem. Man. #" + std::to_string(i) + ' ',
@@ -66,6 +57,14 @@ int main(int argc, char** argv) {
           mcb->scheduler->create_arguments(i, 0));
       }
     } else {
+      mcb->ui->create_window_lock_spawn(" Worker #" + std::to_string(i) + ' ',
+        4,
+        0,
+        i,
+        19,
+        10,
+        3 + ((i - (i <= 4 ? 1 : 5)) * 20),
+        (i <= 4 ? 14 : 24));
       mcb->scheduler->create_new_task("Worker #" + std::to_string(i),
         worker_function,
         mcb->scheduler->create_arguments(i, 0));
@@ -244,7 +243,7 @@ void* unit_test_ufs(void* arguments) {
   std::string wrk_suc_del = " Suc. del. file\n for Thread #" + id + "\n\n";
   std::string wrk_fail_del = " Failed del. file\n for Thread #" + id + "\n\n";
   std::string wrk_perm_suc = " Suc. chng.\n perms.\n for Thread #" + id + "\n\n";
-  std::string wrk_perm_fail = " Fail chng. perms.\n misc file\n\n";
+  std::string wrk_perm_fail = " Fail chng. perm.\n misc file\n\n";
 
   // File name
   std::string name = "Thread #" + id + ".txt";
