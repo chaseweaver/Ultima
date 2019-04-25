@@ -246,7 +246,7 @@ void* unit_test_ufs(void* arguments) {
   // File name
   std::string name = "Thread #" + id + ".txt";
 
-  // Number to itterate to
+  // Number to iterate to
   int tracker = 40 + rand() % 121;
 
   // File handle tracker
@@ -298,7 +298,7 @@ void* unit_test_ufs(void* arguments) {
         mcb->ui->write_refresh(args->id, wrk_perm_suc);
       }
 
-      // Write to the task's window its current itteration
+      // Write to the task's window its current iteration
       mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
       usleep(150000);
     }
@@ -352,7 +352,7 @@ void* unit_test_memory_manager(void* arguments) {
   std::string wrk_suc = " Success filled\n memory Thread #" + id + "\n\n";
   std::string wrk_fail = " Failed to fill\n memory Thread #" + id + "\n\n";
 
-  // Number to itterate to
+  // Number to iterate to
   int tracker = 40 + rand() % 121;
 
   do {
@@ -380,7 +380,7 @@ void* unit_test_memory_manager(void* arguments) {
         }
       }
 
-      // Write to the task's window its current itteration
+      // Write to the task's window its current iteration
       mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
       usleep(150000);
     }
@@ -421,7 +421,7 @@ void* unit_test_ipc(void* arguments) {
   std::string log_fail = " > Failed to send message  Thread #" + id + "\n";
   std::string wrk_fail = " Failed to\n send message\n\n";
 
-  // Number to itterate to
+  // Number to iterate to
   int tracker = 40 + rand() % 121;
 
   do {
@@ -454,17 +454,17 @@ void* unit_test_ipc(void* arguments) {
         int success = mcb->ipc->message_receive(args->id, message);
         if (success == 1) {
           mcb->ui->write_refresh(LOG_WINDOW,
-            " > Success recieved msg. from Thread #" + std::to_string(args->id));
-          mcb->ui->write_refresh(args->id, " Success recieved msg.\n\n");
+            " > Success received msg. from Thread #" + std::to_string(args->id));
+          mcb->ui->write_refresh(args->id, " Success received msg.\n\n");
           mcb->ui->write_refresh(args->id, " " + message + "\n\n");
         } else {
           mcb->ui->write_refresh(LOG_WINDOW,
-            " > Failed recieved msg. from Thread #" + std::to_string(args->id));
-          mcb->ui->write_refresh(args->id, " Failed\n recieved msg.\n\n");
+            " > Failed received msg. from Thread #" + std::to_string(args->id));
+          mcb->ui->write_refresh(args->id, " Failed\n received msg.\n\n");
         }
       }
 
-      // Write to the task's window its current itteration
+      // Write to the task's window its current iteration
       mcb->ui->write_refresh(args->id, " Running #" + std::to_string(++counter) + "\n");
       usleep(150000);
     }
